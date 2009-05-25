@@ -32,3 +32,9 @@ SL: { 'type' : 'data', 'name' : $name, 'data' : $data }
 SL: { 'type' : 'opdone', 'result' : $result } OVER
 
 # in a file upload, data is sent in opparams.
+
+Slaves and Slave Environments
+=============================
+
+pkgspin doesn't need slave environments, but needs some way to reserve slaves
+-- or is that higher-level?
