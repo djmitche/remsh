@@ -25,11 +25,6 @@ class ISlaveCollection(Interface):
         This method must be thread-safe.
         """
 
-    def remove_slave(name):
-        """
-        Remote slave named NAME.  This method must be thread-safe.
-        """
-
 class ISlaveListener(Interface):
     """
     I listen for incoming connections from slaves and instantiate new L{ISlave}
@@ -48,27 +43,35 @@ class ISlave(Interface):
     """
 
     I represent a remote slave, and provide methods to execute operations on
-    those slaves, either synchronously (calling thread blocks until the
-    operation is completed) or asynchronously (invoking a callable when the
-    operation is complete).
+    those slaves.  Note that operations will block the current thread.
 
-    There are actually two potentially blocking operations: first, the slave
+    There are actually two potentially blocking activities: first, the slave
     must be "available" - not executing some other operation.  Operation
-    methods will always block if the slave is not available, so it is up to the
-    caller to ensure only one thread is trying to use a slave at any time.
-
-    Second, the thread may block while the operation is being executed on the
-    remote slave.  If the ``result_cb`` parameter is not None, the operation
-    methods will return immediately, and will invoke ``result_cb`` in another
-    thread when the operation is complete.
-
-    A ``result_cb`` is always called with the value that would otherwise be
-    returned by the method.  In the case that this is a tuple, each tuple
-    element is provided as a distinct argument to ``result_cb``.
-
+    methods will always block until the slave is available.  It is up to the
+    caller to ensure that this does not cause deadlock.  Second, the thread
+    will block while the operation is being executed on the remote slave.
     """
 
-    def set_cwd(new_cwd=None, result_cb=None):
+    def __init__(ampconn, hostname, version):
+        """
+        Create a new slave object, using ``ampconn``.  The hostname and version
+        have already been determined from the registration process.
+        """
+
+    def setup():
+        """
+        A "hook", called after the slave has registered, but before it is given
+        to the L{ISlaveCollection}. This method can do whatever additional
+        setup is required, including executing operations on the slave.  One
+        possibility is to dynamically investigate the capabilities of the slave
+        for later use.  Another is to set up periodic commands, e.g. keepalives
+        or load monitoring.  These should run in a separate thread.
+
+        This method is called in a thread, and can block for as long as
+        desired.  Note that it is called by the L{ISlaveListener}.
+        """
+
+    def set_cwd(new_cwd=None):
         """
         Set the working directory of the slave, returning the new working
         directory or None if the directory does not exist.
@@ -83,7 +86,7 @@ class ISlave(Interface):
 
     # TODO: mkdir, unlink, rmtree, rename, copy(?), upload, download
 
-    def execute(args=[], stdout_cb=None, stderr_cb=None, result_cb=None):
+    def execute(args=[], stdout_cb=None, stderr_cb=None):
         """
 
         Execute 'args' in a forked child.
@@ -99,3 +102,11 @@ class ISlave(Interface):
         # TODO: environment
         # TODO: stdin (streaming)
         # TODO: other params
+
+    def on_disconnect(callable):
+        """
+        Register ``callable`` to be called when this slave disconnects, whether
+        smoothly or in the midst of an operation.  L{ISlaveCollection} objects
+        should use this to mark the slave as no longer available.  ``Callable``
+        is invoked with the L{ISlave} instance as its argument.
+        """
