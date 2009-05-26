@@ -14,10 +14,12 @@
 # You should have received a copy of the GNU General Public License
 # along with Remsh.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import sys
 import socket
 import subprocess
 import select
+
 from remsh import simpleamp
 
 def run(conn):
@@ -30,6 +32,9 @@ def run(conn):
     if not box or box['type'] != 'registered':
         raise RuntimeError("expected a 'registered' box, got %s" % (box,))
 
+    global default_wd
+    default_wd = os.getcwd()
+
     while 1:
         box = conn.read_box()
         if not box:
@@ -38,8 +43,35 @@ def run(conn):
             raise RuntimeError("expected a 'newop' box")
         if box['op'] == 'execute':
             op_execute(conn)
+        elif box['op'] == 'set_cwd':
+            op_set_cwd(conn)
         else:
             raise RuntimeError("unknown op '%s'" % box['op'])
+
+def op_set_cwd(conn):
+    new_cwd = None
+    while 1:
+        box = conn.read_box()
+        if box['type'] == 'startop':
+            break
+        elif box['type'] == 'opparam':
+            if box['param'] == 'cwd':
+                new_cwd = box['value']
+            else:
+                raise RuntimeError("unknown set_cwd opparam '%s'" % box['param'])
+        else:
+            raise RuntimeError("unknown box type '%s'" % box['type'])
+
+    if new_cwd is None:
+        new_cwd = default_wd
+    try:
+        os.chdir(new_cwd)
+        new_cwd = os.getcwd()
+    except OSError:
+        conn.send_box({'type' : 'opdone'})
+        return
+
+    conn.send_box({'type' : 'opdone', 'cwd' : new_cwd})
 
 def op_execute(conn):
     args = []

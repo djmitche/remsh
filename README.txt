@@ -16,22 +16,27 @@ MA: { 'type' : 'registered' }
 
 # TODO: ping pong
 
-# to run a command; commands cannot be pipelined
+# execute
 
 # newop introduces an operation, opparam specifies parameters (which can
 # be repeated), and startop starts it on the slave
-MA: { 'type' : 'newop', 'op' : $op }
-MA: { 'type' : 'opparam', 'param' : $param, 'value' : $value }
+MA: { 'type' : 'newop', 'op' : 'execute' }
+MA: { 'type' : 'opparam', 'param' : 'arg', 'value' : $arg }
 # ...
 MA: { 'type' : 'startop' } OVER
-
 # slave sends any file contents back as they fill buffers
 SL: { 'type' : 'data', 'name' : $name, 'data' : $data }
 # ...
-
 SL: { 'type' : 'opdone', 'result' : $result } OVER
 
-# in a file upload, data is sent in opparams.
+# set_cwd
+
+MA: { 'type' : 'newop', 'op' : 'set_cwd'
+MA: { 'type' : 'opparam', 'param' : 'cwd', 'value' : $new_cwd } # optional
+MA: { 'type' : 'startop' } OVER
+SL: { 'type' : 'opdone', 'cwd' : $new_cwd } OVER
+# opparam missing -> revert to default cwd
+# cwd missing in opdone -> directory not found
 
 Slaves and Slave Environments
 =============================

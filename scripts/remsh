@@ -51,19 +51,26 @@ def main():
     parse_options()
 
     sl = get_slave()
+    cwd = sl.set_cwd(None)
 
     while 1:
         try:
-            cmd = raw_input("%s \x1b[33m$\x1b[0m " % sl.hostname).strip()
+            cmd = raw_input("%s:%s \x1b[33m$\x1b[0m " % (sl.hostname, cwd)).strip()
         except (EOFError, KeyboardInterrupt):
             break
 
-        def stdout_cb(data):
-            sys.stdout.write(data)
-        def stderr_cb(data):
-            # use ANSI color sequences to colorize stderr
-            sys.stderr.write("\x1b[31m" + data + "\x1b[0m")
-        resbox = sl.execute(args=['sh', '-c', cmd], stdout_cb=stdout_cb, stderr_cb=stderr_cb)
-        print "$? =", resbox['result']
+        if cmd.startswith("cd "):
+            new_cwd = cmd[3:]
+            cwd = sl.set_cwd(new_cwd)
+        elif cmd == 'cd':
+            cwd = sl.set_cwd(None)
+        else:
+            def stdout_cb(data):
+                sys.stdout.write(data)
+            def stderr_cb(data):
+                # use ANSI color sequences to colorize stderr
+                sys.stderr.write("\x1b[31m" + data + "\x1b[0m")
+            result = sl.execute(args=['sh', '-c', cmd], stdout_cb=stdout_cb, stderr_cb=stderr_cb)
+            print "$? =", result
 
 main()

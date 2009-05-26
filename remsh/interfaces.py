@@ -79,10 +79,9 @@ class ISlave(Interface):
         If ``new_cwd`` is None, then this method resets the working directory
         to the slave's "default" directory.
 
-        Relative pathnames are allowed.
+        The pathname is treated as a simple bytestring, to be interepreted
+        by the slave.
         """
-        # TODO: encoding
-        # TODO: os-dependent separators
 
     # TODO: mkdir, unlink, rmtree, rename, copy(?), upload, download
 

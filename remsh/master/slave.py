@@ -109,8 +109,16 @@ class Slave(object):
     def setup(self):
         pass # does nothing by default
 
-    def set_cwd(self, new_wd):
-        pass
+    def set_cwd(self, new_cwd):
+        command = [ {'type' : 'newop', 'op' : 'set_cwd'}, ]
+        if new_cwd is not None:
+            command.append({'type' : 'opparam', 'param' : 'cwd', 'value' : new_cwd})
+        command.append({'type' : 'startop'})
+
+        resbox = self.do_transaction(command, None)
+
+        if 'cwd' not in resbox: return None
+        return resbox['cwd']
 
     def execute(self, args=[], stdout_cb=None, stderr_cb=None):
         def data_cb(box):
@@ -118,7 +126,7 @@ class Slave(object):
             elif box['name'] == 'stderr': stderr_cb(box['data'])
             else: raise RuntimeError("unknown stream '%s'" % box['name'])
 
-        return self.do_transaction([
+        resbox = self.do_transaction([
             {'type' : 'newop', 'op' : 'execute'},
         ] + [
             {'type' : 'opparam', 'param' : 'arg', 'value' : arg}
@@ -126,6 +134,8 @@ class Slave(object):
         ] + [
             {'type' : 'startop'}
         ], data_cb)
+
+        return resbox['result']
 
     def on_disconnect(self, callable):
         # TODO: synchronization so that this gets called immediately if

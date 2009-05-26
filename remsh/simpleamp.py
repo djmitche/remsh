@@ -108,8 +108,10 @@ class Connection(object):
         for k,v in box.iteritems():
             k = str(k)
             if len(k) > 255: raise Error("key length must be <= 255")
+            if len(k) < 1: raise Error("key length must be nonzero")
             self._full_write(struct.pack("!H", len(k)) +  k)
             v = str(v)
             if len(v) > 65535: raise Error("value length must be <= 65535")
+            if len(v) < 1: raise Error("value length must be nonzero")
             self._full_write(struct.pack("!H", len(v)) +  str(v))
         self._full_write(struct.pack("!H", 0))
