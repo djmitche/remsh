@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Remsh.  If not, see <http://www.gnu.org/licenses/>.
 
-from distutils.core import setup
+from setuptools import setup
 
 setup(name='Remsh',
       version='1.0',
@@ -29,5 +29,8 @@ setup(name='Remsh',
         'remsh.master.slavelistener',
         'remsh.slave',
       ],
-      scripts=['remsh-slave']
-     )
+      scripts=[
+        'scripts/remsh-slave',
+        'scripts/remsh',
+      ]
+      )

@@ -54,9 +54,6 @@ class Slave(object):
     implements(interfaces.ISlave)
 
     def __init__(self, ampconn, hostname, version):
-        threading.Thread.__init__(self)
-        self.setDaemon = True
-
         self.ampconn = ampconn
         self.hostname = hostname
         self.version = version
@@ -116,7 +113,19 @@ class Slave(object):
         pass
 
     def execute(self, args=[], stdout_cb=None, stderr_cb=None):
-        pass
+        def data_cb(box):
+            if box['name'] == 'stdout': stdout_cb(box['data'])
+            elif box['name'] == 'stderr': stderr_cb(box['data'])
+            else: raise RuntimeError("unknown stream '%s'" % box['name'])
+
+        return self.do_transaction([
+            {'type' : 'newop', 'op' : 'execute'},
+        ] + [
+            {'type' : 'opparam', 'param' : 'arg', 'value' : arg}
+            for arg in args
+        ] + [
+            {'type' : 'startop'}
+        ], data_cb)
 
     def on_disconnect(self, callable):
         # TODO: synchronization so that this gets called immediately if

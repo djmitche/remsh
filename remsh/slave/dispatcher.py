@@ -22,24 +22,26 @@ from remsh import simpleamp
 
 def run(conn):
     """
-    Run a slave on ``conn``, a L{simpleamp.Connection} object.  This function never returns.
+    Run a slave on ``conn``, a L{simpleamp.Connection} object.  This function
+    returns if the remote end disconnects cleanly.
     """
     conn.send_box({'type' : 'register', 'hostname' : socket.gethostname(), 'version' : 1})
     box = conn.read_box()
     if not box or box['type'] != 'registered':
-        raise RuntimeError("expected a 'registered' box")
+        raise RuntimeError("expected a 'registered' box, got %s" % (box,))
 
     while 1:
-        print "waiting for command"
         box = conn.read_box()
-        if not box or box['type'] != 'newop':
+        if not box:
+            return
+        if box['type'] != 'newop':
             raise RuntimeError("expected a 'newop' box")
-        if box['op'] == 'shell':
-            op_shell(conn)
+        if box['op'] == 'execute':
+            op_execute(conn)
         else:
             raise RuntimeError("unknown op '%s'" % box['op'])
 
-def op_shell(conn):
+def op_execute(conn):
     args = []
     while 1:
         box = conn.read_box()
@@ -49,7 +51,7 @@ def op_shell(conn):
             if box['param'] == 'arg':
                 args.append(box['value'])
             else:
-                raise RuntimeError("unknown shell opparam '%s'" % box['param'])
+                raise RuntimeError("unknown execute opparam '%s'" % box['param'])
         else:
             raise RuntimeError("unknown box type '%s'" % box['type'])
 
@@ -64,10 +66,7 @@ def op_shell(conn):
     timeout = 0.01
     readfiles = [proc.stdout, proc.stderr]
     while 1:
-        print "timeout", timeout
-        print "poll", proc.poll()
         rlist, wlist, xlist = select.select(readfiles, [], [], timeout)
-        print "select returned", rlist, wlist, xlist
         timeout = min(1.0, timeout * 2)
         def send(file, name):
             data = file.read(65535)

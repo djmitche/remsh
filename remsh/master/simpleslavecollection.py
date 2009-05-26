@@ -31,7 +31,7 @@ class SimpleSlaveCollection(object):
 
     """
 
-    implements(interfaces.ISlaveConnection)
+    implements(interfaces.ISlaveCollection)
 
     def __init__(self):
         self.cond = threading.Condition()

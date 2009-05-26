@@ -1,0 +1,47 @@
+#! /usr/bin/python
+# This file is part of Remsh.
+#
+# Remsh is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Remsh is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Remsh.  If not, see <http://www.gnu.org/licenses/>.
+
+import sys
+import time
+import socket
+
+try:
+    import readline
+except:
+    pass
+
+from remsh.master.slavelistener import local
+from remsh.master import simpleslavecollection
+
+def main():
+    slave_collection=simpleslavecollection.SimpleSlaveCollection()
+    listener = local.LocalSlaveListener(slave_collection=slave_collection)
+    sl = listener.start_slave(".")
+
+    while 1:
+        try:
+            cmd = raw_input("$ ").strip()
+        except (EOFError, KeyboardInterrupt):
+            break
+
+        def stdout_cb(data):
+            sys.stdout.write(data)
+        def stderr_cb(data):
+            sys.stderr.write(data)
+        resbox = sl.execute(args=['sh', '-c', cmd], stdout_cb=stdout_cb, stderr_cb=stderr_cb)
+        print "$? =", resbox['result']
+
+main()
