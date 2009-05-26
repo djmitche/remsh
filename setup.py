@@ -23,6 +23,11 @@ setup(name='Remsh',
       author_email='dustin@zmanda.com',
       install_requires=['zope.interface'],
       #url='http://www.python.org/sigs/distutils-sig/',
-      packages=['remsh'],
+      packages=[
+        'remsh',
+        'remsh.master',
+        'remsh.master.slavelistener',
+        'remsh.slave',
+      ],
       scripts=['remsh-slave']
      )

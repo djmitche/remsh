@@ -27,7 +27,7 @@ from zope.interface import implements
 
 from remsh import interfaces
 from remsh import simpleamp
-from remsh import slave
+from remsh.master import slave
 
 class SlaveListener(threading.Thread):
     """
