@@ -22,7 +22,7 @@ setup(name='Remsh',
       author='Dustin J. Mitchell',
       author_email='dustin@zmanda.com',
       install_requires=['zope.interface'],
-      #url='http://www.python.org/sigs/distutils-sig/',
+      url='http://github.com/djmitche/remsh',
       packages=[
         'remsh',
         'remsh.master',
