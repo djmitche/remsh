@@ -18,9 +18,10 @@ from distutils.core import setup
 
 setup(name='Remsh',
       version='1.0',
-      description='Remote Shell Utility',
+      description='Parallel remote shell operations in simple Python',
       author='Dustin J. Mitchell',
       author_email='dustin@zmanda.com',
+      install_requires=['zope.interface'],
       #url='http://www.python.org/sigs/distutils-sig/',
       packages=['remsh'],
       scripts=['remsh-slave']
