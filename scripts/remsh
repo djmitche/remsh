@@ -33,14 +33,15 @@ def main():
 
     while 1:
         try:
-            cmd = raw_input("$ ").strip()
+            cmd = raw_input("\x1b[33m$\x1b[0m ").strip()
         except (EOFError, KeyboardInterrupt):
             break
 
         def stdout_cb(data):
             sys.stdout.write(data)
         def stderr_cb(data):
-            sys.stderr.write(data)
+            # use ANSI color sequences to colorize stderr
+            sys.stderr.write("\x1b[31m" + data + "\x1b[0m")
         resbox = sl.execute(args=['sh', '-c', cmd], stdout_cb=stdout_cb, stderr_cb=stderr_cb)
         print "$? =", resbox['result']
 
