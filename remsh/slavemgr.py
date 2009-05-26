@@ -1,8 +1,30 @@
+# This file is part of Remsh.
+#
+# Remsh is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Remsh is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Remsh.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+
+Implements the master side of the remsh protocol:
+
+"""
+
 import sys
 import time
 import socket
 import threading
-import simpleamp
+
+from remsh import simpleamp
 
 class ProtocolError(Exception):
     pass
@@ -85,10 +107,20 @@ class SlaveProtocol(threading.Thread):
             self.cond.release()
         
 class SlaveManager(threading.Thread):
-    def __init__(self):
+    """
+
+    Manage a collection of slaves.  This should be defined by an interface,
+    with some mixins to listen on different protocols (socket, ssl + cert
+    checking, etc.), authentication, and methods to call on slaves connecting
+    and disconnecting.
+
+    """
+    def __init__(self, port):
         threading.Thread.__init__(self)
         self.setDaemon(1)
         self.setName("SlaveManager")
+
+        self.port = port
 
         self.slaves_cond = threading.Condition()
         self.slaves = {}
@@ -107,13 +139,11 @@ class SlaveManager(threading.Thread):
 
     def run(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.bind(("", 52422))
+        s.bind(("", self.port))
         s.listen(1)
-        print "listening for incoming AMP connections on port:", s.getsockname()[1]
 
         while 1:
             sl_sock, sl_addr = s.accept()
-            print "connection from", sl_addr
             conn = simpleamp.Connection(sl_sock)
 
             SlaveProtocol(conn, self).start()

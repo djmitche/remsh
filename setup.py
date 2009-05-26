@@ -1,4 +1,4 @@
-#! python
+#!/usr/bin/env python
 # This file is part of Remsh.
 #
 # Remsh is free software: you can redistribute it and/or modify
@@ -14,17 +14,14 @@
 # You should have received a copy of the GNU General Public License
 # along with Remsh.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
-import time
-import socket
-from remsh import slavemgr
+from distutils.core import setup
 
-
-def main():
-    slavemgr.SlaveManager(52444).start()
-
-    import time
-    while 1:
-        time.sleep(5)
-
-main()
+setup(name='Remsh',
+      version='1.0',
+      description='Remote Shell Utility',
+      author='Dustin J. Mitchell',
+      author_email='dustin@zmanda.com',
+      #url='http://www.python.org/sigs/distutils-sig/',
+      packages=['remsh'],
+      scripts=['remsh-slave']
+     )
