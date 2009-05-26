@@ -25,9 +25,6 @@ import os
 import socket
 import traceback
 
-from zope.interface import implements
-
-from remsh import interfaces
 from remsh import simpleamp
 from remsh.master.slavelistener import base
 from remsh.slave import dispatcher

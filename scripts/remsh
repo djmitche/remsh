@@ -15,25 +15,46 @@
 # along with Remsh.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-import time
-import socket
+import optparse
 
-try:
-    import readline
-except:
-    pass
+try: import readline
+except: pass
 
-from remsh.master.slavelistener import local
 from remsh.master import simpleslavecollection
 
-def main():
+def parse_options():
+    parser = optparse.OptionParser()
+    parser.add_option("-l", "--listen", dest="listen_port",
+        help="Listen on TCP port PORT", metavar="PORT",
+        type="int", default=None)
+
+    global options, args
+    (options, args) = parser.parse_args()
+
+def get_slave():
     slave_collection=simpleslavecollection.SimpleSlaveCollection()
-    listener = local.LocalSlaveListener(slave_collection=slave_collection)
-    sl = listener.start_slave(".")
+    if options.listen_port:
+        from remsh.master.slavelistener import tcp
+        print "waiting for slave to connect on port %d" % options.listen_port
+
+        listener = tcp.TcpSlaveListener(slave_collection=slave_collection,
+            port=options.listen_port)
+        listener.start()
+    else:
+        from remsh.master.slavelistener import local
+        print "starting a local slave"
+        listener = local.LocalSlaveListener(slave_collection=slave_collection)
+        listener.start_slave(".")
+    return slave_collection.get_slave(block=True, filter=lambda sl : True)
+
+def main():
+    parse_options()
+
+    sl = get_slave()
 
     while 1:
         try:
-            cmd = raw_input("\x1b[33m$\x1b[0m ").strip()
+            cmd = raw_input("%s \x1b[33m$\x1b[0m " % sl.hostname).strip()
         except (EOFError, KeyboardInterrupt):
             break
 

@@ -18,6 +18,7 @@ Contains the L{SlaveCollection} base class.
 """
 
 import threading
+import random
 
 from zope.interface import implements
 
@@ -59,5 +60,23 @@ class SimpleSlaveCollection(object):
         block until a matching slave appears.  If more than one matching slave
         is available, the slaves are sorted with ``cmp`` and the first slave
         returned.  If ``cmp`` is none, the slaves are shuffled randomly.
+
+        No kind of slave reservation is performed.  This is a "simple" collection.
         """
-        # TODO
+        self.cond.acquire()
+        try:
+            while 1:
+                acceptable = [ slave for slave in self.slaves.itervalues() if filter(slave) ]
+                if len(acceptable) == 0:
+                    if block:
+                        self.cond.wait()
+                        continue
+                    else:
+                        return None
+                if cmp:
+                    acceptable.sort(cmp)
+                else:
+                    random.shuffle(acceptable)
+                return acceptable[0]
+        finally:
+            self.cond.release()

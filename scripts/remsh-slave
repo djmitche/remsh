@@ -28,6 +28,6 @@ def main():
     s.connect((master, port))
 
     conn = simpleamp.Connection(s)
-    run(conn)
+    dispatcher.run(conn)
 
 main()
