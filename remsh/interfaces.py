@@ -82,12 +82,18 @@ class ISlave(Interface):
         The pathname is treated as a simple bytestring, to be interepreted
         by the slave.
         """
+        # TODO: raise exception on failure
 
-    # TODO: mkdir, unlink, rmtree, rename, copy(?), upload, download
+    def mkdir(dir):
+        """
+        Calls the equivalent of ``os.makedirs`` on the remote system.  Raises an
+        OSError in the event of an error on the client side.
+        """
+
+    # TODO: unlink, rmtree, rename, copy(?), upload, download, chown, chgrp, chmod
 
     def execute(args=[], stdout_cb=None, stderr_cb=None):
         """
-
         Execute 'args' in a forked child.
 
         If ``stdout_cb`` is not None, it is called for each "chunk" of the
@@ -95,7 +101,6 @@ class ISlave(Interface):
         standard error.
 
         Returns the exit status of the command.
-
         """
         # TODO: interpet exit status on slave side
         # TODO: environment

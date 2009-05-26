@@ -45,6 +45,8 @@ def run(conn):
             op_execute(conn)
         elif box['op'] == 'set_cwd':
             op_set_cwd(conn)
+        elif box['op'] == 'mkdir':
+            op_mkdir(conn)
         else:
             raise RuntimeError("unknown op '%s'" % box['op'])
 
@@ -72,6 +74,30 @@ def op_set_cwd(conn):
         return
 
     conn.send_box({'type' : 'opdone', 'cwd' : new_cwd})
+
+def op_mkdir(conn):
+    dir = None
+    while 1:
+        box = conn.read_box()
+        if box['type'] == 'startop':
+            break
+        elif box['type'] == 'opparam':
+            if box['param'] == 'dir':
+                dir = box['value']
+            else:
+                raise RuntimeError("unknown mkdir opparam '%s'" % box['param'])
+        else:
+            raise RuntimeError("unknown box type '%s'" % box['type'])
+
+    if dir is None:
+        raise RuntimeError("no 'dir' specified to mkdir op")
+    try:
+        os.makedirs(dir)
+    except OSError, e:
+        conn.send_box({'type' : 'opdone', 'error' : e.strerror})
+        return
+
+    conn.send_box({'type' : 'opdone', 'result' : 'OK'})
 
 def op_execute(conn):
     args = []

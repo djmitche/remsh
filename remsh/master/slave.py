@@ -120,6 +120,17 @@ class Slave(object):
         if 'cwd' not in resbox: return None
         return resbox['cwd']
 
+    def mkdir(self, dir):
+        command = [
+            {'type' : 'newop', 'op' : 'mkdir'},
+            {'type' : 'opparam', 'param' : 'dir', 'value' : dir},
+            {'type' : 'startop'},
+        ]
+        resbox = self.do_transaction(command, None)
+
+        if 'error' in resbox: raise OSError(resbox['error'])
+        return
+
     def execute(self, args=[], stdout_cb=None, stderr_cb=None):
         def data_cb(box):
             if box['name'] == 'stdout': stdout_cb(box['data'])

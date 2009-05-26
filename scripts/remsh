@@ -59,7 +59,10 @@ def main():
         except (EOFError, KeyboardInterrupt):
             break
 
-        if cmd.startswith("cd "):
+        if cmd.startswith("mkdir "):
+            dir = cmd[6:]
+            sl.mkdir(dir)
+        elif cmd.startswith("cd "):
             new_cwd = cmd[3:]
             cwd = sl.set_cwd(new_cwd)
         elif cmd == 'cd':
