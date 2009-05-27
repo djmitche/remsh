@@ -87,7 +87,8 @@ class ISlave(Interface):
     def mkdir(dir):
         """
         Calls the equivalent of ``os.makedirs`` on the remote system.  Raises an
-        OSError in the event of an error on the client side.
+        OSError in the event of an error on the client side.  It is an error to
+        create a directory that already exists.
         """
 
     # TODO: unlink, rmtree, rename, copy(?), upload, download, chown, chgrp, chmod

@@ -22,6 +22,7 @@ of local slaves.  Mostly useful for testing.
 
 import sys
 import os
+import signal
 import socket
 import traceback
 
@@ -42,6 +43,8 @@ class LocalSlaveListener(base.SlaveListener):
         base.SlaveListener.__init__(self,
             slave_collection=slave_collection, slave_class=slave_class)
 
+        self._slave_pids = {} # keyed by id(slave)
+
     def start_slave(self, basedir):
         """
         Start a new slave with the given basedir.
@@ -55,6 +58,9 @@ class LocalSlaveListener(base.SlaveListener):
             kidsock.close()
             conn = simpleamp.Connection(parsock)
             slave = self.handle_new_connection(conn)
+
+            self._slave_pids[id(slave)] = pid
+
             return slave
 
         # child
@@ -70,3 +76,8 @@ class LocalSlaveListener(base.SlaveListener):
             traceback.print_exc()
         finally:
             os._exit(1)
+
+    def kill_slave(self, slave):
+        if id(slave) in self._slave_pids:
+            pid = self._slave_pids[id(slave)]
+            os.kill(pid, signal.SIGKILL)
