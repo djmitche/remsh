@@ -32,12 +32,32 @@ class OpsTestMixin(object):
     def setUp(self):
         self.basedir = os.path.abspath("optests")
 
+        self.clear_files()
         self.setUpFilesystem()
         self.slave = self.setUpSlave() # supplied by mixin
 
     def tearDown(self):
         self.tearDownSlave(self.slave) # supplied by mixin
         self.tearDownFilesystem()
+
+    ## data callbacks
+
+    def clear_files(self):
+        self.files = {}
+
+    def get_file(self, file, join_chunks=True):
+        if join_chunks:
+            return ''.join(self.files[file])
+        else:
+            return self.files[file]
+
+    def make_callback(self, file):
+        self.files[file] = []
+        def cb(data):
+            self.files[file].append(data)
+        return cb
+
+    ## tests
 
     def test_mkdir(self):
         newdir = os.path.join(self.basedir, "newdir")
@@ -83,6 +103,28 @@ class OpsTestMixin(object):
         # invalid dir gives "None"
         newcwd = self.slave.set_cwd("z")
         self.assertEqual(newcwd, None)
+
+    def test_execute(self):
+        # note that all of these tests are just using 'sh'
+
+        # simple shell exit status
+        result = self.slave.execute(args=['sh', '-c', 'exit 0'])
+        self.assertEqual(result, 0)
+        result = self.slave.execute(args=['sh', '-c', 'exit 10'])
+        self.assertEqual(result, 10)
+
+        def execute_output(command_str, stdout='', stderr=''):
+            self.clear_files()
+            result = self.slave.execute(args=['sh', '-c', command_str],
+                stderr_cb=self.make_callback('stderr'),
+                stdout_cb=self.make_callback('stdout'))
+            self.assertEqual(result, 0, "result from '%s'" % command_str)
+            self.assertEqual(self.get_file('stdout').strip(), stdout, "stdout from '%s'" % command_str)
+            self.assertEqual(self.get_file('stderr').strip(), stderr, "stderr from '%s'" % command_str)
+
+        execute_output('echo "hello"', stdout="hello")
+        execute_output('echo "oh noes" >&2', stderr="oh noes")
+        execute_output('echo "yes"; echo "no" >&2', stdout="yes", stderr="no")
 
 class LocalSlaveMixin(object):
     def setUpSlave(self):
