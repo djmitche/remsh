@@ -32,5 +32,6 @@ setup(name='Remsh',
       scripts=[
         'scripts/remsh-slave',
         'scripts/remsh',
-      ]
+      ],
+      test_suite='test',
       )
