@@ -1,5 +1,5 @@
 *.pyc
 MANIFEST
-build/
-dist/
+build
+dist
 Remsh.egg-info
