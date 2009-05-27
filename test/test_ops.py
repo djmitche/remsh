@@ -21,8 +21,6 @@ from remsh.master.slavelistener import local
 from remsh.master import simpleslavecollection
 
 class OpsTestMixin(object):
-    basedir = "optests"
-
     def setUpFilesystem(self):
         self.tearDownFilesystem()
         os.makedirs(self.basedir)
@@ -32,6 +30,8 @@ class OpsTestMixin(object):
             shutil.rmtree(self.basedir)
 
     def setUp(self):
+        self.basedir = os.path.abspath("optests")
+
         self.setUpFilesystem()
         self.slave = self.setUpSlave() # supplied by mixin
 
@@ -53,6 +53,36 @@ class OpsTestMixin(object):
         self.assert_(not os.path.exists(nested))
         self.slave.mkdir("nested/bested/quested")
         self.assert_(os.path.exists(nested))
+
+    def test_set_cwd(self):
+        # set up directories first
+        for subdir in [ 'a/1', 'a/2/b' ]:
+            os.makedirs(os.path.join(self.basedir,
+                *tuple(subdir.split('/'))))
+
+        # set_cwd(None) should revert to basedir
+        newcwd = self.slave.set_cwd(None)
+        self.assertEqual(newcwd, self.basedir)
+
+        # relative to base dir
+        newcwd = self.slave.set_cwd("a")
+        self.assertEqual(newcwd, os.path.join(self.basedir, "a"))
+
+        # relative to previous dir
+        newcwd = self.slave.set_cwd("1")
+        self.assertEqual(newcwd, os.path.join(self.basedir, "a", "1"))
+
+        # '..' works
+        newcwd = self.slave.set_cwd("../2/b")
+        self.assertEqual(newcwd, os.path.join(self.basedir, "a", "2", "b"))
+
+        # revert to basedir again
+        newcwd = self.slave.set_cwd(None)
+        self.assertEqual(newcwd, self.basedir)
+
+        # invalid dir gives "None"
+        newcwd = self.slave.set_cwd("z")
+        self.assertEqual(newcwd, None)
 
 class LocalSlaveMixin(object):
     def setUpSlave(self):
