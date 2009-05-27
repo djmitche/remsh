@@ -146,7 +146,7 @@ class Slave(object):
             {'type' : 'startop'}
         ], data_cb)
 
-        return resbox['result']
+        return int(resbox['result'])
 
     def on_disconnect(self, callable):
         # TODO: synchronization so that this gets called immediately if
