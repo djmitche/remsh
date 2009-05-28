@@ -1,17 +1,17 @@
-# This file is part of Remsh.
+# This file is part of remsh.
 #
-# Remsh is free software: you can redistribute it and/or modify
+# remsh is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# Remsh is distributed in the hope that it will be useful,
+# remsh is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with Remsh.  If not, see <http://www.gnu.org/licenses/>.
+# along with remsh.  If not, see <http://www.gnu.org/licenses/>.
 
 """
 Implements a SlaveListener that listens on a TCP port for incoming connections.
