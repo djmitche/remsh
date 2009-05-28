@@ -55,8 +55,8 @@ def set_cwd(conn):
     try:
         os.chdir(new_cwd)
         new_cwd = os.getcwd()
-    except OSError:
-        conn.send_box({'type' : 'opdone'})
+    except OSError, e:
+        conn.send_box({'type' : 'opdone', 'error' : e.strerror})
         return
 
     conn.send_box({'type' : 'opdone', 'cwd' : new_cwd})

@@ -117,8 +117,10 @@ class Slave(object):
 
         resbox = self.do_transaction(command, None)
 
-        if 'cwd' not in resbox: return None
-        return resbox['cwd']
+        if 'cwd' in resbox:
+            return resbox['cwd']
+        else:
+            raise OSError(resbox['error'])
 
     def mkdir(self, dir):
         command = [

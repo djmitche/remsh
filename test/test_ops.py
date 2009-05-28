@@ -100,9 +100,8 @@ class OpsTestMixin(object):
         newcwd = self.slave.set_cwd(None)
         self.assertEqual(newcwd, self.basedir)
 
-        # invalid dir gives "None"
-        newcwd = self.slave.set_cwd("z")
-        self.assertEqual(newcwd, None)
+        # invalid dir raises OSError
+        self.assertRaises(OSError, lambda : self.slave.set_cwd("z"))
 
     def test_execute(self):
         # note that all of these tests are just using 'sh'

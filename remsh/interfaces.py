@@ -74,7 +74,8 @@ class ISlave(Interface):
     def set_cwd(new_cwd=None):
         """
         Set the working directory of the slave, returning the new working
-        directory or None if the directory does not exist.
+        directory.  Raises an OSError if the designated directory is not found.
+        Note that this may occur if the default directory is deleted.
 
         If ``new_cwd`` is None, then this method resets the working directory
         to the slave's "default" directory.
@@ -82,7 +83,6 @@ class ISlave(Interface):
         The pathname is treated as a simple bytestring, to be interepreted
         by the slave.
         """
-        # TODO: raise exception on failure
 
     def mkdir(dir):
         """
