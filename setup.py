@@ -29,9 +29,10 @@ setup(name='remsh',
         'remsh.master.slavelistener',
         'remsh.slave',
       ],
-      scripts=[
-        'scripts/remsh-slave',
-        'scripts/remsh',
-      ],
+      entry_points = {
+        'console_scripts': [
+          'remsh-slave = remsh.slave.scripts.remsh_slave:main',
+        ],
+      },
       test_suite='test',
       )
