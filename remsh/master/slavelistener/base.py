@@ -19,15 +19,11 @@ Implements a base class for SlaveListeners
 
 import sys
 
-from zope.interface import implements
-
 from remsh import interfaces
 from remsh import simpleamp
 from remsh.master import slave
 
 class SlaveListener(object):
-    implements(interfaces.ISlaveListener)
-
     def __init__(self, slave_collection=None, slave_class=None):
         if slave_class:
             self.slave_class = slave_class

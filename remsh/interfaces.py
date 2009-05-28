@@ -25,20 +25,6 @@ class ISlaveCollection(Interface):
         This method must be thread-safe.
         """
 
-class ISlaveListener(Interface):
-    """
-    I listen for incoming connections from slaves and instantiate new L{ISlave}
-    providers, then hand them off to an L{ISlaveCollection}.
-    """
-
-    slave_collection = Attribute("""
-    L{ISlaveCollection} object to which new objects are added.
-    """)
-
-    slave_class = Attribute("""
-    Class to instantiate for each new slave.  This class must implement L{ISlave}.
-    """)
-
 class ISlave(Interface):
     """
 
@@ -68,8 +54,9 @@ class ISlave(Interface):
         or load monitoring.  These should run in a separate thread.
 
         This method is called in a thread, and can block for as long as
-        desired.  Note that it is called by the L{ISlaveListener}.
-        """
+        desired.  Note that it is called by the slave listener's
+        :meth:`~remsh.master.slavelistener.base.SlaveListener.handle_new_connection`
+        method.  """
 
     def set_cwd(new_cwd=None):
         """
