@@ -14,9 +14,7 @@
 # along with remsh.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-
 Implements a base class for SlaveListeners
-
 """
 
 import sys
@@ -28,17 +26,9 @@ from remsh import simpleamp
 from remsh.master import slave
 
 class SlaveListener(object):
-    """
-    Base class for L{ISlaveListener}, supplying useful methods for child
-    classes.
-    """
     implements(interfaces.ISlaveListener)
 
     def __init__(self, slave_collection=None, slave_class=None):
-        """
-        Initialize a new ``SlaveListener``.  ``Slave_class`` can be None for the
-        default, but ``slave_collection`` must be specified.
-        """
         if slave_class:
             self.slave_class = slave_class
         else:
@@ -48,14 +38,6 @@ class SlaveListener(object):
         self.slave_collection = slave_collection
 
     def handle_new_connection(self, conn):
-        """
-        Handle a new connection.  This should be called in a thread, and may
-        block while performing operations on the slave.  This method handles the
-        'register' and 'registered' boxes, then creates the slave instance using
-        ``self.slave_class``, calls its ``setup`` method, and then adds it to
-        ``self.slave_collection``.  Returns the new slave object.
-        """
-
         # TODO: how are exceptions handled?
 
         # read the registration box

@@ -26,16 +26,7 @@ from remsh import simpleamp
 from remsh.master.slavelistener import base
 
 class TcpSlaveListener(base.SlaveListener):
-    """
-    A listener in the truest sense: listens on a TCP port and spawns new slave
-    objects for any incoming connection.
-    """
-
     def __init__(self, slave_class=None, slave_collection=None, port=None):
-        """
-        Create a new listener withthe given slave class and collection, and listening
-        on the given port.
-        """
         base.SlaveListener.__init__(self,
             slave_collection=slave_collection, slave_class=slave_class)
         self.port = port
@@ -44,9 +35,6 @@ class TcpSlaveListener(base.SlaveListener):
         self.thread.setName("TcpSlaveListener on port %d" % port)
 
     def start(self):
-        """
-        Start listening for incoming connections.
-        """
         self.thread.start()
 
     def _run(self):

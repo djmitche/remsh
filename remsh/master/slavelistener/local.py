@@ -31,24 +31,13 @@ from remsh.master.slavelistener import base
 from remsh.slave import dispatcher
 
 class LocalSlaveListener(base.SlaveListener):
-    """
-    A "local" L{ISlaveListener}.  This runs slaves in forked processes, using
-    a socketpair for communication instead of sockets.
-    """
-
     def __init__(self, slave_class=None, slave_collection=None):
-        """
-        Create a new listener with the given slave class.
-        """
         base.SlaveListener.__init__(self,
             slave_collection=slave_collection, slave_class=slave_class)
 
         self._slave_pids = {} # keyed by id(slave)
 
     def start_slave(self, basedir):
-        """
-        Start a new slave with the given basedir.
-        """
         assert(os.path.exists(basedir))
         parsock, kidsock = socket.socketpair()
 
