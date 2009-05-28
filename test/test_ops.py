@@ -18,7 +18,7 @@ import shutil
 import os
 
 from remsh.master.slavelistener import local
-from remsh.master import simpleslavecollection
+from remsh.master.slavecollection import simple
 
 class OpsTestMixin(object):
     def setUpFilesystem(self):
@@ -138,7 +138,7 @@ class OpsTestMixin(object):
 
 class LocalSlaveMixin(object):
     def setUpSlave(self):
-        self.slave_collection=simpleslavecollection.SimpleSlaveCollection()
+        self.slave_collection=simple.SimpleSlaveCollection()
 
         self.listener = local.LocalSlaveListener(slave_collection=self.slave_collection)
         self.listener.start_slave(self.basedir)

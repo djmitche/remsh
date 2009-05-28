@@ -15,16 +15,6 @@
 
 from zope.interface import Interface, Attribute
 
-class ISlaveCollection(Interface):
-    """
-    I collect Slave objects.
-    """
-    def add_slave(name, slave, listener):
-        """
-        Add SLAVE, named NAME and connected via LISTENER, to the collection.
-        This method must be thread-safe.
-        """
-
 class ISlave(Interface):
     """
 

@@ -20,20 +20,7 @@ Contains the L{SlaveCollection} base class.
 import threading
 import random
 
-from zope.interface import implements
-
-from remsh import interfaces
-
 class SimpleSlaveCollection(object):
-    """
-
-    A simple L{ISlaveCollection} implementation which just keeps a dictionary of
-    slaves, protected by a condition variable.
-
-    """
-
-    implements(interfaces.ISlaveCollection)
-
     def __init__(self):
         self.cond = threading.Condition()
         self.slaves = {}
@@ -54,15 +41,6 @@ class SimpleSlaveCollection(object):
         self.cond.release()
 
     def get_slave(self, block, filter, cmp=None):
-        """
-        Get a slave matching ``filter`` (a callable).  If ``block`` is false
-        and no connected slaves match the filter, then return None.  Otherwise,
-        block until a matching slave appears.  If more than one matching slave
-        is available, the slaves are sorted with ``cmp`` and the first slave
-        returned.  If ``cmp`` is none, the slaves are shuffled randomly.
-
-        No kind of slave reservation is performed.  This is a "simple" collection.
-        """
         self.cond.acquire()
         try:
             while 1:

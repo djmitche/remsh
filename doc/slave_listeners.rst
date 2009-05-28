@@ -1,3 +1,5 @@
+.. _slave_listeners:
+
 ***************
 Slave Listeners
 ***************
