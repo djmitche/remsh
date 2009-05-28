@@ -91,7 +91,13 @@ class ISlave(Interface):
         create a directory that already exists.
         """
 
-    # TODO: unlink, rmtree, rename, copy(?), upload, download, chown, chgrp, chmod
+    def unlink(file):
+        """
+        Deletes the given file, raising an OSError in the even of an error.  it is
+        an error to delete a file that does not exist.
+        """
+
+    # TODO: rmtree, rename, exists/stat, copy(?), upload, download, chown, chgrp, chmod
 
     def execute(args=[], stdout_cb=None, stderr_cb=None):
         """

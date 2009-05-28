@@ -133,6 +133,17 @@ class Slave(object):
         if 'error' in resbox: raise OSError(resbox['error'])
         return
 
+    def unlink(self, file):
+        command = [
+            {'type' : 'newop', 'op' : 'unlink'},
+            {'type' : 'opparam', 'param' : 'file', 'value' : file},
+            {'type' : 'startop'},
+        ]
+        resbox = self.do_transaction(command, None)
+
+        if 'error' in resbox: raise OSError(resbox['error'])
+        return
+
     def execute(self, args=[], stdout_cb=None, stderr_cb=None):
         def data_cb(box):
             if box['name'] == 'stdout': stdout_cb(box['data'])

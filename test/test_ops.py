@@ -103,6 +103,17 @@ class OpsTestMixin(object):
         # invalid dir raises OSError
         self.assertRaises(OSError, lambda : self.slave.set_cwd("z"))
 
+    def test_unlink(self):
+        # prep
+        exists = os.path.join(self.basedir, "exists")
+        missing = os.path.join(self.basedir, "missing")
+        open(exists, "w")
+
+        self.slave.unlink("exists")
+        self.assert_(not os.path.exists(exists))
+
+        self.assertRaises(OSError, lambda : self.slave.unlink(missing))
+
     def test_execute(self):
         # note that all of these tests are just using 'sh'
 

@@ -87,6 +87,31 @@ def mkdir(conn):
     conn.send_box({'type' : 'opdone', 'result' : 'OK'})
 
 @op
+def unlink(conn):
+    file = None
+    while 1:
+        box = conn.read_box()
+        if box['type'] == 'startop':
+            break
+        elif box['type'] == 'opparam':
+            if box['param'] == 'file':
+                file = box['value']
+            else:
+                raise RuntimeError("unknown unlink opparam '%s'" % box['param'])
+        else:
+            raise RuntimeError("unknown box type '%s'" % box['type'])
+
+    if file is None:
+        raise RuntimeError("no 'file' specified to unlink op")
+    try:
+        os.unlink(file)
+    except OSError, e:
+        conn.send_box({'type' : 'opdone', 'error' : e.strerror})
+        return
+
+    conn.send_box({'type' : 'opdone', 'result' : 'OK'})
+
+@op
 def execute(conn):
     args = []
     while 1:
