@@ -71,7 +71,7 @@ class Slave(object):
     def setup(self):
         pass # does nothing by default
 
-    def set_cwd(self, new_cwd):
+    def set_cwd(self, new_cwd=None):
         command = [ {'type' : 'newop', 'op' : 'set_cwd'}, ]
         if new_cwd is not None:
             command.append({'type' : 'opparam', 'param' : 'cwd', 'value' : new_cwd})

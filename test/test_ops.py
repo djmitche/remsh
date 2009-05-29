@@ -80,8 +80,8 @@ class OpsTestMixin(object):
             os.makedirs(os.path.join(self.basedir,
                 *tuple(subdir.split('/'))))
 
-        # set_cwd(None) should revert to basedir
-        newcwd = self.slave.set_cwd(None)
+        # set_cwd() should revert to basedir
+        newcwd = self.slave.set_cwd()
         self.assertEqual(newcwd, self.basedir)
 
         # relative to base dir
