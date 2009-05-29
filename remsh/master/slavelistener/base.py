@@ -19,7 +19,6 @@ Implements a base class for SlaveListeners
 
 import sys
 
-from remsh import interfaces
 from remsh import simpleamp
 from remsh.master import slave
 

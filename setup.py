@@ -21,7 +21,6 @@ setup(name='remsh',
       description='Parallel remote shell operations in simple Python',
       author='Dustin J. Mitchell',
       author_email='dustin@zmanda.com',
-      install_requires=['zope.interface'],
       url='http://github.com/djmitche/remsh',
       packages=[
         'remsh',

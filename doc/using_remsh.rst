@@ -11,3 +11,4 @@ addition of new slaves managed by a slave listener.
 
    slave_listeners
    slave_collections
+   slaves
