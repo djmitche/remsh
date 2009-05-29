@@ -17,7 +17,7 @@
 from setuptools import setup
 
 setup(name='remsh',
-      version='0.5', # 1.0 will be when it's got all of the ops implemented!
+      version=open("VERSION").read().strip(),
       description='Parallel remote shell operations in simple Python',
       author='Dustin J. Mitchell',
       author_email='dustin@zmanda.com',

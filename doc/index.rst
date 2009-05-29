@@ -3,8 +3,7 @@ remsh
 
 Remsh implements parallel remote shell operations, using simple, pure Python.
 It is intended as a library for use by applications that need to perform shell
-commands and other operations on remote systems.  By itself, it is not that
-interested.
+commands and other operations on remote systems.  
 
 Table of Contents:
 

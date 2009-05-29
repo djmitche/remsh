@@ -51,7 +51,7 @@ copyright = u'2009-%s, Dustin J. Mitchell <dustin@zmanda.com>' % time.strftime('
 # built documents.
 #
 # The short X.Y version.
-version = '0.5'
+version = open("../VERSION").read().strip()
 # The full version, including alpha/beta/rc tags.
 release = version
 
