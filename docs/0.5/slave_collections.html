@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Slave Collections &mdash; remsh v0.5 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.5',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="remsh v0.5 documentation" href="index.html" />
+    <link rel="up" title="Using Remsh" href="using_remsh.html" />
+    <link rel="next" title="Slaves" href="slaves.html" />
+    <link rel="prev" title="Slave Listeners" href="slave_listeners.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="slaves.html" title="Slaves"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="slave_listeners.html" title="Slave Listeners"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">remsh v0.5 documentation</a> &raquo;</li>
+          <li><a href="using_remsh.html" accesskey="U">Using Remsh</a> &raquo;</li> 
+      </ul>
+    </div>  
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  
+  <div class="section" id="id1">
+<span id="slave-collections"></span><h1>Slave Collections<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<p>A slave collection manages the set of available slaves on the master.  Slaves may
+be added by any number of slave listeners (see <a class="reference" href="slave_listeners.html#slave-listeners"><em>Slave Listeners</em></a>).</p>
+<div class="section" id="simple-slave-collection">
+<h2>Simple Slave Collection<a class="headerlink" href="#simple-slave-collection" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="remsh.master.slavecollection.simple.SimpleSlaveCollection">
+<!--[remsh.master.slavecollection.simple.SimpleSlaveCollection]-->class <tt class="descclassname">remsh.master.slavecollection.simple.</tt><tt class="descname">SimpleSlaveCollection</tt><a class="headerlink" href="#remsh.master.slavecollection.simple.SimpleSlaveCollection" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is a simple slave collection implementation which just keeps a
+thread-safe dictionary of slaves.  It does not support any kind of
+&#8220;reservation&#8221; of slaves.</p>
+<dl class="method">
+<dt id="remsh.master.slavecollection.simple.SimpleSlaveCollection.add_slave">
+<!--[remsh.master.slavecollection.simple.SimpleSlaveCollection.add_slave]--><tt class="descname">add_slave</tt><big>(</big><em>slave</em>, <em>listener</em><big>)</big><a class="headerlink" href="#remsh.master.slavecollection.simple.SimpleSlaveCollection.add_slave" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><em>slave</em> &#8211; slave object to add to the collection</li>
+<li><em>listener</em> &#8211; the slave listener object that connected this slave</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Add the given slave to the collection.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="remsh.master.slavecollection.simple.SimpleSlaveCollection.get_slave">
+<!--[remsh.master.slavecollection.simple.SimpleSlaveCollection.get_slave]--><tt class="descname">get_slave</tt><big>(</big><em>block</em>, <em>filter</em><span class="optional">[</span>, <em>cmp</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#remsh.master.slavecollection.simple.SimpleSlaveCollection.get_slave" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><em>block</em> &#8211; should this call block if no suitable slave is available?</li>
+<li><em>filter</em> &#8211; callable to identify suitable slaves</li>
+<li><em>cmp</em> &#8211; comparison function to sort suitable slaves</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Get a slave matching <cite>filter</cite>.  If <cite>block</cite> is false and no connected
+slaves match the filter, then return <cite>None</cite>.  Otherwise, block until a
+matching slave appears.  If more than one matching slave is available,
+the slaves are sorted with <cite>cmp</cite> and the first slave returned.  If
+<cite>cmp</cite> is none, the slaves are shuffled randomly.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="index.html">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference" href="">Slave Collections</a><ul>
+<li><a class="reference" href="#simple-slave-collection">Simple Slave Collection</a></li>
+</ul>
+</li>
+</ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="slave_listeners.html" title="previous chapter">Slave Listeners</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="slaves.html" title="next chapter">Slaves</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/slave_collections.txt">Show Source</a></li>
+            </ul>
+          <h3>Quick search</h3>
+            <form class="search" action="search.html" method="get">
+              <input type="text" name="q" size="18" /> <input type="submit" value="Go" />
+              <input type="hidden" name="check_keywords" value="yes" />
+              <input type="hidden" name="area" value="default" />
+            </form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="slaves.html" title="Slaves"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="slave_listeners.html" title="Slave Listeners"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">remsh v0.5 documentation</a> &raquo;</li>
+          <li><a href="using_remsh.html" accesskey="U">Using Remsh</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2009-2009, Dustin J. Mitchell &lt;dustin@zmanda.com&gt;.
+      Last updated on May 29, 2009.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.5.2.
+    </div>
+  </body>
+</html>

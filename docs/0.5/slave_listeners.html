@@ -1,0 +1,252 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Slave Listeners &mdash; remsh v0.5 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.5',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="remsh v0.5 documentation" href="index.html" />
+    <link rel="up" title="Using Remsh" href="using_remsh.html" />
+    <link rel="next" title="Slave Collections" href="slave_collections.html" />
+    <link rel="prev" title="Using Remsh" href="using_remsh.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="slave_collections.html" title="Slave Collections"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="using_remsh.html" title="Using Remsh"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">remsh v0.5 documentation</a> &raquo;</li>
+          <li><a href="using_remsh.html" accesskey="U">Using Remsh</a> &raquo;</li> 
+      </ul>
+    </div>  
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  
+  <div class="section" id="id1">
+<span id="slave-listeners"></span><h1>Slave Listeners<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<p>Slave listeners manage the connection of slaves to the master.  In most cases
+the slaves connect to the master, rather than the reverse. This is done as a
+security measure: otherwise, any bug in remsh&#8217;s authentication would be
+equivalent to a wide-open back door!</p>
+<p>Several listener implementations are available, and a master can use any
+combination of implementations.</p>
+<p>Each slave listener class is implemented in its own module, and the modules
+should ordinarily be imported directly, e.g.,</p>
+<div class="highlight-python"><pre>from remsh.master.slavelistener import tcp
+# ...
+listener = tcp.TcpSlaveListener(..)</pre>
+</div>
+<div class="section" id="base-class">
+<h2>Base Class<a class="headerlink" href="#base-class" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="remsh.master.slavelistener.base.SlaveListener">
+<!--[remsh.master.slavelistener.base.SlaveListener]-->class <tt class="descclassname">remsh.master.slavelistener.base.</tt><tt class="descname">SlaveListener</tt><big>(</big><em>slave_class=class</em>, <em>slave_collection=collection</em><big>)</big><a class="headerlink" href="#remsh.master.slavelistener.base.SlaveListener" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><em>slave_class</em> &#8211; class to instantiate for new slaves (defaults to <a title="remsh.master.slave.Slave" class="reference" href="slaves.html#remsh.master.slave.Slave"><tt class="xref docutils literal"><span class="pre">Slave</span></tt></a>)</li>
+<li><em>slave_collection</em> &#8211; slave collection object to which new slaves should be added (see below)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>This is the abstract base class for slave listeners.  All slave listener
+subclasses take the named parameters <tt class="docutils literal"><span class="pre">slave_class</span></tt> and
+<tt class="docutils literal"><span class="pre">slave_collection</span></tt>.</p>
+<dl class="attribute">
+<dt id="remsh.master.slavelistener.base.SlaveListener.slave_class">
+<!--[remsh.master.slavelistener.base.SlaveListener.slave_class]--><tt class="descname">slave_class</tt><a class="headerlink" href="#remsh.master.slavelistener.base.SlaveListener.slave_class" title="Permalink to this definition">¶</a></dt>
+<dd>The slave class given to the constructor</dd></dl>
+
+<dl class="attribute">
+<dt id="remsh.master.slavelistener.base.SlaveListener.slave_collection">
+<!--[remsh.master.slavelistener.base.SlaveListener.slave_collection]--><tt class="descname">slave_collection</tt><a class="headerlink" href="#remsh.master.slavelistener.base.SlaveListener.slave_collection" title="Permalink to this definition">¶</a></dt>
+<dd>The slave collection given to the constructor</dd></dl>
+
+<dl class="method">
+<dt id="remsh.master.slavelistener.base.SlaveListener.handle_new_connection">
+<!--[remsh.master.slavelistener.base.SlaveListener.handle_new_connection]--><tt class="descname">handle_new_connection</tt><big>(</big><em>conn</em><big>)</big><a class="headerlink" href="#remsh.master.slavelistener.base.SlaveListener.handle_new_connection" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><em>conn</em> &#8211; <tt class="xref docutils literal"><span class="pre">Connection</span></tt> object</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the new slave instance</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>This method is a utility for subclasses, and handles the common work
+for a connection to a new slave.  The method should be called in a
+thread, as it will block while performing operations on the slave.  It
+handles the registration phase of the protocol, then creates a new
+instance of <tt class="xref docutils literal"><span class="pre">slave_class</span></tt>, calls its
+<a title="remsh.master.slave.Slave.setup" class="reference" href="slaves.html#remsh.master.slave.Slave.setup"><tt class="xref docutils literal"><span class="pre">setup()</span></tt></a> method, and then adds it to
+<tt class="xref docutils literal"><span class="pre">slave_collection</span></tt>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="tcpslavelistener">
+<h2>TcpSlaveListener<a class="headerlink" href="#tcpslavelistener" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="remsh.master.slavelistener.tcp.TcpSlaveListener">
+<!--[remsh.master.slavelistener.tcp.TcpSlaveListener]-->class <tt class="descclassname">remsh.master.slavelistener.tcp.</tt><tt class="descname">TcpSlaveListener</tt><big>(</big><em>port=port</em>, <em>...</em><big>)</big><a class="headerlink" href="#remsh.master.slavelistener.tcp.TcpSlaveListener" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><em>port</em> &#8211; TCP port on which to listen for incoming connections</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>This is is a simple TCP-based listener that accepts incoming connections
+and spawns a new slave for each connection.</p>
+<dl class="method">
+<dt id="remsh.master.slavelistener.tcp.TcpSlaveListener.start">
+<!--[remsh.master.slavelistener.tcp.TcpSlaveListener.start]--><tt class="descname">start</tt><big>(</big><big>)</big><a class="headerlink" href="#remsh.master.slavelistener.tcp.TcpSlaveListener.start" title="Permalink to this definition">¶</a></dt>
+<dd>Start the listening thread.  The port is not opened until this method is called.</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="localslavelistener">
+<h2>LocalSlaveListener<a class="headerlink" href="#localslavelistener" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="remsh.master.slavelistener.local.LocalSlaveListener">
+<!--[remsh.master.slavelistener.local.LocalSlaveListener]-->class <tt class="descclassname">remsh.master.slavelistener.local.</tt><tt class="descname">LocalSlaveListener</tt><big>(</big><em>...</em><big>)</big><a class="headerlink" href="#remsh.master.slavelistener.local.LocalSlaveListener" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class spawns slaves locally.  It is useful for testing and for executing operations
+locally, on the master.</p>
+<dl class="method">
+<dt id="remsh.master.slavelistener.local.LocalSlaveListener.start_slave">
+<!--[remsh.master.slavelistener.local.LocalSlaveListener.start_slave]--><tt class="descname">start_slave</tt><big>(</big><em>basedir</em><big>)</big><a class="headerlink" href="#remsh.master.slavelistener.local.LocalSlaveListener.start_slave" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><em>basedir</em> &#8211; base directory for the new slave</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the slave object</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Start a new slave.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="remsh.master.slavelistener.local.LocalSlaveListener.kill_slave">
+<!--[remsh.master.slavelistener.local.LocalSlaveListener.kill_slave]--><tt class="descname">kill_slave</tt><big>(</big><em>slave</em><big>)</big><a class="headerlink" href="#remsh.master.slavelistener.local.LocalSlaveListener.kill_slave" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><em>slave</em> &#8211; the slave object to kill</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Kill the slave, interrupting any operation it is performing.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="index.html">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference" href="">Slave Listeners</a><ul>
+<li><a class="reference" href="#base-class">Base Class</a></li>
+<li><a class="reference" href="#tcpslavelistener">TcpSlaveListener</a></li>
+<li><a class="reference" href="#localslavelistener">LocalSlaveListener</a></li>
+</ul>
+</li>
+</ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="using_remsh.html" title="previous chapter">Using Remsh</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="slave_collections.html" title="next chapter">Slave Collections</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/slave_listeners.txt">Show Source</a></li>
+            </ul>
+          <h3>Quick search</h3>
+            <form class="search" action="search.html" method="get">
+              <input type="text" name="q" size="18" /> <input type="submit" value="Go" />
+              <input type="hidden" name="check_keywords" value="yes" />
+              <input type="hidden" name="area" value="default" />
+            </form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="slave_collections.html" title="Slave Collections"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="using_remsh.html" title="Using Remsh"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">remsh v0.5 documentation</a> &raquo;</li>
+          <li><a href="using_remsh.html" accesskey="U">Using Remsh</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2009-2009, Dustin J. Mitchell &lt;dustin@zmanda.com&gt;.
+      Last updated on May 29, 2009.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.5.2.
+    </div>
+  </body>
+</html>

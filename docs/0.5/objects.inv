@@ -1,0 +1,22 @@
+# Sphinx inventory version 1
+# Project: remsh
+# Version: 0.5
+remsh.master.slavelistener.local.LocalSlaveListener class slave_listeners.html
+remsh.master.slavecollection.simple.SimpleSlaveCollection class slave_collections.html
+remsh.master.slave.Slave.mkdir method slaves.html
+remsh.master.slavelistener.base.SlaveListener class slave_listeners.html
+remsh.master.slavelistener.local.LocalSlaveListener.start_slave method slave_listeners.html
+remsh.master.slave.Slave.unlink method slaves.html
+remsh.master.slave.Slave.on_disconnect method slaves.html
+remsh.master.slavelistener.base.SlaveListener.slave_class attribute slave_listeners.html
+remsh.master.slave.Slave.execute method slaves.html
+remsh.master.slavecollection.simple.SimpleSlaveCollection.get_slave method slave_collections.html
+remsh.master.slavelistener.base.SlaveListener.slave_collection attribute slave_listeners.html
+remsh.master.slavelistener.base.SlaveListener.handle_new_connection method slave_listeners.html
+remsh.master.slave.Slave.set_cwd method slaves.html
+remsh.master.slavelistener.tcp.TcpSlaveListener.start method slave_listeners.html
+remsh.master.slave.Slave class slaves.html
+remsh.master.slave.Slave.setup method slaves.html
+remsh.master.slavecollection.simple.SimpleSlaveCollection.add_slave method slave_collections.html
+remsh.master.slavelistener.tcp.TcpSlaveListener class slave_listeners.html
+remsh.master.slavelistener.local.LocalSlaveListener.kill_slave method slave_listeners.html
