@@ -92,8 +92,9 @@ class Connection(object):
             if not vlen: raise EOFError("EOF in the middle of a box")
             vlen = struct.unpack("!H", vlen)[0]
 
-            value = self._full_read(vlen)
-            if not value: raise EOFError("EOF in the middle of a box")
+            if vlen:
+                value = self._full_read(vlen)
+                if not value: raise EOFError("EOF in the middle of a box")
 
             box[key] = value
 
@@ -112,6 +113,5 @@ class Connection(object):
             self._full_write(struct.pack("!H", len(k)) +  k)
             v = str(v)
             if len(v) > 65535: raise Error("value length must be <= 65535")
-            if len(v) < 1: raise Error("value length must be nonzero")
             self._full_write(struct.pack("!H", len(v)) +  str(v))
         self._full_write(struct.pack("!H", 0))
