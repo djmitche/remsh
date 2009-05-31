@@ -22,7 +22,7 @@ import os
 import socket
 import threading
 
-from remsh import simpleamp
+from remsh.amp import wire
 from remsh.master.slavelistener import base
 
 class TcpSlaveListener(base.SlaveListener):
@@ -47,7 +47,7 @@ class TcpSlaveListener(base.SlaveListener):
 
             # set up the slave in a thread, since it may block
             def setup_slave():
-                conn = simpleamp.Connection(slavesock)
+                conn = wire.SimpleWire(slavesock)
                 self.handle_new_connection(conn)
             slavethread = threading.Thread(target=setup_slave)
             slavethread.start()

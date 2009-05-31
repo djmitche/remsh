@@ -26,7 +26,7 @@ import signal
 import socket
 import traceback
 
-from remsh import simpleamp
+from remsh.amp import wire
 from remsh.master.slavelistener import base
 from remsh.slave import dispatcher
 
@@ -45,7 +45,7 @@ class LocalSlaveListener(base.SlaveListener):
         if pid != 0:
             # parent
             kidsock.close()
-            conn = simpleamp.Connection(parsock)
+            conn = wire.SimpleWire(parsock)
             slave = self.handle_new_connection(conn)
 
             self._slave_pids[id(slave)] = pid
@@ -56,7 +56,7 @@ class LocalSlaveListener(base.SlaveListener):
         try:
             parsock.close()
             os.chdir(basedir)
-            conn = simpleamp.Connection(kidsock)
+            conn = wire.SimpleWire(kidsock)
             dispatcher.run(conn)
         except KeyboardInterrupt:
             pass

@@ -17,7 +17,7 @@
 import sys
 import socket
 
-from remsh import simpleamp
+from remsh.amp import wire
 from remsh.slave import dispatcher
     
 def main():
@@ -27,7 +27,7 @@ def main():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((master, port))
 
-    conn = simpleamp.Connection(s)
+    conn = wire.SimpleWire(s)
     dispatcher.run(conn)
 
 main()

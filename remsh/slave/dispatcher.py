@@ -20,27 +20,27 @@ import socket
 import subprocess
 import select
 
-from remsh import simpleamp
+from remsh.amp import wire
 from remsh.slave import ops
 
-def run(conn):
+def run(wire):
     """
-    Run a slave on ``conn``, a L{simpleamp.Connection} object.  This function
-    returns if the remote end disconnects cleanly.
+    Run a slave on ``wire``, a L{wire.SimpleWire} object.  This function
+    returns if the remote end diswireects cleanly.
     """
-    conn.send_box({'type' : 'register', 'hostname' : socket.gethostname(), 'version' : 1})
-    box = conn.read_box()
+    wire.send_box({'type' : 'register', 'hostname' : socket.gethostname(), 'version' : 1})
+    box = wire.read_box()
     if not box or box['type'] != 'registered':
         raise RuntimeError("expected a 'registered' box, got %s" % (box,))
 
     ops.default_wd = os.getcwd()
 
     while 1:
-        box = conn.read_box()
+        box = wire.read_box()
         if not box:
             return
         if box['type'] != 'newop':
             raise RuntimeError("expected a 'newop' box")
         if box['op'] not in ops.functions:
             raise RuntimeError("unknown op '%s'" % box['op'])
-        ops.functions[box['op']](conn)
+        ops.functions[box['op']](wire)
