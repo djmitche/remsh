@@ -77,6 +77,12 @@ class SimpleWire(object):
             box, self.read_buf = self._bytes_to_box(self.read_buf + newd)
             if box: return box
 
+    def stop(self):
+        """
+        Stop using the socket.
+        """
+        pass # no need to do anything in the SimpleWire
+
     ##
     # Utility functions
 
@@ -153,6 +159,7 @@ class ResilientWire(SimpleWire):
     def __init__(self, socket):
         SimpleWire.__init__(self, socket)
         self.incoming_boxes = Queue.Queue()
+        self.done = False
 
         self.thread = threading.Thread(target=self._read_loop)
         self.thread.setDaemon(1)
@@ -180,17 +187,25 @@ class ResilientWire(SimpleWire):
             self.incoming_boxes.put(None)
         return box
 
+    def stop(self):
+        """
+        Stop using the socket.  This may block for a while.
+        """
+        self.done = True
+        self.thread.join()
+
     ##
     # Internal implementation
 
     def _read_loop(self):
         self.socket.setblocking(0)
 
-        while 1:
+        while not self.done:
             rd = [ self.socket ]
             wr = []
             ex = [ self.socket ]
-            rd, wr, ex = select.select(rd, wr, ex, 0.0)
+            try: rd, wr, ex = select.select(rd, wr, ex, 0.5) # timeout is for stop()
+            except: print rd, wr, ex; raise
 
             if rd or ex:
                 if not self.handle_read(): break
