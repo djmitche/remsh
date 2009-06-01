@@ -23,13 +23,13 @@ import struct
 import types
 import select
 import threading
+import Queue
 
 class Error(Exception):
     """Protocol error"""
 
 class SimpleWire(object):
     """
-
     An implementation of the AMP wire protocol, presenting a synchronous
     interface to the main thread.  This interface assumes that the
     higher-level protocol is strictly turn-based, so that each side
@@ -37,7 +37,6 @@ class SimpleWire(object):
 
     This is the simpler implementation of this protocol, operating
     entirely synchronously.
-
     """
 
     def __init__(self, socket):
@@ -141,87 +140,70 @@ class SimpleWire(object):
 
         return (box, remaining)
 
-class Simple(object):
+class ResilientWire(SimpleWire):
+    """
+    A refinement of SimpleWire to support resiliency to lost
+    connections.  This has the same API as SimpleWire, but handles
+    network communication in a thread to enable bidirectional
+    communication.
     """
 
-    An AMP box is represented as a Python dictionary with string keys
-    and values.  Key length must be less than 256 bytes, while values
-    must be less than 65536 (2**16) bytes.
+    # TODO: how should this signal a socket failure for re-establishment?
 
-    """
+    def __init__(self, socket):
+        SimpleWire.__init__(self, socket)
+        self.incoming_boxes = Queue.Queue()
+
+        self.thread = threading.Thread(target=self._read_loop)
+        self.thread.setDaemon(1)
+        self.thread.start()
+
+        self.write_lock = threading.Lock()
 
     ##
     # Public methods
 
-    def _loop(self):
+    def send_box(self, box):
+	# for sending, this class simply locks the socket for writing
+	# and sends the box using the parent class's method
+        # TODO: does this unnecessarily block the thread?
+        self.write_lock.acquire()
+        try:
+            SimpleWire.send_box(self, box)
+            # TODO: error handling
+        finally:
+            self.write_lock.release()
+
+    def read_box(self):
+        box = self.incoming_boxes.get()
+        if box is None: # semaphore for EOF; put it back for the next read
+            self.incoming_boxes.put(None)
+        return box
+
+    ##
+    # Internal implementation
+
+    def _read_loop(self):
         self.socket.setblocking(0)
 
+        while 1:
+            rd = [ self.socket ]
+            wr = []
+            ex = [ self.socket ]
+            rd, wr, ex = select.select(rd, wr, ex, 0.0)
+
+            if rd or ex:
+                if not self.handle_read(): break
+
     def handle_read(self):
-        try:
-            data = self.socket.recv(1024*16)
-        except socket.error:
-            self.handle_error()
-            return
-        self.buffer = self.buffer + data
+        data = self.socket.recv(1024*16)
+        if not data:
+            self.incoming_boxes.put(None) # EOF indication
+            return False
 
-        self._process_buffer()
-
-    def _process_buffer(self):
-        """
-        Extract any key/value pairs in self.buffer into self.incoming_box, calling
-        handle_box with any completed boxes.
-        """
-        if self.incoming_box is None:
-            self.incoming_box = {}
-        buf = self.buffer
-
-        try:
-            while 1:
-                if len(buf) < 2: break # not enough data yet
-
-                klen = struct.unpack("!H", buf[:2])[0]
-                if klen == 0:
-                    buf = buf[2:]
-                    # push out a box
-                    try:
-                        self.handle_box(self.incoming_box)
-                    finally:
-                        self.incoming_box = {}
-                    continue
-
-                if klen > 255: raise Error("key length %d is > 255" % klen)
-                if len(buf) < 2 + klen + 2: break # not enough data yet
-                voffset = 2 + klen
-                vlen = struct.unpack("!H", buf[voffset:voffset+2])[0]
-
-                if len(buf) < 2 + klen + 2 + vlen: break # not enough data yet
-
-                # we have a full key/value pair, so add it to self.incoming_box
-                key, value, buf = buf[2:2+klen], buf[voffset+2:voffset+2+vlen], buf[voffset+2+vlen:]
-                if key in self.incoming_box:
-                    raise Error("duplicate key %r in incoming box" % key)
-                self.incoming_box[key] = value
-        finally:
-            self.buffer = buf
-
-    def handle_box(self, box):
-        """
-        Override this in subclasses to handle incoming boxes.
-        """
-
-    def send_box(self, box):
-        """
-	Send the given box.  As a convenience, values are stringified if
-	necessary.  If the box is invalid (a key or value is too large),
-	raises Error immediately.  Other socket-related exceptions may
-	also occur.
-        """
-        for k,v in box.iteritems():
-            k = str(k)
-            if len(k) > 255: raise Error("key length must be <= 255")
-            if len(k) < 1: raise Error("key length must be nonzero")
-            self.send(struct.pack("!H", len(k)) +  k)
-            v = str(v)
-            if len(v) > 65535: raise Error("value length must be <= 65535")
-            self.send(struct.pack("!H", len(v)) +  str(v))
-        self.send(struct.pack("!H", 0))
+        self.read_buf += data
+        while 1:
+            box, self.read_buf = self._bytes_to_box(self.read_buf)
+            if not box: break
+            self.incoming_boxes.put(box)
+        return True

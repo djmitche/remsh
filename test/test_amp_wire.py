@@ -61,10 +61,8 @@ class TestWireReadingMixin(object):
             """\x00\x05hello\x00\x05world\x00\x00""",
         ]
         wire = self.read_with_wire(data)
-        self.assertEqual(wire.read_box(), { 'hello' : 'world' },
-            "got a simple box")
-        self.assertEqual(wire.read_box(), None,
-            "followed by EOF")
+        self.failUnlessEqual(wire.read_box(), { 'hello' : 'world' })
+        self.failUnlessEqual(wire.read_box(), None)
 
     def test_box_in_pieces(self):
         # short timeouts here are to defeat nagle's algorithm, which would like
@@ -75,32 +73,25 @@ class TestWireReadingMixin(object):
             """\x05world\x00\x00"""
         ]
         wire = self.read_with_wire(data)
-        self.assertEqual(wire.read_box(), { 'hello' : 'world' },
-            "got a simple box")
-        self.assertEqual(wire.read_box(), None,
-            "followed by EOF")
+        self.failUnlessEqual(wire.read_box(), { 'hello' : 'world' })
+        self.failUnlessEqual(wire.read_box(), None)
 
     def test_multiple_keys(self):
         data = [
             """\x00\x06orange\x00\x05fruit\x00\x06carrot\x00\x09vegetable\x00\x00""",
         ]
         wire = self.read_with_wire(data)
-        self.assertEqual(wire.read_box(), { 'orange' : 'fruit', 'carrot' : 'vegetable' },
-            "got a box with multiple keys")
-        self.assertEqual(wire.read_box(), None,
-            "followed by EOF")
+        self.failUnlessEqual(wire.read_box(), { 'orange' : 'fruit', 'carrot' : 'vegetable' })
+        self.failUnlessEqual(wire.read_box(), None)
 
     def test_multiple_boxes(self):
         data = [
             """\x00\x06orange\x00\x05fruit\x00\x00\x00\x06carrot\x00\x09vegetable\x00\x00""",
         ]
         wire = self.read_with_wire(data)
-        self.assertEqual(wire.read_box(), { 'orange' : 'fruit' },
-            "got first box")
-        self.assertEqual(wire.read_box(), { 'carrot' : 'vegetable' },
-            "got second box")
-        self.assertEqual(wire.read_box(), None,
-            "followed by EOF")
+        self.failUnlessEqual(wire.read_box(), { 'orange' : 'fruit' })
+        self.failUnlessEqual(wire.read_box(), { 'carrot' : 'vegetable' })
+        self.failUnlessEqual(wire.read_box(), None)
 
     def test_multiple_boxes_in_pieces(self):
         data = [
@@ -113,15 +104,15 @@ class TestWireReadingMixin(object):
             """grain\x00\x00""",
         ]
         wire = self.read_with_wire(data)
-        self.assertEqual(wire.read_box(), { 'orange' : 'fruit', 'carrot' : 'vegetable' },
-            "got first box")
-        self.assertEqual(wire.read_box(), { 'barley' : 'grain' },
-            "got second box")
-        self.assertEqual(wire.read_box(), None,
-            "followed by EOF")
+        self.failUnlessEqual(wire.read_box(), { 'orange' : 'fruit', 'carrot' : 'vegetable' })
+        self.failUnlessEqual(wire.read_box(), { 'barley' : 'grain' })
+        self.failUnlessEqual(wire.read_box(), None)
 
 class TestSimpleWireReading(TestWireReadingMixin, unittest.TestCase):
     wire_class = wire.SimpleWire
+
+class TestResilientWireReading(TestWireReadingMixin, unittest.TestCase):
+    wire_class = wire.ResilientWire
 
 if __name__ == '__main__':
     unittest.main()
