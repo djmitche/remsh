@@ -26,7 +26,7 @@ from remsh.slave import ops
 def run(wire):
     """
     Run a slave on ``wire``, a L{wire.SimpleWire} object.  This function
-    returns if the remote end diswireects cleanly.
+    returns if the remote end disconnects cleanly.
     """
     wire.send_box({'type' : 'register', 'hostname' : socket.gethostname(), 'version' : 1})
     box = wire.read_box()
