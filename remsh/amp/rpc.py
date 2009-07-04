@@ -13,11 +13,6 @@
 # You should have received a copy of the GNU General Public License
 # along with remsh.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-Implements the RPC portions of the AMP protocol, layered atop the wire
-protocol.
-"""
-
 from remsh.amp import wire
 
 Error = wire.Error
@@ -26,12 +21,6 @@ class RemoteError(Exception):
     """An error sent directly from the remote system"""
 
 class RPC(object):
-    """
-    An implementation of the AMP RPC protocol, suitable for subclassing
-    to add remotely-executable methods.  Note that this class assumes that
-    the user knows when to expect an incoming RPC request.
-    """
-
     def __init__(self, wire):
         self.wire = wire
         self.counter = 1
@@ -40,26 +29,12 @@ class RPC(object):
     # Public interface
 
     def call_remote(self, method, **kwargs):
-        """
-	Call the named method on the remote system, passing **kwargs as
-	parameters in the request box.  Returns the response box, with
-	any control key stripped.
-
-	Raises Error for protocol errors or socket.error for network
-	errors or RemoteError for remote errors.
-        """
         return self._call_remote(method, True, kwargs)
 
     def call_remote_no_answer(self, method, **kwargs):
-        """
-        Just like call_remote, but do not wait for an answer.
-        """
         return self._call_remote(method, False, kwargs)
 
     def handle_call(self):
-        """
-        Handle exactly one RPC invocation from the remote system.
-        """
         reqbox = self.wire.read_box()
         if '_ask' not in reqbox:
             raise Error("request box does not have an _ask key")

@@ -13,6 +13,7 @@ Table of Contents:
    introduction
    running_a_slave
    using_remsh
+   developer
 
 To Do:
 * protocol

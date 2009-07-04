@@ -14,9 +14,7 @@
 # along with remsh.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-This is a very simple, asyncore-based implementation of the AMP wire
-protocol.  See
-http://twistedmatrix.com/documents/8.1.0/api/twisted.protocols.amp.html.
+see doc/developer/amp.rst
 """
 
 import struct
@@ -29,16 +27,6 @@ class Error(Exception):
     """Protocol error"""
 
 class SimpleWire(object):
-    """
-    An implementation of the AMP wire protocol, presenting a synchronous
-    interface to the main thread.  This interface assumes that the
-    higher-level protocol is strictly turn-based, so that each side
-    always knows which side will send the next box.
-
-    This is the simpler implementation of this protocol, operating
-    entirely synchronously.
-    """
-
     def __init__(self, socket):
         self.socket = socket
         self.read_buf = ''
@@ -48,21 +36,12 @@ class SimpleWire(object):
 
     def send_box(self, box):
         """
-	Send the given box, returning once it is completley transmitted
-	(but not necessarily received by the remote end).
-
-        Raises Error for protocol errors or socket.error for network errors.
         """
         bytes = self._box_to_bytes(box)
         self.socket.sendall(bytes)
 
     def read_box(self):
         """
-        Read a box from the remote system, blocking until one is received
-
-	Raises Error for protocol errors or socket.error for network
-	errors.  Returns None on a normal EOF, or EOFError on an EOF in
-	the middle of a box.
         """
         # avoid reading anything from the socket if not necessary
         if self.read_buf:
@@ -88,11 +67,7 @@ class SimpleWire(object):
 
     def _box_to_bytes(self, box):
         """
-
-        Turn a box into a byte sequence.
-
-	Raises an Error for an invalid packet.
-
+        Turn a box into a byte sequence.  Raises an Error for an invalid packet.
         """
         bytes = []
         for k, v in box.iteritems():
@@ -108,12 +83,9 @@ class SimpleWire(object):
 
     def _bytes_to_box(self, bytes):
         """
-
-        Turn a sequence of bytes into a tuple (box, remaining_bytes), where
-        box is None if a full box's worth of data is not available.
-
-	Raises an Error for an invalid packet.
-
+        Turn a sequence of bytes into a tuple (box, remaining_bytes), where box
+        is None if a full box's worth of data is not available.  Raises an
+        Error for an invalid packet.
         """
 
         # see if we have a full box
@@ -147,13 +119,6 @@ class SimpleWire(object):
         return (box, remaining)
 
 class ResilientWire(SimpleWire):
-    """
-    A refinement of SimpleWire to support resiliency to lost
-    connections.  This has the same API as SimpleWire, but handles
-    network communication in a thread to enable bidirectional
-    communication.
-    """
-
     # TODO: how should this signal a socket failure for re-establishment?
 
     def __init__(self, socket):
@@ -188,9 +153,7 @@ class ResilientWire(SimpleWire):
         return box
 
     def stop(self):
-        """
-        Stop using the socket.  This may block for a while.
-        """
+        # note: this may block for a little while
         self.done = True
         self.thread.join()
 
