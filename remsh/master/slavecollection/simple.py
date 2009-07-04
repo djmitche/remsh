@@ -40,6 +40,9 @@ class SimpleSlaveCollection(object):
         self.cond.notifyAll()
         self.cond.release()
 
+    def get_all_slaves(self):
+        return self.slaves.values()
+
     def get_slave(self, block, filter, cmp=None):
         self.cond.acquire()
         try:

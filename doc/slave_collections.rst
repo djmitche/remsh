@@ -35,3 +35,9 @@ Simple Slave Collection
         matching slave appears.  If more than one matching slave is available,
         the slaves are sorted with `cmp` and the first slave returned.  If
         `cmp` is none, the slaves are shuffled randomly.
+
+    .. method:: get_all_slaves()
+
+       :returns: a list of Slave objects
+
+       Get all of the currently available slaves

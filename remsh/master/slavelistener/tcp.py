@@ -39,6 +39,7 @@ class TcpSlaveListener(base.SlaveListener):
 
     def _run(self):
         sk = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sk.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sk.bind(("", self.port))
         sk.listen(5)
 

@@ -25,12 +25,15 @@ setup(name='remsh',
       packages=[
         'remsh',
         'remsh.master',
+        'remsh.master.scripts',
         'remsh.master.slavelistener',
         'remsh.slave',
+        'remsh.slave.scripts',
       ],
       entry_points = {
         'console_scripts': [
           'remsh-slave = remsh.slave.scripts.remsh_slave:main',
+          'remsh-master = remsh.master.scripts.remsh_master:main',
         ],
       },
       test_suite='test',
