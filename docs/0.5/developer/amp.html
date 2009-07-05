@@ -1,0 +1,231 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>AMP &mdash; remsh v0.5 documentation</title>
+    <link rel="stylesheet" href="../static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.5',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false
+      };
+    </script>
+    <script type="text/javascript" src="../static/jquery.js"></script>
+    <script type="text/javascript" src="../static/doctools.js"></script>
+    <link rel="top" title="remsh v0.5 documentation" href="../index.html" />
+    <link rel="up" title="Developer Documentation" href="../developer.html" />
+    <link rel="next" title="RPC" href="rpc.html" />
+    <link rel="prev" title="Developer Documentation" href="../developer.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="rpc.html" title="RPC"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../developer.html" title="Developer Documentation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">remsh v0.5 documentation</a> &raquo;</li>
+          <li><a href="../developer.html" accesskey="U">Developer Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  
+  <div class="section" id="amp">
+<h1>AMP<a class="headerlink" href="#amp" title="Permalink to this headline">¶</a></h1>
+<p>AMP is the &#8220;Asynchronous Messaging Protocol&#8221;, a message-based protocol designed
+by the folks at Twisted Matrix
+(<a class="reference" href="http://twistedmatrix.com/documents/current/api/twisted.protocols.amp.html">http://twistedmatrix.com/documents/current/api/twisted.protocols.amp.html</a>).</p>
+<p>Remsh uses only the AMP wire protocol, because it is a simple protocol that can
+be implemented with minimal code in any language.  Remsh does not exploit the
+asynchronous nature of the protocol, however: in general, both sides of a
+connection always know which side will send the next message.</p>
+<p>This section describes the protocol and its implementation within Remsh.  It
+does not describe the implementation of Remsh operations on top of this
+protocol.</p>
+<div class="section" id="protocol">
+<h2>Protocol<a class="headerlink" href="#protocol" title="Permalink to this headline">¶</a></h2>
+<p>An AMP &#8220;box&#8221; is a sequence of key-value pairs, with unique keys.  Both keys and
+values are arbitrary 8-bit bytestrings with no particular encoding specified.
+A box is represented in a bytestream by alternating keys and values, each
+prefixed with a 2-byte length, with an empty key signalling the end of a box.
+The lengths are specified in network byte order.  Key order in the bytestream
+is irrelevant.  Boxes are often written as Python dictionaries in this
+documentation.</p>
+<p>For example, the box</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span> <span class="s">&#39;height&#39;</span> <span class="p">:</span> <span class="s">&#39;10cm&#39;</span><span class="p">,</span> <span class="s">&#39;width&#39;</span> <span class="p">:</span> <span class="s">&#39;12cm&#39;</span> <span class="p">}</span>
+</pre></div>
+</div>
+<p>Can be represented as</p>
+<div class="highlight-python"><pre>00 05             key length
+77 69 64 74 68    "width"
+00 04             value length
+31 32 63 6D       "10cm"
+00 06             key length
+68 65 69 67 68 74 "height"
+00 04             value length
+31 30 63 6D       "10cm"
+00 00             box terminator</pre>
+</div>
+<p>Key lengths must be less than 256, so the leading byte is always <tt class="docutils literal"><span class="pre">00</span></tt>.</p>
+<p>Note that this places an upper limit on the size of a value (64k), and as a
+consequence reasonable limits on the overall size of a box are possible (based
+on the largest number of allowed keys in a remsh box), for security- or
+memory-conscious uses.</p>
+</div>
+<div class="section" id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Permalink to this headline">¶</a></h2>
+<p>The implementation of this protocol is entirely synchronous.  Callers should
+use Python threads to handle multiple simultaneous connections.</p>
+<dl class="class">
+<dt id="remsh.amp.wire.Error">
+<!--[remsh.amp.wire.Error]-->class <tt class="descclassname">remsh.amp.wire.</tt><tt class="descname">Error</tt><a class="headerlink" href="#remsh.amp.wire.Error" title="Permalink to this definition">¶</a></dt>
+<dd>An exception indicating an error in the AMP protocol</dd></dl>
+
+<dl class="class">
+<dt id="remsh.amp.wire.SimpleWire">
+<!--[remsh.amp.wire.SimpleWire]-->class <tt class="descclassname">remsh.amp.wire.</tt><tt class="descname">SimpleWire</tt><big>(</big><em>socket</em><big>)</big><a class="headerlink" href="#remsh.amp.wire.SimpleWire" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><em>socket</em> &#8211; the socket on which to communicate</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Implements the AMP protocol as described above.</p>
+<dl class="method">
+<dt id="remsh.amp.wire.SimpleWire.send_box">
+<!--[remsh.amp.wire.SimpleWire.send_box]--><tt class="descname">send_box</tt><big>(</big><em>box</em><big>)</big><a class="headerlink" href="#remsh.amp.wire.SimpleWire.send_box" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><em>box</em> (dictionary) &#8211; the box to send</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a title="remsh.amp.wire.Error" class="reference" href="#remsh.amp.wire.Error"><tt class="xref docutils literal"><span class="pre">Error</span></tt></a> for protocol errors</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><tt class="xref docutils literal"><span class="pre">socket.error</span></tt> for socket errors</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Send the given box, returning once it is completley transmitted (but
+not necessarily received by the remote end).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="remsh.amp.wire.SimpleWire.read_box">
+<!--[remsh.amp.wire.SimpleWire.read_box]--><tt class="descname">read_box</tt><big>(</big><big>)</big><a class="headerlink" href="#remsh.amp.wire.SimpleWire.read_box" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">dictionary</td>
+</tr>
+<tr class="field"><th class="field-name">Raises:</th><td class="field-body"><a title="remsh.amp.wire.Error" class="reference" href="#remsh.amp.wire.Error"><tt class="xref docutils literal"><span class="pre">Error</span></tt></a> for protocol errors</td>
+</tr>
+<tr class="field"><th class="field-name">Raises:</th><td class="field-body"><tt class="xref docutils literal"><span class="pre">socket.error</span></tt> for socket errors</td>
+</tr>
+<tr class="field"><th class="field-name">Raises:</th><td class="field-body"><tt class="xref docutils literal"><span class="pre">EOFError</span></tt> on EOF in the middle of a box</td>
+</tr>
+</tbody>
+</table>
+<p>Read a box from the remote system, blocking until one is received.</p>
+<p>Raises <a title="remsh.amp.wire.Error" class="reference" href="#remsh.amp.wire.Error"><tt class="xref docutils literal"><span class="pre">Error</span></tt></a> for protocol errors or socket.error for network
+errors.  Returns None on a normal EOF.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="remsh.amp.wire.SimpleWire.stop">
+<!--[remsh.amp.wire.SimpleWire.stop]--><tt class="descname">stop</tt><big>(</big><big>)</big><a class="headerlink" href="#remsh.amp.wire.SimpleWire.stop" title="Permalink to this definition">¶</a></dt>
+<dd>Stop using the socket.</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="remsh.amp.wire.ResilientWire">
+<!--[remsh.amp.wire.ResilientWire]-->class <tt class="descclassname">remsh.amp.wire.</tt><tt class="descname">ResilientWire</tt><big>(</big><em>socket</em><big>)</big><a class="headerlink" href="#remsh.amp.wire.ResilientWire" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class has an identical interface to
+<a title="remsh.amp.wire.SimpleWire" class="reference" href="#remsh.amp.wire.SimpleWire"><tt class="xref docutils literal"><span class="pre">SimpleWire</span></tt></a>, but runs in its own socket to permit
+bidirectional communication and to handle buffering and retransmission of
+lost boxes.</p>
+<p>It&#8217;s not done yet.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="../index.html">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference" href="">AMP</a><ul>
+<li><a class="reference" href="#protocol">Protocol</a></li>
+<li><a class="reference" href="#implementation">Implementation</a></li>
+</ul>
+</li>
+</ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="../developer.html" title="previous chapter">Developer Documentation</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="rpc.html" title="next chapter">RPC</a></p>
+          <h3>Quick search</h3>
+            <form class="search" action="../search.html" method="get">
+              <input type="text" name="q" size="18" /> <input type="submit" value="Go" />
+              <input type="hidden" name="check_keywords" value="yes" />
+              <input type="hidden" name="area" value="default" />
+            </form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="rpc.html" title="RPC"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../developer.html" title="Developer Documentation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">remsh v0.5 documentation</a> &raquo;</li>
+          <li><a href="../developer.html" accesskey="U">Developer Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2009-2009, Dustin J. Mitchell &lt;dustin@zmanda.com&gt;.
+      Last updated on Jul 05, 2009.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.5.2.
+    </div>
+  </body>
+</html>

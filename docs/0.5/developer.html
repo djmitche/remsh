@@ -3,7 +3,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Introduction &mdash; remsh v0.5 documentation</title>
+    <title>Developer Documentation &mdash; remsh v0.5 documentation</title>
     <link rel="stylesheet" href="static/default.css" type="text/css" />
     <link rel="stylesheet" href="static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -18,8 +18,8 @@
     <script type="text/javascript" src="static/jquery.js"></script>
     <script type="text/javascript" src="static/doctools.js"></script>
     <link rel="top" title="remsh v0.5 documentation" href="index.html" />
-    <link rel="next" title="Running a Slave" href="running_a_slave.html" />
-    <link rel="prev" title="remsh" href="index.html" /> 
+    <link rel="next" title="AMP" href="developer/amp.html" />
+    <link rel="prev" title="Slaves" href="slaves.html" /> 
   </head>
   <body>
     <div class="related">
@@ -29,10 +29,10 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="running_a_slave.html" title="Running a Slave"
+          <a href="developer/amp.html" title="AMP"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="index.html" title="remsh"
+          <a href="slaves.html" title="Slaves"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">remsh v0.5 documentation</a> &raquo;</li> 
       </ul>
@@ -43,21 +43,32 @@
           <div class="body">
             
   
-  <div class="section" id="id1">
-<span id="introduction"></span><h1>Introduction<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
-<p>This library supplies a small but complete collection of operations that a
-&#8220;master&#8221; can cause to execute on a &#8220;slave&#8221;.  The goals of the library are:</p>
-<ul class="simple">
-<li>Slaves are very simple and their definition stable<ul>
-<li>Slave installation is straightforward, and easily done without root access</li>
-<li>Few or no external libraries are required to set up a slave</li>
+  <div class="section" id="developer-documentation">
+<h1>Developer Documentation<a class="headerlink" href="#developer-documentation" title="Permalink to this headline">¶</a></h1>
+<p>This section is intended for developers working on remsh itself.</p>
+<ul>
+<li class="toctree-l1"><a class="reference" href="developer/amp.html">AMP</a><ul>
+<li class="toctree-l2"><a class="reference" href="developer/amp.html#protocol">Protocol</a></li>
+<li class="toctree-l2"><a class="reference" href="developer/amp.html#implementation">Implementation</a></li>
 </ul>
 </li>
-<li>The protocol is simple, well-defined, and language-agnostic.</li>
-<li>The master interface is simple, synchronous and thread-safe</li>
 </ul>
-<p>Notice that the word &#8220;simple&#8221; appears several times in these goals.  This
-library implements the minimal functionality to be complete.</p>
+<ul>
+<li class="toctree-l1"><a class="reference" href="developer/rpc.html">RPC</a><ul>
+<li class="toctree-l2"><a class="reference" href="developer/rpc.html#protocol">Protocol</a></li>
+<li class="toctree-l2"><a class="reference" href="developer/rpc.html#implementation">Implementation</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference" href="developer/ops.html">Operations</a><ul>
+<li class="toctree-l2"><a class="reference" href="developer/ops.html#set-cwd">set_cwd</a></li>
+<li class="toctree-l2"><a class="reference" href="developer/ops.html#mkdir">mkdir</a></li>
+<li class="toctree-l2"><a class="reference" href="developer/ops.html#unlink">unlink</a></li>
+<li class="toctree-l2"><a class="reference" href="developer/ops.html#execute">execute</a></li>
+</ul>
+</li>
+</ul>
 </div>
 
 
@@ -67,9 +78,9 @@ library implements the minimal functionality to be complete.</p>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
             <h4>Previous topic</h4>
-            <p class="topless"><a href="index.html" title="previous chapter">remsh</a></p>
+            <p class="topless"><a href="slaves.html" title="previous chapter">Slaves</a></p>
             <h4>Next topic</h4>
-            <p class="topless"><a href="running_a_slave.html" title="next chapter">Running a Slave</a></p>
+            <p class="topless"><a href="developer/amp.html" title="next chapter">AMP</a></p>
           <h3>Quick search</h3>
             <form class="search" action="search.html" method="get">
               <input type="text" name="q" size="18" /> <input type="submit" value="Go" />
@@ -87,10 +98,10 @@ library implements the minimal functionality to be complete.</p>
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="running_a_slave.html" title="Running a Slave"
+          <a href="developer/amp.html" title="AMP"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="index.html" title="remsh"
+          <a href="slaves.html" title="Slaves"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">remsh v0.5 documentation</a> &raquo;</li> 
       </ul>

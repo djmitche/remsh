@@ -1,0 +1,174 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Operations &mdash; remsh v0.5 documentation</title>
+    <link rel="stylesheet" href="../static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.5',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false
+      };
+    </script>
+    <script type="text/javascript" src="../static/jquery.js"></script>
+    <script type="text/javascript" src="../static/doctools.js"></script>
+    <link rel="top" title="remsh v0.5 documentation" href="../index.html" />
+    <link rel="up" title="Developer Documentation" href="../developer.html" />
+    <link rel="prev" title="RPC" href="rpc.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="rpc.html" title="RPC"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">remsh v0.5 documentation</a> &raquo;</li>
+          <li><a href="../developer.html" accesskey="U">Developer Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  
+  <div class="section" id="operations">
+<h1>Operations<a class="headerlink" href="#operations" title="Permalink to this headline">¶</a></h1>
+<p>This section describes the RPC call or calls for each Remsh operation.  In each
+case, only the method-specific box keys are described.</p>
+<div class="section" id="set-cwd">
+<h2>set_cwd<a class="headerlink" href="#set-cwd" title="Permalink to this headline">¶</a></h2>
+<p>The request box has the following key.</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">cwd</span></tt></dt>
+<dd>requested new working directory; this may be a partial path, in which case
+it is relative to the current directory</dd>
+</dl>
+<p>If the <tt class="docutils literal"><span class="pre">cwd</span></tt> key is omitted, then the request is to revert to the default
+working directory.  An empty (but present) <tt class="docutils literal"><span class="pre">cwd</span></tt> is a request to return the
+current directory without changing it.</p>
+<p>The response box has the following key.</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">cwd</span></tt></dt>
+<dd>resulting working directory; this should be an absolute path</dd>
+</dl>
+</div>
+<div class="section" id="mkdir">
+<h2>mkdir<a class="headerlink" href="#mkdir" title="Permalink to this headline">¶</a></h2>
+<p>The request box has the following key:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">dir</span></tt></dt>
+<dd>directory to create</dd>
+</dl>
+<p>The response box is empty.</p>
+</div>
+<div class="section" id="unlink">
+<h2>unlink<a class="headerlink" href="#unlink" title="Permalink to this headline">¶</a></h2>
+<p>The request box has the following key:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">file</span></tt></dt>
+<dd>file to unlink</dd>
+</dl>
+<p>The response box is empty.</p>
+</div>
+<div class="section" id="execute">
+<h2>execute<a class="headerlink" href="#execute" title="Permalink to this headline">¶</a></h2>
+<p>The request box has the following keys:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">args</span></tt></dt>
+<dd>list of command-line arguments, separated with 0 bytes.</dd>
+<dt><tt class="docutils literal"><span class="pre">want_stdout</span></tt></dt>
+<dd><tt class="docutils literal"><span class="pre">y</span></tt> if <tt class="docutils literal"><span class="pre">data</span></tt> calls should be made with data from stdout, otherwise
+<tt class="docutils literal"><span class="pre">n</span></tt></dd>
+<dt><tt class="docutils literal"><span class="pre">want_stderr</span></tt></dt>
+<dd><tt class="docutils literal"><span class="pre">y</span></tt> if <tt class="docutils literal"><span class="pre">data</span></tt> calls should be made with data from stderr, otherwise
+<tt class="docutils literal"><span class="pre">n</span></tt></dd>
+</dl>
+<p>There is no response.  Instead, the slave side makes zero or more <tt class="docutils literal"><span class="pre">data</span></tt>
+calls, none of which require a response, and exactly one <tt class="docutils literal"><span class="pre">finished</span></tt> call,
+which also does not require a response.  A <tt class="docutils literal"><span class="pre">data</span></tt> request represents some
+quantity of output data from the spawned process, and has the following keys:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">stream</span></tt></dt>
+<dd>the name of the stream that produced the data (<tt class="docutils literal"><span class="pre">stderr</span></tt> and <tt class="docutils literal"><span class="pre">stdout</span></tt>
+are the standard streams)</dd>
+<dt><tt class="docutils literal"><span class="pre">data</span></tt></dt>
+<dd>one or more bytes of data</dd>
+</dl>
+<p>The <tt class="docutils literal"><span class="pre">finished</span></tt> request has the following key:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">result</span></tt></dt>
+<dd>exit value for this process, in decimal notation</dd>
+</dl>
+<div class="section" id="todo">
+<h3>TODO<a class="headerlink" href="#todo" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>optionally translate platform-specific newlines to &#8216;n&#8217;</li>
+<li>provide a more generic list-of-strings thing, and quote NUL bytes in it</li>
+<li>support additional watched files</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="../index.html">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference" href="">Operations</a><ul>
+<li><a class="reference" href="#set-cwd">set_cwd</a></li>
+<li><a class="reference" href="#mkdir">mkdir</a></li>
+<li><a class="reference" href="#unlink">unlink</a></li>
+<li><a class="reference" href="#execute">execute</a><ul>
+<li><a class="reference" href="#todo">TODO</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="rpc.html" title="previous chapter">RPC</a></p>
+          <h3>Quick search</h3>
+            <form class="search" action="../search.html" method="get">
+              <input type="text" name="q" size="18" /> <input type="submit" value="Go" />
+              <input type="hidden" name="check_keywords" value="yes" />
+              <input type="hidden" name="area" value="default" />
+            </form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="rpc.html" title="RPC"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">remsh v0.5 documentation</a> &raquo;</li>
+          <li><a href="../developer.html" accesskey="U">Developer Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2009-2009, Dustin J. Mitchell &lt;dustin@zmanda.com&gt;.
+      Last updated on Jul 05, 2009.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.5.2.
+    </div>
+  </body>
+</html>

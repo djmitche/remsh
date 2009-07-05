@@ -19,6 +19,7 @@
     <script type="text/javascript" src="static/doctools.js"></script>
     <link rel="top" title="remsh v0.5 documentation" href="index.html" />
     <link rel="up" title="Using Remsh" href="using_remsh.html" />
+    <link rel="next" title="Developer Documentation" href="developer.html" />
     <link rel="prev" title="Slave Collections" href="slave_collections.html" /> 
   </head>
   <body>
@@ -28,6 +29,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="developer.html" title="Developer Documentation"
+             accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="slave_collections.html" title="Slave Collections"
              accesskey="P">previous</a> |</li>
@@ -68,27 +72,33 @@ Note that these operations all block, first waiting for any already-running
 operations to finish, and then waiting for the requested operation to
 finish.  To support concurrent use of multiple slaves, invoke operations
 from different Python threads on the master.</p>
+<p>Any of the &#8220;operation&#8221; methods may raise
+<a title="remsh.amp.rpc.RemoteError" class="reference" href="developer/rpc.html#remsh.amp.rpc.RemoteError"><tt class="xref docutils literal"><span class="pre">RemoteError</span></tt></a>, <a title="remsh.amp.wire.Error" class="reference" href="developer/amp.html#remsh.amp.wire.Error"><tt class="xref docutils literal"><span class="pre">Error</span></tt></a>, or
+<tt class="xref docutils literal"><span class="pre">socket.error</span></tt>.</p>
 <dl class="method">
 <dt id="remsh.master.slave.Slave.set_cwd">
-<!--[remsh.master.slave.Slave.set_cwd]--><tt class="descname">set_cwd</tt><big>(</big><em>new_cwd=None</em><big>)</big><a class="headerlink" href="#remsh.master.slave.Slave.set_cwd" title="Permalink to this definition">¶</a></dt>
+<!--[remsh.master.slave.Slave.set_cwd]--><tt class="descname">set_cwd</tt><big>(</big><em>cwd=None</em><big>)</big><a class="headerlink" href="#remsh.master.slave.Slave.set_cwd" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><em>new_cwd</em> &#8211; directory to switch to, or None for basedir</li>
+<li><em>cwd</em> &#8211; directory to switch to, or None for basedir</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
 <p>Sets the working directory of the slave, returning the new working
-directory.  Raises an <cite>OSError</cite> if the designated directory is not
-found.  The pathname is treated as a simple bytestring, to be
-interepreted by the slave.</p>
-<p>If <cite>new_cwd</cite> is None, then this method resets the working directory to
-the slave&#8217;s base directory.  Note that such an invocation may still
-raise <cite>OSError</cite>, if the slave&#8217;s base directory has been deleted.</p>
+directory.  Raises an <a title="remsh.amp.rpc.RemoteError" class="reference" href="developer/rpc.html#remsh.amp.rpc.RemoteError"><tt class="xref docutils literal"><span class="pre">RemoteError</span></tt></a> if the
+designated directory is not found.  The pathname is treated as a simple
+bytestring, to be interepreted by the slave.</p>
+<p>If <cite>cwd</cite> is None, then this method resets the working directory to the
+slave&#8217;s base directory.  Note that such an invocation may still raise
+<a title="remsh.amp.rpc.RemoteError" class="reference" href="developer/rpc.html#remsh.amp.rpc.RemoteError"><tt class="xref docutils literal"><span class="pre">RemoteError</span></tt></a>, if the slave&#8217;s base directory has
+been deleted.</p>
+<p>if <cite>cwd</cite> is an empty string, then no directory change takes place, and
+the method returns the current directory.</p>
 </dd></dl>
 
 <dl class="method">
@@ -99,15 +109,16 @@ raise <cite>OSError</cite>, if the slave&#8217;s base directory has been deleted
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><em>dir</em> &#8211; directory to create</li>
+<li><em>dir</em> &#8211; directory to create (relative or absolute)</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
 <p>Does the equivalent of <tt class="docutils literal"><span class="pre">mkdir</span> <span class="pre">-p</span></tt> on the remote system.  Raises an
-<cite>OSError</cite> in the event of an error on the slave side.  It is an error to
-create a directory that already exists.</p>
+<a title="remsh.amp.rpc.RemoteError" class="reference" href="developer/rpc.html#remsh.amp.rpc.RemoteError"><tt class="xref docutils literal"><span class="pre">RemoteError</span></tt></a> in the event of an error on the
+slave side.  It is <em>not</em> an error to create a directory that already
+exists.</p>
 </dd></dl>
 
 <dl class="method">
@@ -124,8 +135,9 @@ create a directory that already exists.</p>
 </tr>
 </tbody>
 </table>
-<p>Deletes the given file, raising an <cite>OSError</cite> in the even of an error.  it is
-an error to delete a file that does not exist.</p>
+<p>Deletes the given file, raising a <a title="remsh.amp.rpc.RemoteError" class="reference" href="developer/rpc.html#remsh.amp.rpc.RemoteError"><tt class="xref docutils literal"><span class="pre">RemoteError</span></tt></a>
+in the event of an error.  It is an error to delete a file that does
+not exist.</p>
 </dd></dl>
 
 <dl class="method">
@@ -142,7 +154,7 @@ an error to delete a file that does not exist.</p>
 </ul>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">process exit status (0 generally meaning success)</p>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">process exit code (0 generally meaning success)</p>
 </td>
 </tr>
 </tbody>
@@ -198,6 +210,8 @@ slave as no longer available.  The callable is invoked with the
         <div class="sphinxsidebarwrapper">
             <h4>Previous topic</h4>
             <p class="topless"><a href="slave_collections.html" title="previous chapter">Slave Collections</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="developer.html" title="next chapter">Developer Documentation</a></p>
           <h3>Quick search</h3>
             <form class="search" action="search.html" method="get">
               <input type="text" name="q" size="18" /> <input type="submit" value="Go" />
@@ -215,6 +229,9 @@ slave as no longer available.  The callable is invoked with the
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
+          <a href="developer.html" title="Developer Documentation"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
           <a href="slave_collections.html" title="Slave Collections"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">remsh v0.5 documentation</a> &raquo;</li>
@@ -223,7 +240,7 @@ slave as no longer available.  The callable is invoked with the
     </div>
     <div class="footer">
       &copy; Copyright 2009-2009, Dustin J. Mitchell &lt;dustin@zmanda.com&gt;.
-      Last updated on May 29, 2009.
+      Last updated on Jul 05, 2009.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.5.2.
     </div>
   </body>
