@@ -52,10 +52,21 @@ Implementation
 
     To respond to incoming procedure calls, subclass `RPC` and name methods
     available for remote invocation with the prefix ``remote_``.  Such methods
-    will be invoked with the request box as parameter, and should return a box
-    or None if no answer is expected.  If the method raises
-    :class:`~remsh.amp.rpc.RemoteError`, then the error will be propagated to
-    the remote caller.  Any other exceptions will be handled locally.
+    will be invoked with the request box as parameter, and should call
+    :meth:`~remsh.amp.rpc.RPC.send_response` with a response box, if one is
+    expected.  If the method raises :class:`~remsh.amp.rpc.RemoteError`, the
+    error will be propagated to the remote caller, but the exception must not
+    be raised after :meth:`~remsh.amp.rpc.RPC.send_response` is invoked.  Any
+    other exceptions will be handled locally.
+
+    For example::
+
+        def remote_tolower(self, rq):
+            str = rq['str']
+            if str == '':
+                raise RemoteError("can't call tolower on an empty string")
+            str = str.lower()
+            self.send_response({'str' : str})
 
     .. method:: call_remote(method, **kwargs)
 
@@ -97,3 +108,12 @@ Implementation
           def remote_data(rq):
             print rq['data']
           rpc.handle_call(remote_data=remote_data)
+
+    .. method:: send_response(box)
+
+        :param box: the box to send as a response
+
+        Called from a ``remote_`` method, this sends a response to an RPC
+        request.  This must not be called twice, and the remote method must not
+        raise :class:`~remsh.amp.rpc.RemoteError` after this
+        :meth:`send_response` is called.

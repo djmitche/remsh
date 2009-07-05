@@ -42,16 +42,23 @@ class RPC(object):
             meth = getattr(self, methname)
         del reqbox['_command']
 
+        self.sent_response = False
+        self.ask_token = ask_token
         try:
-            respbox = meth(reqbox)
+            meth(reqbox)
         except RemoteError, e:
+            if self.sent_response:
+                raise RuntimeError("subclasses shouldn't raise RemoteError after a response!")
             respbox = { '_error' : ask_token, '_error_description' : e.args[0], '_error_code' : '0' }
             self.wire.send_box(respbox)
             return
 
-        if respbox is not None:
-            respbox['_answer'] = ask_token
-            self.wire.send_box(respbox)
+    def send_response(self, respbox):
+        if self.sent_response:
+            raise RuntimeError("cannot send more than one response")
+        self.sent_response = True
+        respbox['_answer'] = self.ask_token
+        self.wire.send_box(respbox)
 
     ##
     # Implementation

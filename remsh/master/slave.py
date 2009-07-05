@@ -46,7 +46,7 @@ class Slave(object):
         self.rpc.call_remote('unlink', file=file)
 
     def execute(self, args=[], stdout_cb=None, stderr_cb=None):
-        self.rpc.call_remote_no_answer('execute',
+        self.rpc.call_remote('execute',
             args='\0'.join(args),
             want_stdout='y' if stdout_cb else 'n',
             want_stderr='y' if stderr_cb else 'n')

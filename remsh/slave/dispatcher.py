@@ -27,7 +27,7 @@ class SlaveRPC(RPC):
                 raise RemoteError(e.strerror)
 
         cwd = os.getcwd()
-        return { 'cwd' : cwd }
+        self.send_response({ 'cwd' : cwd })
 
     def remote_mkdir(self, rq):
         dir = rq['dir']
@@ -38,7 +38,7 @@ class SlaveRPC(RPC):
             except OSError, e:
                 raise RemoteError(e.strerror)
 
-        return {}
+        self.send_response({})
 
     def remote_unlink(self, rq):
         file = rq['file']
@@ -48,7 +48,7 @@ class SlaveRPC(RPC):
         except OSError, e:
             raise RemoteError(e.strerror)
 
-        return {}
+        self.send_response({})
 
     def remote_execute(self, rq):
         want_stdout = self._getbool(rq, 'want_stdout')
@@ -65,6 +65,10 @@ class SlaveRPC(RPC):
                 universal_newlines=False)
         except Exception, e:
             raise RemoteError(`e`)
+
+        # we can send a response now, as (hopefully) everything that could
+        # raise RemoteError has been done
+        self.send_response({})
 
         # now use select to watch those files, with a short timeout to watch
         # for process exit (this timeout grows up to 1 second)

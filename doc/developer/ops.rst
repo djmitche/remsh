@@ -58,10 +58,11 @@ The request box has the following keys:
     ``y`` if ``data`` calls should be made with data from stderr, otherwise
     ``n``
 
-There is no response.  Instead, the slave side makes zero or more ``data``
-calls, none of which require a response, and exactly one ``finished`` call,
-which also does not require a response.  A ``data`` request represents some
-quantity of output data from the spawned process, and has the following keys:
+The response is an empty box.  After the response, the slave side makes zero or
+more ``data`` calls, none of which require a response, and exactly one
+``finished`` call, which also does not require a response.  A ``data`` request
+represents some quantity of output data from the spawned process, and has the
+following keys:
 
 ``stream``
     the name of the stream that produced the data (``stderr`` and ``stdout``
