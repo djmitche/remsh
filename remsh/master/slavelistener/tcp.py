@@ -48,7 +48,7 @@ class TcpSlaveListener(base.SlaveListener):
 
             # set up the slave in a thread, since it may block
             def setup_slave():
-                conn = wire.SimpleWire(slavesock)
-                self.handle_new_connection(conn)
+                w = wire.SimpleWire(slavesock)
+                self.handle_new_connection(w)
             slavethread = threading.Thread(target=setup_slave)
             slavethread.start()

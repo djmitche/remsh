@@ -21,40 +21,50 @@ with `remsh`.
     finish.  To support concurrent use of multiple slaves, invoke operations
     from different Python threads on the master.
 
-    .. method:: set_cwd(new_cwd=None)
+    Any of the "operation" methods may raise
+    :class:`~remsh.amp.rpc.RemoteError`, :class:`~remsh.amp.wire.Error`, or
+    :class:`socket.error`.
 
-        :param new_cwd: directory to switch to, or None for basedir
+    .. method:: set_cwd(cwd=None)
+
+        :param cwd: directory to switch to, or None for basedir
 
         Sets the working directory of the slave, returning the new working
-        directory.  Raises an `OSError` if the designated directory is not
-        found.  The pathname is treated as a simple bytestring, to be
-        interepreted by the slave.
+        directory.  Raises an :class:`~remsh.amp.rpc.RemoteError` if the
+        designated directory is not found.  The pathname is treated as a simple
+        bytestring, to be interepreted by the slave.
 
-        If `new_cwd` is None, then this method resets the working directory to
-        the slave's base directory.  Note that such an invocation may still
-        raise `OSError`, if the slave's base directory has been deleted.
+        If `cwd` is None, then this method resets the working directory to the
+        slave's base directory.  Note that such an invocation may still raise
+        :class:`~remsh.amp.rpc.RemoteError`, if the slave's base directory has
+        been deleted.
+
+        if `cwd` is an empty string, then no directory change takes place, and
+        the method returns the current directory.
 
     .. method:: mkdir(dir)
 
-        :param dir: directory to create
+        :param dir: directory to create (relative or absolute)
 
         Does the equivalent of ``mkdir -p`` on the remote system.  Raises an
-        `OSError` in the event of an error on the slave side.  It is an error to
-        create a directory that already exists.
+        :class:`~remsh.amp.rpc.RemoteError` in the event of an error on the
+        slave side.  It is *not* an error to create a directory that already
+        exists.
 
     .. method:: unlink(file)
 
         :param file: the file to unlink
 
-        Deletes the given file, raising an `OSError` in the even of an error.  it is
-        an error to delete a file that does not exist.
+        Deletes the given file, raising a :class:`~remsh.amp.rpc.RemoteError`
+        in the event of an error.  It is an error to delete a file that does
+        not exist.
 
     .. method:: execute(args=[], stdout_cb=None, stderr_cb=None)
         
         :param args: sequence of command-line arguments
         :param stdout_cb: callback for stdout data
         :param stderr_cb: callback for stderr data
-        :returns: process exit status (0 generally meaning success)
+        :returns: process exit code (0 generally meaning success)
 
         Execute `args` in a subprocess.
 

@@ -20,9 +20,90 @@ import socket
 import subprocess
 import select
 
-from remsh.amp import wire
-from remsh.slave import ops
+from remsh.amp.rpc import RPC, RemoteError
 
+class SlaveRPC(RPC):
+    def __init__(self, wire):
+        RPC.__init__(self, wire)
+        self.default_wd = os.getcwd()
+
+    def remote_set_cwd(self, rq):
+        cwd = rq.get('cwd')
+        if cwd is None:
+            cwd = self.default_wd
+
+        if cwd:
+            try:
+                os.chdir(cwd)
+            except OSError, e:
+                raise RemoteError(e.strerror)
+
+        cwd = os.getcwd()
+        return { 'cwd' : cwd }
+
+    def remote_mkdir(self, rq):
+        dir = rq['dir']
+
+        if not os.path.exists(dir):
+            try:
+                os.makedirs(dir)
+            except OSError, e:
+                raise RemoteError(e.strerror)
+
+        return {}
+
+    def remote_unlink(self, rq):
+        file = rq['file']
+
+        try:
+            os.unlink(file)
+        except OSError, e:
+            raise RemoteError(e.strerror)
+
+        return {}
+
+    def remote_execute(self, rq):
+        want_stdout = self._getbool(rq, 'want_stdout')
+        want_stderr = self._getbool(rq, 'want_stderr')
+        args = rq['args'].split('\0')
+        
+        # run the command
+        null = open("/dev/null", "r+")
+        stdout = subprocess.PIPE if want_stdout else null
+        stderr = subprocess.PIPE if want_stderr else null
+        try:
+            proc = subprocess.Popen(args=args,
+                stdin=null, stdout=stdout, stderr=stderr,
+                universal_newlines=False)
+        except Exception, e:
+            raise RemoteError(`e`)
+
+        # now use select to watch those files, with a short timeout to watch
+        # for process exit (this timeout grows up to 1 second)
+        timeout = 0.01
+        readfiles = []
+        if want_stdout: readfiles.append(proc.stdout)
+        if want_stderr: readfiles.append(proc.stderr)
+        while 1:
+            rlist, wlist, xlist = select.select(readfiles, [], [], timeout)
+            timeout = min(1.0, timeout * 2)
+            def send(file, name):
+                data = file.read(65535)
+                if not data:
+                    readfiles.remove(file)
+                else:
+                    self.call_remote_no_answer('data', stream=name, data=data)
+            if proc.stdout in rlist: send(proc.stdout, 'stdout')
+            if proc.stderr in rlist: send(proc.stderr, 'stderr')
+            if not rlist and proc.poll() is not None: break
+        self.call_remote_no_answer('finished', result=proc.returncode)
+
+    def _getbool(self, rq, name):
+        if name not in rq or rq[name] not in 'ny':
+            raise RuntimeError("invalid boolean value")
+        return rq[name] == 'y'
+
+# TODO: figure out what to do about registration
 def run(wire):
     """
     Run a slave on ``wire``, a L{wire.SimpleWire} object.  This function
@@ -33,14 +114,6 @@ def run(wire):
     if not box or box['type'] != 'registered':
         raise RuntimeError("expected a 'registered' box, got %s" % (box,))
 
-    ops.default_wd = os.getcwd()
-
+    rpc = SlaveRPC(wire)
     while 1:
-        box = wire.read_box()
-        if not box:
-            return
-        if box['type'] != 'newop':
-            raise RuntimeError("expected a 'newop' box")
-        if box['op'] not in ops.functions:
-            raise RuntimeError("unknown op '%s'" % box['op'])
-        ops.functions[box['op']](wire)
+        rpc.handle_call()

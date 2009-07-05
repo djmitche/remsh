@@ -79,8 +79,9 @@ Implementation
 
         Same as ``call_remote``, but do not wait for an answer.
 
-    .. method:: handle_call()
+    .. method:: handle_call(**handlers)
 
+        :param handlers: handlers for procedures that are not implemented as ``remote_`` methods
         :raises: :class:`~remsh.amp.wire.Error` for protocol errors
         :raises: :class:`socket.error` for socket errors
         :raises: :class:`EOFError` on EOF in the middle of a box
@@ -88,3 +89,11 @@ Implementation
                  :class:`~remsh.amp.rpc.RemoteError`
 
         Handle exactly one invocation of a local method by the remote system.
+
+        The names of the handlers in ``handlers`` should include the
+        ``remote_`` prefix, and the functions should expect a single argument -
+        the request box.  For example::
+
+          def remote_data(rq):
+            print rq['data']
+          rpc.handle_call(remote_data=remote_data)

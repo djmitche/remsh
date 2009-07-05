@@ -19,7 +19,7 @@ Implements a base class for SlaveListeners
 
 import sys
 
-from remsh import simpleamp
+from remsh.amp.rpc import RPC
 from remsh.master import slave
 
 class SlaveListener(object):
@@ -32,11 +32,11 @@ class SlaveListener(object):
         assert slave_collection is not None
         self.slave_collection = slave_collection
 
-    def handle_new_connection(self, conn):
+    def handle_new_connection(self, wire):
         # TODO: how are exceptions handled?
 
         # read the registration box
-        regbox = conn.read_box()
+        regbox = wire.read_box()
         if not regbox: return # TODO: exception?
 
         if regbox['type'] != 'register':
@@ -44,9 +44,9 @@ class SlaveListener(object):
         hostname = regbox['hostname']
         version = int(regbox['version'])
 
-        conn.send_box({'type' : 'registered'})
+        wire.send_box({'type' : 'registered'})
 
-        slave = self.slave_class(conn, hostname, version)
+        slave = self.slave_class(wire, hostname, version)
 
         slave.setup()
 

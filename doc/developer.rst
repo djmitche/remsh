@@ -8,3 +8,4 @@ This section is intended for developers working on remsh itself.
 
    developer/amp
    developer/rpc
+   developer/ops

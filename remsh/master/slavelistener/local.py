@@ -45,8 +45,8 @@ class LocalSlaveListener(base.SlaveListener):
         if pid != 0:
             # parent
             kidsock.close()
-            conn = wire.SimpleWire(parsock)
-            slave = self.handle_new_connection(conn)
+            w = wire.SimpleWire(parsock)
+            slave = self.handle_new_connection(w)
 
             self._slave_pids[id(slave)] = pid
 
@@ -56,8 +56,8 @@ class LocalSlaveListener(base.SlaveListener):
         try:
             parsock.close()
             os.chdir(basedir)
-            conn = wire.SimpleWire(kidsock)
-            dispatcher.run(conn)
+            w = wire.SimpleWire(kidsock)
+            dispatcher.run(w)
         except KeyboardInterrupt:
             pass
         except:

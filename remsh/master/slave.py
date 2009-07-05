@@ -20,6 +20,8 @@ Contains the L{Slave} class.
 import sys
 import threading
 
+from remsh.amp import rpc
+
 class ProtocolError(Exception):
     "An error in the internal protocol between master and slave"
 
@@ -27,8 +29,8 @@ class SlaveDisconnected(ProtocolError):
     "The slave disconnected in the midst of an operation"
 
 class Slave(object):
-    def __init__(self, ampconn, hostname, version):
-        self.ampconn = ampconn
+    def __init__(self, wire, hostname, version):
+        self.rpc = rpc.RPC(wire)
         self.hostname = hostname
         self.version = version
 
@@ -37,91 +39,43 @@ class Slave(object):
 
         self._disconnect_listeners = []
 
-    def _do_transaction(self, command, data_cb):
-        """
-        For use by subclasses.  Send ``command``, which is an iterable of
-        boxes, to the slave, call ``data_cb`` with each data box the slave
-        sends, and then return the ``opdone`` box.  This method acquires and
-        subsequently releases the slave.  Any errors -- protocol or otherwise
-        -- are raised as exceptions.
-        """
-        self._lock.acquire()
-        # TODO: better detection of SlaveDisconnected: EOFError?
-        # TODO: handle on_disconnect
-        # TODO: timeout
-        try:
-            # send the command boxes
-            for box in command:
-                self.ampconn.send_box(box)
-
-            # and read the results
-            while 1:
-                box = self.ampconn.read_box()
-                if not box: raise SlaveDisconnected("slave disconnected while running a command")
-                if box['type'] == 'data':
-                    data_cb(box)
-                elif box['type'] == 'opdone':
-                    return box
-        finally:
-            self._lock.release()
-
-    ##
-    # ISlave methods
-
+    # TODO: locking
     def setup(self):
         pass # does nothing by default
 
-    def set_cwd(self, new_cwd=None):
-        command = [ {'type' : 'newop', 'op' : 'set_cwd'}, ]
-        if new_cwd is not None:
-            command.append({'type' : 'opparam', 'param' : 'cwd', 'value' : new_cwd})
-        command.append({'type' : 'startop'})
-
-        resbox = self._do_transaction(command, None)
-
-        if 'cwd' in resbox:
-            return resbox['cwd']
-        else:
-            raise OSError(resbox['error'])
+    def set_cwd(self, cwd=None):
+        kwargs = {}
+        if cwd is not None:
+            kwargs['cwd'] = cwd
+        resp = self.rpc.call_remote('set_cwd', **kwargs)
+        return resp['cwd']
 
     def mkdir(self, dir):
-        command = [
-            {'type' : 'newop', 'op' : 'mkdir'},
-            {'type' : 'opparam', 'param' : 'dir', 'value' : dir},
-            {'type' : 'startop'},
-        ]
-        resbox = self._do_transaction(command, None)
-
-        if 'error' in resbox: raise OSError(resbox['error'])
-        return
+        self.rpc.call_remote('mkdir', dir=dir)
 
     def unlink(self, file):
-        command = [
-            {'type' : 'newop', 'op' : 'unlink'},
-            {'type' : 'opparam', 'param' : 'file', 'value' : file},
-            {'type' : 'startop'},
-        ]
-        resbox = self._do_transaction(command, None)
-
-        if 'error' in resbox: raise OSError(resbox['error'])
-        return
+        self.rpc.call_remote('unlink', file=file)
 
     def execute(self, args=[], stdout_cb=None, stderr_cb=None):
-        def data_cb(box):
-            if box['name'] == 'stdout': stdout_cb(box['data'])
-            elif box['name'] == 'stderr': stderr_cb(box['data'])
-            else: raise RuntimeError("unknown stream '%s'" % box['name'])
+        self.rpc.call_remote_no_answer('execute',
+            args='\0'.join(args),
+            want_stdout='y' if stdout_cb else 'n',
+            want_stderr='y' if stderr_cb else 'n')
 
-        resbox = self._do_transaction([
-            {'type' : 'newop', 'op' : 'execute'},
-        ] + [
-            {'type' : 'opparam', 'param' : 'arg', 'value' : arg}
-            for arg in args
-        ] + [
-            {'type' : 'startop'}
-        ], data_cb)
-
-        return int(resbox['result'])
+        # loop, handling calls without answers, until we get 'finished'
+        result = {}
+        def finished(rq):
+            result['result'] = int(rq['result'])
+        def data(rq):
+            if rq['stream'] == 'stdout':
+                stdout_cb(rq['data'])
+            elif rq['stream'] == 'stderr':
+                stderr_cb(rq['data'])
+        while not result:
+            self.rpc.handle_call(
+                remote_finished=finished,
+                remote_data=data)
+        return result['result']
 
     def on_disconnect(self, callable):
         # TODO: synchronization so that this gets called immediately if

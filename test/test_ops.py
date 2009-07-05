@@ -17,6 +17,7 @@ import unittest
 import shutil
 import os
 
+from remsh.amp.rpc import RemoteError
 from remsh.master.slavelistener import local
 from remsh.master.slavecollection import simple
 
@@ -65,8 +66,9 @@ class OpsTestMixin(object):
         self.slave.mkdir("newdir")
         self.assert_(os.path.exists(newdir))
 
-        # should fail if the directory already exists
-        self.assertRaises(OSError, lambda : self.slave.mkdir("newdir"))
+        # should not fail if the directory already exists
+        self.slave.mkdir("newdir")
+        self.assert_(os.path.exists(newdir))
 
         # nested directories
         nested = os.path.join(self.basedir, "nested/bested/quested")
@@ -92,6 +94,10 @@ class OpsTestMixin(object):
         newcwd = self.slave.set_cwd("1")
         self.assertEqual(newcwd, os.path.join(self.basedir, "a", "1"))
 
+        # just fetch the cwd
+        newcwd = self.slave.set_cwd("")
+        self.assertEqual(newcwd, os.path.join(self.basedir, "a", "1"))
+
         # '..' works
         newcwd = self.slave.set_cwd("../2/b")
         self.assertEqual(newcwd, os.path.join(self.basedir, "a", "2", "b"))
@@ -100,8 +106,8 @@ class OpsTestMixin(object):
         newcwd = self.slave.set_cwd(None)
         self.assertEqual(newcwd, self.basedir)
 
-        # invalid dir raises OSError
-        self.assertRaises(OSError, lambda : self.slave.set_cwd("z"))
+        # invalid dir raises RemoteError
+        self.assertRaises(RemoteError, lambda : self.slave.set_cwd("z"))
 
     def test_unlink(self):
         # prep
@@ -112,7 +118,7 @@ class OpsTestMixin(object):
         self.slave.unlink("exists")
         self.assert_(not os.path.exists(exists))
 
-        self.assertRaises(OSError, lambda : self.slave.unlink(missing))
+        self.assertRaises(RemoteError, lambda : self.slave.unlink(missing))
 
     def test_execute(self):
         # note that all of these tests are just using 'sh'
@@ -129,8 +135,10 @@ class OpsTestMixin(object):
                 stderr_cb=self.make_callback('stderr'),
                 stdout_cb=self.make_callback('stdout'))
             self.assertEqual(result, 0, "result from '%s'" % command_str)
-            self.assertEqual(self.get_file('stdout').strip(), stdout, "stdout from '%s'" % command_str)
-            self.assertEqual(self.get_file('stderr').strip(), stderr, "stderr from '%s'" % command_str)
+            self.assertEqual(self.get_file('stdout').strip(), stdout,
+                    "stdout from '%s'" % command_str)
+            self.assertEqual(self.get_file('stderr').strip(), stderr,
+                    "stderr from '%s'" % command_str)
 
         execute_output('echo "hello"', stdout="hello")
         execute_output('echo "oh noes" >&2', stderr="oh noes")
