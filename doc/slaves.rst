@@ -72,6 +72,19 @@ with `remsh`.
         executable's standard output seen; `stderr_cb` does the same for
         standard error.
 
+    .. method:: send(src, dest)
+
+        :param src: source filename (on the master)
+        :param dest: destination filename (on the slave)
+
+        Copies `src`, on the master, to `dest` on the slave.  This is a basic,
+        data-only copy, so no file metadata, "forks", "streams", or anything
+        like that will be copied.  The destination filename can be relative to
+        the current directory or absolute.
+
+        This method raises :class:`~remsh.amp.rpc.RemoteError` if `dest`
+        already exists.
+
     The Slave class also implements a few utility methods:
 
     .. method:: setup()

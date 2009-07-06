@@ -66,6 +66,21 @@ class Slave(object):
                 remote_data=data)
         return result['result']
 
+    def send(self, src, dest):
+        srcfile = open(src, "rb")
+        self.rpc.call_remote('send',
+            dest=dest)
+
+        # write the data
+        while 1:
+            data = srcfile.read(65535)
+            if not data: break
+            self.rpc.call_remote_no_answer('data',
+                data=data)
+        
+        # this may raise a RemoteError if the slave had trouble writing
+        self.rpc.call_remote('finished')
+
     def on_disconnect(self, callable):
         # TODO: synchronization so that this gets called immediately if
         # the slave has already disconnected?

@@ -90,6 +90,43 @@ class SlaveRPC(RPC):
             if not rlist and proc.poll() is not None: break
         self.call_remote_no_answer('finished', result=proc.returncode)
 
+    def remote_send(self, rq):
+        dest = rq['dest']
+        
+        # try to open the file for writing
+        if os.path.exists(dest):
+            raise RemoteError("File '%s' already exists" % dest)
+        try:
+            file = open(dest, "wb") # TODO: support non-binary
+        except IOError, e:
+            raise RemoteError(e.strerror)
+
+        # we can send a response now, as (hopefully) everything that could
+        # raise RemoteError has been done, except for the
+        self.send_response({})
+
+        # now handle data() calls until we get a 'finished', using a dictionary
+        # to store state (due to Python's problems with nested lexical scopes)
+        state = { 'done' : False, 'error' : False }
+
+        def remote_data(rq):
+            if state['error']: return
+            try:
+                file.write(rq['data'])
+            except Exception, e:
+                state['error'] = e
+
+        def remote_finished(rq):
+            state['done'] = True
+            if state['error']: raise state['error']
+            file.close()
+            self.send_response({})
+            
+        while not state['done']:
+            self.handle_call(
+                remote_data=remote_data,
+                remote_finished=remote_finished)
+
     def _getbool(self, rq, name):
         if name not in rq or rq[name] not in 'ny':
             raise RuntimeError("invalid boolean value")

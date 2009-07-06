@@ -76,9 +76,28 @@ The ``finished`` request has the following key:
 ``result``
     exit value for this process, in decimal notation
 
+send
+----
+
+The initial request box has the following key:
+
+``dest``
+    destination filename on the slave system
+
+The response is an empty box.  Once the response is received, the master side
+makes a series of ``data`` calls, where each has the following key:
+
+``data``
+    one or more bytes of data
+
+The data stream is terminated by a ``finished`` request, which is empty, and to
+which the slave replies with an empty response (or an error response).
+
 TODO
 ''''
 
-* optionally translate platform-specific newlines to '\n'
+* optionally translate platform-specific newlines to '\n' in execute, send, etc.
 * provide a more generic list-of-strings thing, and quote NUL bytes in it
 * support additional watched files
+* should send include some chance for the slave to indicate error?
+* support sending a literal string with send()

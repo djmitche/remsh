@@ -133,6 +133,28 @@ class OpsTestMixin(object):
         execute_output('echo "oh noes" >&2', stderr="oh noes")
         execute_output('echo "yes"; echo "no" >&2', stdout="yes", stderr="no")
 
+    def test_send(self):
+        # prep
+        destfile = os.path.join(self.basedir, "destfile")
+        localfile = os.path.join(self.basedir, "localfile")
+
+        # add some data to 'localfile'
+        f = open(localfile, "w")
+        d = "abc" * 10000
+        for i in xrange(30):
+            f.write(d)
+        f.close()
+
+        self.slave.send(localfile, destfile)
+
+        self.assert_(os.path.exists(destfile))
+        self.assertEqual(os.stat(localfile).st_size, os.stat(destfile).st_size, "sizes match")
+
+        self.assertRaises(RemoteError, lambda : self.slave.send(localfile, destfile))
+
+        os.unlink(destfile)
+        os.unlink(localfile)
+
 class LocalSlaveMixin(object):
     def setUpSlave(self):
         self.slave_collection=simple.SimpleSlaveCollection()
