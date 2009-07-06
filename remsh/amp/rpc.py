@@ -6,10 +6,13 @@ from remsh.amp import wire
 
 Error = wire.Error
 
+
 class RemoteError(Exception):
     """An error sent directly from the remote system"""
 
+
 class RPC(object):
+
     def __init__(self, wire):
         self.wire = wire
         self.counter = 1
@@ -25,7 +28,8 @@ class RPC(object):
 
     def handle_call(self, **handlers):
         reqbox = self.wire.read_box()
-        if not reqbox: return
+        if not reqbox:
+            return
         if '_ask' not in reqbox:
             raise Error("request box does not have an _ask key")
         ask_token = reqbox['_ask']
@@ -48,8 +52,10 @@ class RPC(object):
             meth(reqbox)
         except RemoteError, e:
             if self.sent_response:
-                raise RuntimeError("subclasses shouldn't raise RemoteError after a response!")
-            respbox = { '_error' : ask_token, '_error_description' : e.args[0], '_error_code' : '0' }
+                raise RuntimeError(
+                    "subclasses shouldn't raise RemoteError after a response!")
+            respbox = {'_error': ask_token, '_error_description': e.args[0],
+                '_error_code': '0'}
             self.wire.send_box(respbox)
             return
 
@@ -75,17 +81,20 @@ class RPC(object):
         wirebox['_ask'] = ask
         self.wire.send_box(wirebox)
 
-        if not expect_answer: return
+        if not expect_answer:
+            return
 
         respbox = self.wire.read_box()
         if not respbox:
             raise Error("Unexpected EOF")
         if '_answer' in respbox:
-            if respbox['_answer'] != ask: raise Error("answer box does not correspond to the request")
+            if respbox['_answer'] != ask:
+                raise Error("answer box does not correspond to the request")
             del respbox['_answer']
             return respbox
         elif '_error' in respbox:
-            if respbox['_error'] != ask: raise Error("error box does not correspond to the request")
+            if respbox['_error'] != ask:
+                raise Error("error box does not correspond to the request")
             raise RemoteError(respbox['_error_description'])
         else:
             raise Error("response has neither _answer nor _error keys")

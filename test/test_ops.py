@@ -10,7 +10,9 @@ from remsh.amp.rpc import RemoteError
 from remsh.master.slavelistener import local
 from remsh.master.slavecollection import simple
 
+
 class OpsTestMixin(object):
+
     def setUpFilesystem(self):
         self.tearDownFilesystem()
         os.makedirs(self.basedir)
@@ -67,7 +69,7 @@ class OpsTestMixin(object):
 
     def test_set_cwd(self):
         # set up directories first
-        for subdir in [ 'a/1', 'a/2/b' ]:
+        for subdir in ['a/1', 'a/2/b']:
             os.makedirs(os.path.join(self.basedir,
                 *tuple(subdir.split('/'))))
 
@@ -96,7 +98,7 @@ class OpsTestMixin(object):
         self.assertEqual(newcwd, self.basedir)
 
         # invalid dir raises RemoteError
-        self.assertRaises(RemoteError, lambda : self.slave.set_cwd("z"))
+        self.assertRaises(RemoteError, lambda: self.slave.set_cwd("z"))
 
     def test_unlink(self):
         # prep
@@ -107,7 +109,7 @@ class OpsTestMixin(object):
         self.slave.unlink("exists")
         self.assert_(not os.path.exists(exists))
 
-        self.assertRaises(RemoteError, lambda : self.slave.unlink(missing))
+        self.assertRaises(RemoteError, lambda: self.slave.unlink(missing))
 
     def test_execute(self):
         # note that all of these tests are just using 'sh'
@@ -148,9 +150,11 @@ class OpsTestMixin(object):
         self.slave.send(localfile, destfile)
 
         self.assert_(os.path.exists(destfile))
-        self.assertEqual(os.stat(localfile).st_size, os.stat(destfile).st_size, "sizes match")
+        self.assertEqual(os.stat(localfile).st_size,
+            os.stat(destfile).st_size, "sizes match")
 
-        self.assertRaises(RemoteError, lambda : self.slave.send(localfile, destfile))
+        self.assertRaises(RemoteError,
+            lambda: self.slave.send(localfile, destfile))
 
         os.unlink(destfile)
         os.unlink(localfile)
@@ -170,32 +174,42 @@ class OpsTestMixin(object):
         self.slave.fetch(srcfile, localfile)
 
         self.assert_(os.path.exists(localfile))
-        self.assertEqual(os.stat(localfile).st_size, os.stat(srcfile).st_size, "sizes match")
+        self.assertEqual(os.stat(localfile).st_size,
+            os.stat(srcfile).st_size, "sizes match")
 
-        self.assertRaises(RemoteError, lambda : self.slave.fetch(srcfile, localfile))
+        self.assertRaises(RemoteError,
+            lambda: self.slave.fetch(srcfile, localfile))
 
-        self.assertRaises(RemoteError, lambda : self.slave.fetch("/does/not/exist", localfile))
+        self.assertRaises(RemoteError,
+             lambda: self.slave.fetch("/does/not/exist", localfile))
 
-        self.assertRaises(IOError, lambda : self.slave.fetch(srcfile, "/does/not/exist"))
+        self.assertRaises(IOError,
+            lambda: self.slave.fetch(srcfile, "/does/not/exist"))
 
         os.unlink(srcfile)
         os.unlink(localfile)
 
+
 class LocalSlaveMixin(object):
+
     def setUpSlave(self):
         self.slave_collection=simple.SimpleSlaveCollection()
 
-        self.listener = local.LocalSlaveListener(slave_collection=self.slave_collection)
+        self.listener = local.LocalSlaveListener(
+            slave_collection=self.slave_collection)
         self.listener.start_slave(self.basedir)
 
-        return self.slave_collection.get_slave(block=True, filter=lambda sl : True)
+        return self.slave_collection.get_slave(
+            block=True, filter=lambda sl: True)
 
     def tearDownSlave(self, slave):
         self.listener.kill_slave(self.slave)
         self.listener = None
 
+
 class TestLocalOps(LocalSlaveMixin, OpsTestMixin, unittest.TestCase):
     pass
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,7 +1,6 @@
 # This file is part of remsh
 # Copyright 2009 Dustin J. Mitchell
 # See COPYING for license information
-
 """
 Contains the L{Slave} class.
 """
@@ -12,13 +11,17 @@ import threading
 
 from remsh.amp import rpc
 
+
 class ProtocolError(Exception):
     "An error in the internal protocol between master and slave"
+
 
 class SlaveDisconnected(ProtocolError):
     "The slave disconnected in the midst of an operation"
 
+
 class Slave(object):
+
     def __init__(self, wire, hostname, version):
         self.rpc = rpc.RPC(wire)
         self.hostname = hostname
@@ -54,13 +57,16 @@ class Slave(object):
 
         # loop, handling calls without answers, until we get 'finished'
         result = {}
+
         def finished(rq):
             result['result'] = int(rq['result'])
+
         def data(rq):
             if rq['stream'] == 'stdout':
                 stdout_cb(rq['data'])
             elif rq['stream'] == 'stderr':
                 stderr_cb(rq['data'])
+
         while not result:
             self.rpc.handle_call(
                 remote_finished=finished,
@@ -76,10 +82,11 @@ class Slave(object):
         # write the data
         while 1:
             data = srcfile.read(65535)
-            if not data: break
+            if not data:
+                break
             self.rpc.call_remote_no_answer('data',
                 data=data)
-        
+
         # this may raise a RemoteError if the slave had trouble writing
         self.rpc.call_remote('finished')
 
@@ -94,13 +101,16 @@ class Slave(object):
             src=src)
 
         # loop, handling data and finished calls
-        state = { 'done' : False, 'errmsg' : None, 'localerr' : None }
+        state = {'done': False, 'errmsg': None, 'localerr': None}
+
         def data(rq):
-            if state['localerr']: return
+            if state['localerr']:
+                return
             try:
                 destfile.write(rq['data'])
             except Exception, e:
                 state['localerr'] = e
+
         def finished(rq):
             if 'errmsg' in rq:
                 state['errmsg'] = rc['errmsg']

@@ -1,7 +1,6 @@
 # This file is part of remsh
 # Copyright 2009 Dustin J. Mitchell
 # See COPYING for license information
-
 """
 Contains the L{SlaveCollection} base class.
 """
@@ -9,7 +8,9 @@ Contains the L{SlaveCollection} base class.
 import threading
 import random
 
+
 class SimpleSlaveCollection(object):
+
     def __init__(self):
         self.cond = threading.Condition()
         self.slaves = {}
@@ -36,7 +37,7 @@ class SimpleSlaveCollection(object):
         self.cond.acquire()
         try:
             while 1:
-                acceptable = [ slave for slave in self.slaves.itervalues() if filter(slave) ]
+                acceptable = [slave for slave in self.slaves.itervalues() if filter(slave)]
                 if len(acceptable) == 0:
                     if block:
                         self.cond.wait()

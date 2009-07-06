@@ -10,7 +10,9 @@ import select
 
 from remsh.amp.rpc import RPC, RemoteError
 
+
 class SlaveRPC(RPC):
+
     def __init__(self, wire):
         RPC.__init__(self, wire)
         self.default_wd = os.getcwd()
@@ -27,7 +29,7 @@ class SlaveRPC(RPC):
                 raise RemoteError(e.strerror)
 
         cwd = os.getcwd()
-        self.send_response({ 'cwd' : cwd })
+        self.send_response({'cwd': cwd})
 
     def remote_mkdir(self, rq):
         dir = rq['dir']
@@ -54,7 +56,7 @@ class SlaveRPC(RPC):
         want_stdout = self._getbool(rq, 'want_stdout')
         want_stderr = self._getbool(rq, 'want_stderr')
         args = rq['args'].split('\0')
-        
+
         # run the command
         null = open("/dev/null", "r+")
         stdout = subprocess.PIPE if want_stdout else null
@@ -74,25 +76,31 @@ class SlaveRPC(RPC):
         # for process exit (this timeout grows up to 1 second)
         timeout = 0.01
         readfiles = []
-        if want_stdout: readfiles.append(proc.stdout)
-        if want_stderr: readfiles.append(proc.stderr)
+        if want_stdout:
+            readfiles.append(proc.stdout)
+        if want_stderr:
+            readfiles.append(proc.stderr)
         while 1:
             rlist, wlist, xlist = select.select(readfiles, [], [], timeout)
             timeout = min(1.0, timeout * 2)
+
             def send(file, name):
                 data = file.read(65535)
                 if not data:
                     readfiles.remove(file)
                 else:
                     self.call_remote_no_answer('data', stream=name, data=data)
-            if proc.stdout in rlist: send(proc.stdout, 'stdout')
-            if proc.stderr in rlist: send(proc.stderr, 'stderr')
-            if not rlist and proc.poll() is not None: break
+            if proc.stdout in rlist:
+                send(proc.stdout, 'stdout')
+            if proc.stderr in rlist:
+                send(proc.stderr, 'stderr')
+            if not rlist and proc.poll() is not None:
+                break
         self.call_remote_no_answer('finished', result=proc.returncode)
 
     def remote_send(self, rq):
         dest = rq['dest']
-        
+
         # try to open the file for writing
         if os.path.exists(dest):
             raise RemoteError("File '%s' already exists" % dest)
@@ -107,10 +115,11 @@ class SlaveRPC(RPC):
 
         # now handle data() calls until we get a 'finished', using a dictionary
         # to store state (due to Python's problems with nested lexical scopes)
-        state = { 'done' : False, 'error' : False }
+        state = {'done': False, 'error': False}
 
         def remote_data(rq):
-            if state['error']: return
+            if state['error']:
+                return
             try:
                 file.write(rq['data'])
             except Exception, e:
@@ -118,10 +127,11 @@ class SlaveRPC(RPC):
 
         def remote_finished(rq):
             state['done'] = True
-            if state['error']: raise state['error']
+            if state['error']:
+                raise state['error']
             file.close()
             self.send_response({})
-            
+
         while not state['done']:
             self.handle_call(
                 remote_data=remote_data,
@@ -129,7 +139,7 @@ class SlaveRPC(RPC):
 
     def remote_fetch(self, rq):
         src = rq['src']
-        
+
         # try to open the file for reading
         if not os.path.exists(src):
             raise RemoteError("File '%s' does not exist" % src)
@@ -142,7 +152,7 @@ class SlaveRPC(RPC):
         self.send_response({})
 
         # now *make* data() calls until EOF
-        state = { 'error' : False }
+        state = {'error': False}
 
         while 1:
             try:
@@ -150,14 +160,15 @@ class SlaveRPC(RPC):
             except Exception, e:
                 state['error'] = e
                 break
-            if not data: break
+            if not data:
+                break
             self.call_remote_no_answer('data',
                     data=data)
-        
+
         file.close()
         if state['error']:
             self.call_remote('finished',
-                    errstr=str(state['error']))
+                errstr=str(state['error']))
         else:
             self.call_remote('finished')
 
@@ -166,16 +177,19 @@ class SlaveRPC(RPC):
             raise RuntimeError("invalid boolean value")
         return rq[name] == 'y'
 
+
 # TODO: figure out what to do about registration
+
 def run(wire):
     """
     Run a slave on ``wire``, a L{wire.SimpleWire} object.  This function
     returns if the remote end disconnects cleanly.
     """
-    wire.send_box({'type' : 'register', 'hostname' : socket.gethostname(), 'version' : 1})
+    wire.send_box(
+        {'type': 'register', 'hostname': socket.gethostname(), 'version': 1})
     box = wire.read_box()
     if not box or box['type'] != 'registered':
-        raise RuntimeError("expected a 'registered' box, got %s" % (box,))
+        raise RuntimeError("expected a 'registered' box, got %s" % (box, ))
 
     rpc = SlaveRPC(wire)
     while 1:

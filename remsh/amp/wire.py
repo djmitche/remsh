@@ -1,7 +1,6 @@
 # This file is part of remsh
 # Copyright 2009 Dustin J. Mitchell
 # See COPYING for license information
-
 """
 see doc/developer/amp.rst
 """
@@ -12,10 +11,13 @@ import select
 import threading
 import Queue
 
+
 class Error(Exception):
     """Protocol error"""
 
+
 class SimpleWire(object):
+
     def __init__(self, socket):
         self.socket = socket
         self.read_buf = ''
@@ -35,15 +37,18 @@ class SimpleWire(object):
         # avoid reading anything from the socket if not necessary
         if self.read_buf:
             box, self.read_buf = self._bytes_to_box(self.read_buf)
-            if box: return box
+            if box:
+                return box
 
         while 1:
             newd = self.socket.recv(4096)
             if not newd:
-                if self.read_buf != '': raise EOFError
+                if self.read_buf != '':
+                    raise EOFError
                 return
             box, self.read_buf = self._bytes_to_box(self.read_buf + newd)
-            if box: return box
+            if box:
+                return box
 
     def stop(self):
         """
@@ -56,17 +61,23 @@ class SimpleWire(object):
 
     def _box_to_bytes(self, box):
         """
-        Turn a box into a byte sequence.  Raises an Error for an invalid packet.
+        Turn a box into a byte sequence.  Raises an Error for an
+        invalid packet.
         """
         bytes = []
         for k, v in box.iteritems():
-            if type(k) != types.StringType: k = str(k)
-            if len(k) > 255: raise Error("key length must be < 256")
-            if len(k) < 1: raise Error("key length must be nonzero")
-            bytes.append(struct.pack("!H", len(k)) +  k)
-            if type(v) != types.StringType: v = str(v)
-            if len(v) > 65535: raise Error("value length must be <= 65535")
-            bytes.append(struct.pack("!H", len(v)) +  str(v))
+            if type(k) != types.StringType:
+                k = str(k)
+            if len(k) > 255:
+                raise Error("key length must be < 256")
+            if len(k) < 1:
+                raise Error("key length must be nonzero")
+            bytes.append(struct.pack("!H", len(k)) + k)
+            if type(v) != types.StringType:
+                v = str(v)
+            if len(v) > 65535:
+                raise Error("value length must be <= 65535")
+            bytes.append(struct.pack("!H", len(v)) + str(v))
         bytes.append('\x00\x00')
         return ''.join(bytes)
 
@@ -81,13 +92,18 @@ class SimpleWire(object):
         pos = 0
         nbytes = len(bytes)
         while 1:
-            if pos + 2 > nbytes: return (None, bytes) # not enough bytes
+            if pos + 2 > nbytes:
+                return (None, bytes) # not enough bytes
             klen = struct.unpack("!H", bytes[pos:pos+2])[0]
-            if klen >= 256: raise Error("invalid key length 0x%04x" % klen)
-            if klen == 0: break # found a full box
-            if pos + 2 + klen + 2 > nbytes: return (None, bytes)
+            if klen >= 256:
+                raise Error("invalid key length 0x%04x" % klen)
+            if klen == 0:
+                break # found a full box
+            if pos + 2 + klen + 2 > nbytes:
+                return (None, bytes)
             vlen = struct.unpack("!H", bytes[pos+2+klen:pos+2+klen+2])[0]
-            if pos + 2 + klen + 2 + vlen > nbytes: return (None, bytes)
+            if pos + 2 + klen + 2 + vlen > nbytes:
+                return (None, bytes)
             pos += 2 + klen + 2 + vlen
 
         # at this point, bytes[0:pos+2] is a full box, so convert it to
@@ -98,14 +114,17 @@ class SimpleWire(object):
         while 1:
             klen = struct.unpack("!H", bytes[pos:pos+2])[0]
             key = bytes[pos+2:pos+2+klen]
-            if klen == 0: break
+            if klen == 0:
+                break
             vlen = struct.unpack("!H", bytes[pos+2+klen:pos+2+klen+2])[0]
             val = bytes[pos+2+klen+2:pos+2+klen+2+vlen]
-            if key in box: raise Error("duplicate key %r" % key)
+            if key in box:
+                raise Error("duplicate key %r" % key)
             box[key] = val
             pos += 2 + klen + 2 + vlen
 
         return (box, remaining)
+
 
 class ResilientWire(SimpleWire):
     # TODO: how should this signal a socket failure for re-establishment?
@@ -125,8 +144,8 @@ class ResilientWire(SimpleWire):
     # Public methods
 
     def send_box(self, box):
-	# for sending, this class simply locks the socket for writing
-	# and sends the box using the parent class's method
+        # for sending, this class simply locks the socket for writing
+        # and sends the box using the parent class's method
         # TODO: does this unnecessarily block the thread?
         self.write_lock.acquire()
         try:
@@ -153,14 +172,18 @@ class ResilientWire(SimpleWire):
         self.socket.setblocking(0)
 
         while not self.done:
-            rd = [ self.socket ]
+            rd = [self.socket]
             wr = []
-            ex = [ self.socket ]
-            try: rd, wr, ex = select.select(rd, wr, ex, 0.5) # timeout is for stop()
-            except: print rd, wr, ex; raise
+            ex = [self.socket]
+            try:
+                # timeout is for stop()
+                rd, wr, ex = select.select(rd, wr, ex, 0.5)
+            except:
+                print rd, wr, ex
+                raise
 
-            if rd or ex:
-                if not self.handle_read(): break
+            if (rd or ex) and not self.handle_read():
+                break
 
     def handle_read(self):
         data = self.socket.recv(1024*16)
@@ -171,6 +194,7 @@ class ResilientWire(SimpleWire):
         self.read_buf += data
         while 1:
             box, self.read_buf = self._bytes_to_box(self.read_buf)
-            if not box: break
+            if not box:
+                break
             self.incoming_boxes.put(box)
         return True

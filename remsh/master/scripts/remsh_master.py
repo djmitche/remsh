@@ -9,29 +9,38 @@ import threading
 from remsh.amp import wire
 from remsh.master.slavecollection import simple
 from remsh.master.slavelistener import tcp
-    
+
+
 def print_stream(data):
     sys.stdout.write(data)
 
+
 def run_on_all(slaves, cmd):
+
     def run_on(slave, cmd):
+
         def print_stream(data):
             sys.stdout.write("%s: %s" % (slave.hostname, data))
+
         rc = slave.execute(args=['/bin/sh', '-c', cmd],
                 stdout_cb=print_stream, stderr_cb=print_stream)
 
     # make a thread for each slave
-    thds = [ threading.Thread(target=run_on, args=(sl, cmd)) for sl in slaves ]
+    thds = [threading.Thread(target=run_on, args=(sl, cmd)) for sl in slaves]
 
     # start them
-    for thd in thds: thd.start()
+    for thd in thds:
+        thd.start()
 
     # and join them
-    for thd in thds: thd.join()
+    for thd in thds:
+        thd.join()
+
 
 def main():
     coll = simple.SimpleSlaveCollection()
-    listener = tcp.TcpSlaveListener(slave_collection=coll, port=int(sys.argv[1]))
+    listener = tcp.TcpSlaveListener(
+        slave_collection=coll, port=int(sys.argv[1]))
     listener.start()
 
     done = False
@@ -39,10 +48,11 @@ def main():
     slavename = None
     while not done:
         slavenames = ", ".join(sl.hostname for sl in coll.get_all_slaves())
-        cmd = raw_input("  slaves: %s\nremsh on %s> " % (slavenames, slavename,)).strip()
+        cmd = raw_input("  slaves: %s\nremsh on %s> " % (
+            slavenames, slavename, )).strip()
         if cmd.startswith('slave '):
             slavename = cmd[6:]
-            slave = coll.get_slave(True, lambda sl : sl.hostname == slavename)
+            slave = coll.get_slave(True, lambda sl: sl.hostname == slavename)
         elif cmd == "quit":
             done = True
         elif cmd == "cd":

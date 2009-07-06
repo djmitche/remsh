@@ -1,7 +1,6 @@
 # This file is part of remsh
 # Copyright 2009 Dustin J. Mitchell
 # See COPYING for license information
-
 """
 Implements a SlaveListener that listens on a TCP port for incoming connections.
 """
@@ -14,7 +13,9 @@ import threading
 from remsh.amp import wire
 from remsh.master.slavelistener import base
 
+
 class TcpSlaveListener(base.SlaveListener):
+
     def __init__(self, slave_class=None, slave_collection=None, port=None):
         base.SlaveListener.__init__(self,
             slave_collection=slave_collection, slave_class=slave_class)
