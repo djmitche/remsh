@@ -9,9 +9,9 @@ class.  Each instance of this class represents a distinct remote system, and
 that system can perform at most one operation at any given time.
 
 
-.. class:: remsh.master.slave.Slave(conn, hostname, version)
+.. class:: remsh.master.slave.Slave(wire, hostname, version)
 
-    :param conn: :class:`~remsh.simpleamp.Connection` this slave should use
+    :param wire: :class:`~remsh.amp.wire.SimpleWire` instance this slave should use
     :param hostname: hostname of the slave
     :param version: protocol version the slave supplied
 

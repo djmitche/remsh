@@ -40,9 +40,9 @@ Base Class
 
         The slave collection given to the constructor
 
-    .. method:: handle_new_connection(conn)
+    .. method:: handle_new_connection(wire)
 
-        :param conn: :class:`~remsh.simpleamp.Connection` object
+        :param wire: :class:`~remsh.amp.wire.SimpleWire` intance
         :returns: the new slave instance
 
         This method is a utility for subclasses, and handles the common work
