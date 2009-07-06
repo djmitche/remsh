@@ -5,7 +5,9 @@ remsh.amp.wire.SimpleWire class developer/amp.html
 remsh.master.slavelistener.local.LocalSlaveListener.start_slave method slave_listeners.html
 remsh.master.slave.Slave.unlink method slaves.html
 remsh.amp.wire.Error class developer/amp.html
+remsh.amp.rpc.RPC.send_response method developer/rpc.html
 remsh.amp.rpc.RemoteError class developer/rpc.html
+remsh.master.slave.Slave.send method slaves.html
 remsh.master.slavelistener.local.LocalSlaveListener class slave_listeners.html
 remsh.master.slavelistener.local.LocalSlaveListener.kill_slave method slave_listeners.html
 remsh.master.slavelistener.base.SlaveListener class slave_listeners.html

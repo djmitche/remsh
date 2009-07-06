@@ -165,6 +165,29 @@ executable&#8217;s standard output seen; <cite>stderr_cb</cite> does the same fo
 standard error.</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="remsh.master.slave.Slave.send">
+<!--[remsh.master.slave.Slave.send]--><tt class="descname">send</tt><big>(</big><em>src</em>, <em>dest</em><big>)</big><a class="headerlink" href="#remsh.master.slave.Slave.send" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><em>src</em> &#8211; source filename (on the master)</li>
+<li><em>dest</em> &#8211; destination filename (on the slave)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Copies <cite>src</cite>, on the master, to <cite>dest</cite> on the slave.  This is a basic,
+data-only copy, so no file metadata, &#8220;forks&#8221;, &#8220;streams&#8221;, or anything
+like that will be copied.  The destination filename can be relative to
+the current directory or absolute.</p>
+<p>This method raises <a title="remsh.amp.rpc.RemoteError" class="reference" href="developer/rpc.html#remsh.amp.rpc.RemoteError"><tt class="xref docutils literal"><span class="pre">RemoteError</span></tt></a> if <cite>dest</cite>
+already exists.</p>
+</dd></dl>
+
 <p>The Slave class also implements a few utility methods:</p>
 <dl class="method">
 <dt id="remsh.master.slave.Slave.setup">
@@ -240,7 +263,7 @@ slave as no longer available.  The callable is invoked with the
     </div>
     <div class="footer">
       &copy; Copyright 2009-2009, Dustin J. Mitchell &lt;dustin@zmanda.com&gt;.
-      Last updated on Jul 05, 2009.
+      Last updated on Jul 06, 2009.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.5.2.
     </div>
   </body>

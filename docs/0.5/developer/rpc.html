@@ -103,10 +103,21 @@ box.</dd></dl>
 <p>Implements an RPC connection atop an arbitrary wire-level implementation.</p>
 <p>To respond to incoming procedure calls, subclass <cite>RPC</cite> and name methods
 available for remote invocation with the prefix <tt class="docutils literal"><span class="pre">remote_</span></tt>.  Such methods
-will be invoked with the request box as parameter, and should return a box
-or None if no answer is expected.  If the method raises
-<a title="remsh.amp.rpc.RemoteError" class="reference" href="#remsh.amp.rpc.RemoteError"><tt class="xref docutils literal"><span class="pre">RemoteError</span></tt></a>, then the error will be propagated to
-the remote caller.  Any other exceptions will be handled locally.</p>
+will be invoked with the request box as parameter, and should call
+<a title="remsh.amp.rpc.RPC.send_response" class="reference" href="#remsh.amp.rpc.RPC.send_response"><tt class="xref docutils literal"><span class="pre">send_response()</span></tt></a> with a response box, if one is
+expected.  If the method raises <a title="remsh.amp.rpc.RemoteError" class="reference" href="#remsh.amp.rpc.RemoteError"><tt class="xref docutils literal"><span class="pre">RemoteError</span></tt></a>, the
+error will be propagated to the remote caller, but the exception must not
+be raised after <a title="remsh.amp.rpc.RPC.send_response" class="reference" href="#remsh.amp.rpc.RPC.send_response"><tt class="xref docutils literal"><span class="pre">send_response()</span></tt></a> is invoked.  Any
+other exceptions will be handled locally.</p>
+<p>For example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">remote_tolower</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rq</span><span class="p">):</span>
+    <span class="nb">str</span> <span class="o">=</span> <span class="n">rq</span><span class="p">[</span><span class="s">&#39;str&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">str</span> <span class="o">==</span> <span class="s">&#39;&#39;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">RemoteError</span><span class="p">(</span><span class="s">&quot;can&#39;t call tolower on an empty string&quot;</span><span class="p">)</span>
+    <span class="nb">str</span> <span class="o">=</span> <span class="nb">str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">send_response</span><span class="p">({</span><span class="s">&#39;str&#39;</span> <span class="p">:</span> <span class="nb">str</span><span class="p">})</span>
+</pre></div>
+</div>
 <dl class="method">
 <dt id="remsh.amp.rpc.RPC.call_remote">
 <!--[remsh.amp.rpc.RPC.call_remote]--><tt class="descname">call_remote</tt><big>(</big><em>method</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#remsh.amp.rpc.RPC.call_remote" title="Permalink to this definition">¶</a></dt>
@@ -201,6 +212,26 @@ the request box.  For example:</p>
 </div>
 </dd></dl>
 
+<dl class="method">
+<dt id="remsh.amp.rpc.RPC.send_response">
+<!--[remsh.amp.rpc.RPC.send_response]--><tt class="descname">send_response</tt><big>(</big><em>box</em><big>)</big><a class="headerlink" href="#remsh.amp.rpc.RPC.send_response" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><em>box</em> &#8211; the box to send as a response</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Called from a <tt class="docutils literal"><span class="pre">remote_</span></tt> method, this sends a response to an RPC
+request.  This must not be called twice, and the remote method must not
+raise <a title="remsh.amp.rpc.RemoteError" class="reference" href="#remsh.amp.rpc.RemoteError"><tt class="xref docutils literal"><span class="pre">RemoteError</span></tt></a> after this
+<tt class="xref docutils literal"><span class="pre">send_response()</span></tt> is called.</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -253,7 +284,7 @@ the request box.  For example:</p>
     </div>
     <div class="footer">
       &copy; Copyright 2009-2009, Dustin J. Mitchell &lt;dustin@zmanda.com&gt;.
-      Last updated on Jul 05, 2009.
+      Last updated on Jul 06, 2009.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.5.2.
     </div>
   </body>

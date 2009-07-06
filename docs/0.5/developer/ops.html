@@ -93,10 +93,11 @@ current directory without changing it.</p>
 <dd><tt class="docutils literal"><span class="pre">y</span></tt> if <tt class="docutils literal"><span class="pre">data</span></tt> calls should be made with data from stderr, otherwise
 <tt class="docutils literal"><span class="pre">n</span></tt></dd>
 </dl>
-<p>There is no response.  Instead, the slave side makes zero or more <tt class="docutils literal"><span class="pre">data</span></tt>
-calls, none of which require a response, and exactly one <tt class="docutils literal"><span class="pre">finished</span></tt> call,
-which also does not require a response.  A <tt class="docutils literal"><span class="pre">data</span></tt> request represents some
-quantity of output data from the spawned process, and has the following keys:</p>
+<p>The response is an empty box.  After the response, the slave side makes zero or
+more <tt class="docutils literal"><span class="pre">data</span></tt> calls, none of which require a response, and exactly one
+<tt class="docutils literal"><span class="pre">finished</span></tt> call, which also does not require a response.  A <tt class="docutils literal"><span class="pre">data</span></tt> request
+represents some quantity of output data from the spawned process, and has the
+following keys:</p>
 <dl class="docutils">
 <dt><tt class="docutils literal"><span class="pre">stream</span></tt></dt>
 <dd>the name of the stream that produced the data (<tt class="docutils literal"><span class="pre">stderr</span></tt> and <tt class="docutils literal"><span class="pre">stdout</span></tt>
@@ -109,12 +110,30 @@ are the standard streams)</dd>
 <dt><tt class="docutils literal"><span class="pre">result</span></tt></dt>
 <dd>exit value for this process, in decimal notation</dd>
 </dl>
+</div>
+<div class="section" id="send">
+<h2>send<a class="headerlink" href="#send" title="Permalink to this headline">¶</a></h2>
+<p>The initial request box has the following key:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">dest</span></tt></dt>
+<dd>destination filename on the slave system</dd>
+</dl>
+<p>The response is an empty box.  Once the response is received, the master side
+makes a series of <tt class="docutils literal"><span class="pre">data</span></tt> calls, where each has the following key:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">data</span></tt></dt>
+<dd>one or more bytes of data</dd>
+</dl>
+<p>The data stream is terminated by a <tt class="docutils literal"><span class="pre">finished</span></tt> request, which is empty, and to
+which the slave replies with an empty response (or an error response).</p>
 <div class="section" id="todo">
 <h3>TODO<a class="headerlink" href="#todo" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>optionally translate platform-specific newlines to &#8216;n&#8217;</li>
+<li>optionally translate platform-specific newlines to &#8216;n&#8217; in execute, send, etc.</li>
 <li>provide a more generic list-of-strings thing, and quote NUL bytes in it</li>
 <li>support additional watched files</li>
+<li>should send include some chance for the slave to indicate error?</li>
+<li>support sending a literal string with send()</li>
 </ul>
 </div>
 </div>
@@ -132,7 +151,8 @@ are the standard streams)</dd>
 <li><a class="reference" href="#set-cwd">set_cwd</a></li>
 <li><a class="reference" href="#mkdir">mkdir</a></li>
 <li><a class="reference" href="#unlink">unlink</a></li>
-<li><a class="reference" href="#execute">execute</a><ul>
+<li><a class="reference" href="#execute">execute</a></li>
+<li><a class="reference" href="#send">send</a><ul>
 <li><a class="reference" href="#todo">TODO</a></li>
 </ul>
 </li>
@@ -167,7 +187,7 @@ are the standard streams)</dd>
     </div>
     <div class="footer">
       &copy; Copyright 2009-2009, Dustin J. Mitchell &lt;dustin@zmanda.com&gt;.
-      Last updated on Jul 05, 2009.
+      Last updated on Jul 06, 2009.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.5.2.
     </div>
   </body>
