@@ -15,9 +15,6 @@ Table of Contents:
    using_remsh
    developer
 
-To Do:
-* protocol
-
 Indices and tables
 ==================
 
