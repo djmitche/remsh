@@ -32,5 +32,5 @@ git add docs/$VERSION
 )
 echo "NOW, MANUALLY:"
 echo "pushd /tmp/remsh-docs-tmp/remsh"
-echo "git commit .."
-echo "git push"
+echo "git commit WHATEVER"
+echo "git push origin gh-pages"
