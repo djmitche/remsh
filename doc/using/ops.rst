@@ -1,13 +1,13 @@
 .. _slaves:
 
-******
-Slaves
-******
+Operations
+**********
 
-Slaves, in the context of the master, represent a remote system ready to
-perform operations on behalf of the master.  The `Slave` class is designed
-to be easily subclassed by users, but only one implementation is included
-with `remsh`.
+The primary purpose of Remsh is to perform operations on remote systems.  The
+interface to those remote operations is the :class:`~remsh.master.slave.Slave`
+class.  Each instance of this class represents a distinct remote system, and
+that system can perform at most one operation at any given time.
+
 
 .. class:: remsh.master.slave.Slave(conn, hostname, version)
 
@@ -21,7 +21,10 @@ with `remsh`.
     finish.  To support concurrent use of multiple slaves, invoke operations
     from different Python threads on the master.
 
-    Any of the "operation" methods may raise
+    The class is designed to be easily subclassed by users, but only one
+    implementation is included with Remsh.
+
+    Any of the following operation methods may raise
     :class:`~remsh.amp.rpc.RemoteError`, :class:`~remsh.amp.wire.Error`, or
     :class:`socket.error`.
 

@@ -9,6 +9,6 @@ addition of new slaves managed by a slave listener.
 .. toctree::
    :maxdepth: 2
 
-   slave_listeners
-   slave_collections
-   slaves
+   using/ops
+   using/slave_listeners
+   using/slave_collections
