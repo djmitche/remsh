@@ -88,6 +88,18 @@ that system can perform at most one operation at any given time.
         This method raises :class:`~remsh.amp.rpc.RemoteError` if `dest`
         already exists.
 
+    .. method:: fetch(src, dest)
+
+        :param src: source filename (on the slave)
+        :param dest: destination filename (on the master)
+
+        Copies `src`, on the slave, to `dest` on the master.  Like
+        :meth:`send`, this is a data-only copy.  The source filename can be
+        relative to the current directory or absolute.  
+
+        This method raises :class:`~remsh.amp.rpc.RemoteError` if `src` does
+        not exist or is not readable, or if `dest` already exists.
+
     The Slave class also implements a few utility methods:
 
     .. method:: setup()

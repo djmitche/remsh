@@ -127,6 +127,40 @@ class SlaveRPC(RPC):
                 remote_data=remote_data,
                 remote_finished=remote_finished)
 
+    def remote_fetch(self, rq):
+        src = rq['src']
+        
+        # try to open the file for reading
+        if not os.path.exists(src):
+            raise RemoteError("File '%s' does not exist" % src)
+        try:
+            file = open(src, "rb") # TODO: support non-binary
+        except IOError, e:
+            raise RemoteError(e.strerror)
+
+        # we can send a response now
+        self.send_response({})
+
+        # now *make* data() calls until EOF
+        state = { 'error' : False }
+
+        while 1:
+            try:
+                data = file.read(65535)
+            except Exception, e:
+                state['error'] = e
+                break
+            if not data: break
+            self.call_remote_no_answer('data',
+                    data=data)
+        
+        file.close()
+        if state['error']:
+            self.call_remote('finished',
+                    errstr=str(state['error']))
+        else:
+            self.call_remote('finished')
+
     def _getbool(self, rq, name):
         if name not in rq or rq[name] not in 'ny':
             raise RuntimeError("invalid boolean value")

@@ -7,6 +7,7 @@ Contains the L{Slave} class.
 """
 
 import sys
+import os
 import threading
 
 from remsh.amp import rpc
@@ -67,6 +68,7 @@ class Slave(object):
         return result['result']
 
     def send(self, src, dest):
+        # the caller is responsible for any errors from open()
         srcfile = open(src, "rb")
         self.rpc.call_remote('send',
             dest=dest)
@@ -80,6 +82,38 @@ class Slave(object):
         
         # this may raise a RemoteError if the slave had trouble writing
         self.rpc.call_remote('finished')
+
+    def fetch(self, src, dest):
+        if os.path.exists(dest):
+            raise rpc.RemoteError("'%s' already exists on the master" % dest)
+
+        # the caller is responsible for any errors from open()
+        destfile = open(dest, "wb")
+
+        self.rpc.call_remote('fetch',
+            src=src)
+
+        # loop, handling data and finished calls
+        state = { 'done' : False, 'errmsg' : None, 'localerr' : None }
+        def data(rq):
+            if state['localerr']: return
+            try:
+                destfile.write(rq['data'])
+            except Exception, e:
+                state['localerr'] = e
+        def finished(rq):
+            if 'errmsg' in rq:
+                state['errmsg'] = rc['errmsg']
+            state['done'] = True
+
+        while not state['done']:
+            self.rpc.handle_call(
+                remote_finished=finished,
+                remote_data=data)
+        if state['errmsg']:
+            raise rpc.RemoteError(state['errmsg'])
+        elif state['localerr']:
+            raise state['localerr']
 
     def on_disconnect(self, callable):
         # TODO: synchronization so that this gets called immediately if

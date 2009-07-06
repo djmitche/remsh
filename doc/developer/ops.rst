@@ -9,7 +9,7 @@ set_cwd
 
 The request box has the following key.
 
-``cwd``
+``cwd`` (optional)
     requested new working directory; this may be a partial path, in which case
     it is relative to the current directory
 
@@ -92,6 +92,37 @@ makes a series of ``data`` calls, where each has the following key:
 
 The data stream is terminated by a ``finished`` request, which is empty, and to
 which the slave replies with an empty response (or an error response).
+
+Note that there is no provision to indicate an error during the data
+transmission phase.  If an error (e.g., running out of disk space) does occur,
+the slave must continue to read and discard ``data`` boxes until the
+``finished`` box arrives, and then signal the error in the response box.
+
+fetch
+-----
+
+The initial request box has the following key:
+
+``src``
+    source filename on the slave system
+
+The response is an empty box.  Once the response is received, the slave side
+makes a series of ``data`` calls identical to those for ``send``.
+
+The data stream is terminated by a ``finished`` request, this time from the
+slave to the master.  This request has the following key:
+
+``errmsg`` (optional)
+    the slave-side error message
+
+The response from the server is empty.
+
+As with ``send``, there is no provision to indicate an error during data
+transmission.  If a problem occurs on the master, it must continue to read and
+discard ``data`` boxes and reply to the terminating ``finished`` box.  The
+error message should not be sent to the slave.  If a problem occurs on the
+slave, it should stop sending ``data`` boxes and send a ``finished`` box
+containing the optional ``errmsg`` key with a suitable error message.
 
 TODO
 ''''

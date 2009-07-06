@@ -155,6 +155,32 @@ class OpsTestMixin(object):
         os.unlink(destfile)
         os.unlink(localfile)
 
+    def test_fetch(self):
+        # prep
+        srcfile = os.path.join(self.basedir, "srcfile")
+        localfile = os.path.join(self.basedir, "localfile")
+
+        # add some data to 'srcfile'
+        f = open(srcfile, "w")
+        d = "abc" * 10000
+        for i in xrange(30):
+            f.write(d)
+        f.close()
+
+        self.slave.fetch(srcfile, localfile)
+
+        self.assert_(os.path.exists(localfile))
+        self.assertEqual(os.stat(localfile).st_size, os.stat(srcfile).st_size, "sizes match")
+
+        self.assertRaises(RemoteError, lambda : self.slave.fetch(srcfile, localfile))
+
+        self.assertRaises(RemoteError, lambda : self.slave.fetch("/does/not/exist", localfile))
+
+        self.assertRaises(IOError, lambda : self.slave.fetch(srcfile, "/does/not/exist"))
+
+        os.unlink(srcfile)
+        os.unlink(localfile)
+
 class LocalSlaveMixin(object):
     def setUpSlave(self):
         self.slave_collection=simple.SimpleSlaveCollection()
