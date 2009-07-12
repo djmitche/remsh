@@ -124,6 +124,16 @@ error message should not be sent to the slave.  If a problem occurs on the
 slave, it should stop sending ``data`` boxes and send a ``finished`` box
 containing the optional ``errmsg`` key with a suitable error message.
 
+rmtree
+------
+
+The request has the key,
+
+``tree``
+    root of the directory tree to remove
+
+and the response is an empty box or an error.
+
 TODO
 ''''
 

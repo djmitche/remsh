@@ -125,6 +125,9 @@ class Slave(object):
         elif state['localerr']:
             raise state['localerr']
 
+    def rmtree(self, tree):
+        self.rpc.call_remote('rmtree', tree=tree)
+
     def on_disconnect(self, callable):
         # TODO: synchronization so that this gets called immediately if
         # the slave has already disconnected?

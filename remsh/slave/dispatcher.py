@@ -7,6 +7,7 @@ import sys
 import socket
 import subprocess
 import select
+import shutil
 
 from remsh.amp.rpc import RPC, RemoteError
 
@@ -171,6 +172,28 @@ class SlaveRPC(RPC):
                 errstr=str(state['error']))
         else:
             self.call_remote('finished')
+
+    def remote_rmtree(self, rq):
+        tree = rq['tree']
+
+        if os.path.exists(tree):
+            try:
+                shutil.rmtree(tree)
+            except OSError, e:
+                # this error may be due to directory permissions;
+                # do a recursive chmod 0700 and try again
+                for root, dirs, files in os.walk(tree):
+                    for d in dirs:
+                        os.chmod(os.path.join(root, d), 0700)
+                try:
+                    shutil.rmtree(tree)
+                except OSError, e:
+                    raise RemoteError(e.strerror)
+
+            if os.path.exists(tree):
+                raise RemoteError("tree not removed")
+
+        self.send_response({})
 
     def _getbool(self, rq, name):
         if name not in rq or rq[name] not in 'ny':

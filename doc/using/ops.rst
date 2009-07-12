@@ -100,6 +100,15 @@ that system can perform at most one operation at any given time.
         This method raises :class:`~remsh.amp.rpc.RemoteError` if `src` does
         not exist or is not readable, or if `dest` already exists.
 
+    .. method:: rmtree(tree)
+
+        :param tree: root of the directory tree to remove
+
+        Remove `tree` and all files and directories beneath it.  This method is
+        most often used for cleanup, so it tries everything possible (including
+        resetting file permissions) to delete the tree, but raises
+        :class:`~remsh.amp.rpc.RemoteError` if it is not successful.
+
     The Slave class also implements a few utility methods:
 
     .. method:: setup()

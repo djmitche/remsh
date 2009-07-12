@@ -18,8 +18,21 @@ class OpsTestMixin(object):
         os.makedirs(self.basedir)
 
     def tearDownFilesystem(self):
-        if os.path.exists(self.basedir):
+        if not os.path.exists(self.basedir):
+            return
+
+        try:
             shutil.rmtree(self.basedir)
+            return
+        except OSError:
+            pass
+
+        # do a recursive chmod 0700 and try again
+        for root, dirs, files in os.walk(self.basedir):
+            for d in dirs:
+                os.chmod(os.path.join(root, d), 0700)
+
+        shutil.rmtree(self.basedir)
 
     def setUp(self):
         self.basedir = os.path.abspath("optests")
@@ -189,6 +202,29 @@ class OpsTestMixin(object):
         os.unlink(srcfile)
         os.unlink(localfile)
 
+    def test_rmtree(self):
+        exists = os.path.join(self.basedir, "exists")
+        missing = os.path.join(self.basedir, "missing")
+
+        def prep():
+            os.makedirs(exists)
+            open(os.path.join(exists, "file1"), "w") # touch the file
+            os.makedirs(os.path.join(exists, "dir"))
+            open(os.path.join(exists, "dir", "file2"), "w")
+
+        prep()
+        self.slave.rmtree("exists")
+        self.assert_(not os.path.exists(exists))
+
+        # try again, with an unwriteable file
+        prep()
+        permprob = os.path.join(exists, "dir")
+        os.chmod(permprob, 0) # remove write permission
+        self.slave.rmtree("exists")
+        self.assert_(not os.path.exists(exists))
+
+        self.slave.rmtree(missing)
+        # (doesn't raise an exception)
 
 class LocalSlaveMixin(object):
 
