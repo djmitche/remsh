@@ -195,6 +195,22 @@ class SlaveRPC(RPC):
 
         self.send_response({})
 
+    def remote_rename(self, rq):
+        src = rq['src']
+        dest = rq['dest']
+
+        if not os.path.exists(src):
+            raise RemoteError("'%s' does not exist" % src)
+        if os.path.exists(dest):
+            raise RemoteError("'%s' already exists" % dest)
+
+        try:
+            os.rename(src, dest)
+        except OSError, e:
+            raise RemoteError(e.strerror)
+
+        self.send_response({})
+
     def _getbool(self, rq, name):
         if name not in rq or rq[name] not in 'ny':
             raise RuntimeError("invalid boolean value")

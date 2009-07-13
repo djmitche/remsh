@@ -213,18 +213,30 @@ class OpsTestMixin(object):
             open(os.path.join(exists, "dir", "file2"), "w")
 
         prep()
-        self.slave.rmtree("exists")
+        self.slave.rmtree(exists)
         self.assert_(not os.path.exists(exists))
 
         # try again, with an unwriteable file
         prep()
         permprob = os.path.join(exists, "dir")
         os.chmod(permprob, 0) # remove write permission
-        self.slave.rmtree("exists")
+        self.slave.rmtree(exists)
         self.assert_(not os.path.exists(exists))
 
         self.slave.rmtree(missing)
         # (doesn't raise an exception)
+
+    def test_rename(self):
+        exists = os.path.join(self.basedir, "exists")
+        open(exists, "w")
+        missing = os.path.join(self.basedir, "missing")
+
+        self.assertRaises(RemoteError, lambda : self.slave.rename(missing, missing))
+        self.assertRaises(RemoteError, lambda : self.slave.rename(exists, exists))
+
+        self.slave.rename(exists, missing)
+        self.assert_(not os.path.exists(exists))
+        self.assert_(os.path.exists(missing))
 
 class LocalSlaveMixin(object):
 

@@ -134,6 +134,18 @@ The request has the key,
 
 and the response is an empty box or an error.
 
+rename
+------
+
+The request has the following keys:
+
+``src``
+    pathname of the file or directory to mvoe
+``dest``
+    pathname to which it should be moved
+
+and the response is an empty box or an error.
+
 TODO
 ''''
 

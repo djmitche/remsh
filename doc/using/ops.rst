@@ -109,6 +109,15 @@ that system can perform at most one operation at any given time.
         resetting file permissions) to delete the tree, but raises
         :class:`~remsh.amp.rpc.RemoteError` if it is not successful.
 
+    .. method:: rename(src, dest)
+
+        :param src: file or directory to rename
+        :param dest: destination filename (must not already exist)
+
+        Rename `src` to `dest`, subject to any local restrictions on renames
+        across filesystems.  Raises :class:`~remsh.amp.rpc.RemoteError` if the
+        operation is not successful.
+
     The Slave class also implements a few utility methods:
 
     .. method:: setup()

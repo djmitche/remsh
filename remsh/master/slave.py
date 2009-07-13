@@ -128,6 +128,9 @@ class Slave(object):
     def rmtree(self, tree):
         self.rpc.call_remote('rmtree', tree=tree)
 
+    def rename(self, src, dest):
+        self.rpc.call_remote('rename', src=src, dest=dest)
+
     def on_disconnect(self, callable):
         # TODO: synchronization so that this gets called immediately if
         # the slave has already disconnected?
