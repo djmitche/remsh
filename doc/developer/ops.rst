@@ -32,16 +32,6 @@ The request box has the following key:
 
 The response box is empty.
 
-unlink
-------
-
-The request box has the following key:
-
-``file``
-    file to unlink
-
-The response box is empty.
-
 execute
 -------
 
@@ -137,13 +127,13 @@ error message should not be sent to the slave.  If a problem occurs on the
 slave, it should stop sending ``data`` boxes and send a ``finished`` box
 containing the optional ``errmsg`` key with a suitable error message.
 
-rmtree
+remove
 ------
 
 The request has the key,
 
-``tree``
-    root of the directory tree to remove
+``path``
+    path to the file or directory to remove
 
 and the response is an empty box or an error.
 

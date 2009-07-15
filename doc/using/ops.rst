@@ -100,14 +100,16 @@ that system can perform at most one operation at any given time.
         This method raises :class:`~remsh.amp.rpc.RemoteError` if `src` does
         not exist or is not readable, or if `dest` already exists.
 
-    .. method:: rmtree(tree)
+    .. method:: remove(path)
 
-        :param tree: root of the directory tree to remove
+        :param path: path to the file or directory to remove
 
-        Remove `tree` and all files and directories beneath it.  This method is
+        Remove `path` and all files and directories beneath it.  This method is
         most often used for cleanup, so it tries everything possible (including
-        resetting file permissions) to delete the tree, but raises
-        :class:`~remsh.amp.rpc.RemoteError` if it is not successful.
+        resetting subdirectory permissions) to delete the file or directory,
+        but raises :class:`~remsh.amp.rpc.RemoteError` if it is not successful.
+
+        This method will succeed trivially if `path` does not exist.
 
     .. method:: rename(src, dest)
 

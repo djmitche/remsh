@@ -46,9 +46,6 @@ class Slave(object):
     def mkdir(self, dir):
         self.rpc.call_remote('mkdir', dir=dir)
 
-    def unlink(self, file):
-        self.rpc.call_remote('unlink', file=file)
-
     def execute(self, args=[], stdout_cb=None, stderr_cb=None):
         self.rpc.call_remote('execute',
             args='\0'.join(args),
@@ -125,8 +122,8 @@ class Slave(object):
         elif state['localerr']:
             raise state['localerr']
 
-    def rmtree(self, tree):
-        self.rpc.call_remote('rmtree', tree=tree)
+    def remove(self, path):
+        self.rpc.call_remote('remove', path=path)
 
     def rename(self, src, dest):
         self.rpc.call_remote('rename', src=src, dest=dest)

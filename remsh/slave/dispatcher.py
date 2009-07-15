@@ -45,16 +45,6 @@ class SlaveRPC(RPC):
 
         self.send_response({})
 
-    def remote_unlink(self, rq):
-        file = rq['file']
-
-        try:
-            os.unlink(file)
-        except OSError, e:
-            raise RemoteError(e.strerror)
-
-        self.send_response({})
-
     def remote_execute(self, rq):
         want_stdout = self._getbool(rq, 'want_stdout')
         want_stderr = self._getbool(rq, 'want_stderr')
@@ -175,25 +165,31 @@ class SlaveRPC(RPC):
         else:
             self.call_remote('finished')
 
-    def remote_rmtree(self, rq):
-        tree = rq['tree']
+    def remote_remove(self, rq):
+        path = rq['path']
 
-        if os.path.exists(tree):
-            try:
-                shutil.rmtree(tree)
-            except OSError, e:
-                # this error may be due to directory permissions;
-                # do a recursive chmod 0700 and try again
-                for root, dirs, files in os.walk(tree):
-                    for d in dirs:
-                        os.chmod(os.path.join(root, d), 0700)
+        if os.path.exists(path):
+            if os.path.isdir(path):
                 try:
-                    shutil.rmtree(tree)
+                    shutil.rmtree(path)
+                except OSError, e:
+                    # this error may be due to directory permissions;
+                    # do a recursive chmod 0700 and try again
+                    for root, dirs, files in os.walk(path):
+                        for d in dirs:
+                            os.chmod(os.path.join(root, d), 0700)
+                    try:
+                        shutil.rmtree(path)
+                    except OSError, e:
+                        raise RemoteError(e.strerror)
+
+                if os.path.exists(path):
+                    raise RemoteError("tree not removed")
+            else:
+                try:
+                    os.unlink(path)
                 except OSError, e:
                     raise RemoteError(e.strerror)
-
-            if os.path.exists(tree):
-                raise RemoteError("tree not removed")
 
         self.send_response({})
 

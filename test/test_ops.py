@@ -113,17 +113,6 @@ class OpsTestMixin(object):
         # invalid dir raises RemoteError
         self.assertRaises(RemoteError, lambda: self.slave.set_cwd("z"))
 
-    def test_unlink(self):
-        # prep
-        exists = os.path.join(self.basedir, "exists")
-        missing = os.path.join(self.basedir, "missing")
-        open(exists, "w")
-
-        self.slave.unlink("exists")
-        self.assert_(not os.path.exists(exists))
-
-        self.assertRaises(RemoteError, lambda: self.slave.unlink(missing))
-
     def test_execute(self):
         # note that all of these tests are just using 'sh'
 
@@ -202,7 +191,7 @@ class OpsTestMixin(object):
         os.unlink(srcfile)
         os.unlink(localfile)
 
-    def test_rmtree(self):
+    def test_remove(self):
         exists = os.path.join(self.basedir, "exists")
         missing = os.path.join(self.basedir, "missing")
 
@@ -213,18 +202,25 @@ class OpsTestMixin(object):
             open(os.path.join(exists, "dir", "file2"), "w")
 
         prep()
-        self.slave.rmtree(exists)
+        self.slave.remove(exists)
         self.assert_(not os.path.exists(exists))
 
         # try again, with an unwriteable file
         prep()
         permprob = os.path.join(exists, "dir")
         os.chmod(permprob, 0) # remove write permission
-        self.slave.rmtree(exists)
+        self.slave.remove(exists)
         self.assert_(not os.path.exists(exists))
 
-        self.slave.rmtree(missing)
+        self.slave.remove(missing)
         # (doesn't raise an exception)
+
+        existing_file = os.path.join(exists, "myfile")
+        os.mkdir(exists)
+        open(existing_file, "w")
+
+        self.slave.remove(existing_file)
+        self.assert_(not os.path.exists(existing_file))
 
     def test_rename(self):
         exists = os.path.join(self.basedir, "exists")
