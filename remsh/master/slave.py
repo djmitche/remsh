@@ -43,6 +43,10 @@ class Slave(object):
         resp = self.rpc.call_remote('set_cwd', **kwargs)
         return resp['cwd']
 
+    def getenv(self):
+        resp = self.rpc.call_remote('getenv')
+        return dict([ (k[4:], v) for (k,v) in resp.iteritems() if k.startswith('env_') ])
+
     def mkdir(self, dir):
         self.rpc.call_remote('mkdir', dir=dir)
 

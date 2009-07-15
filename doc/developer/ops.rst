@@ -22,6 +22,14 @@ The response box has the following key.
 ``cwd``
     resulting working directory; this should be an absolute path
 
+getenv
+------
+
+The request box is empty.  The response box has a key for each environment
+variable, where the key consists of the suffix ``env_`` concatenated with the
+name of the variable.  If the value of an environment variable is greater than
+65535 bytes, it is silently truncated.
+
 mkdir
 -----
 

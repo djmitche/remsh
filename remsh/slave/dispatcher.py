@@ -34,6 +34,10 @@ class SlaveRPC(RPC):
         cwd = os.getcwd()
         self.send_response({'cwd': cwd})
 
+    def remote_getenv(self, rq):
+        resp = dict([ ('env_%s' % k, v[:65535]) for (k,v) in os.environ.iteritems() ])
+        self.send_response(resp)
+
     def remote_mkdir(self, rq):
         dir = rq['dir']
 

@@ -113,6 +113,13 @@ class OpsTestMixin(object):
         # invalid dir raises RemoteError
         self.assertRaises(RemoteError, lambda: self.slave.set_cwd("z"))
 
+    def test_getenv(self):
+        # slave environment should look just like our environment
+        # (TODO: if this turns out to be fragile, then insert a specific value into
+        # the env while launching the slave, and test for it here)
+        env = self.slave.getenv()
+        self.assertEqual(env, os.environ)
+
     def test_execute(self):
         # note that all of these tests are just using 'sh'
 

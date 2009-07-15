@@ -45,6 +45,14 @@ that system can perform at most one operation at any given time.
         if `cwd` is an empty string, then no directory change takes place, and
         the method returns the current directory.
 
+    .. method:: getenv()
+
+        :returns: the slave environment as a dictionary
+
+        Get all environment variables on the slave which might be sent to a
+        child process.  Note that the slave environment cannot be edited, but
+        may be overridden on each invocation of :meth:`execute`.
+
     .. method:: mkdir(dir)
 
         :param dir: directory to create (relative or absolute)
