@@ -49,7 +49,7 @@ case, only the method-specific box keys are described.</p>
 <h2>set_cwd<a class="headerlink" href="#set-cwd" title="Permalink to this headline">¶</a></h2>
 <p>The request box has the following key.</p>
 <dl class="docutils">
-<dt><tt class="docutils literal"><span class="pre">cwd</span></tt></dt>
+<dt><tt class="docutils literal"><span class="pre">cwd</span></tt> (optional)</dt>
 <dd>requested new working directory; this may be a partial path, in which case
 it is relative to the current directory</dd>
 </dl>
@@ -62,21 +62,19 @@ current directory without changing it.</p>
 <dd>resulting working directory; this should be an absolute path</dd>
 </dl>
 </div>
+<div class="section" id="getenv">
+<h2>getenv<a class="headerlink" href="#getenv" title="Permalink to this headline">¶</a></h2>
+<p>The request box is empty.  The response box has a key for each environment
+variable, where the key consists of the suffix <tt class="docutils literal"><span class="pre">env_</span></tt> concatenated with the
+name of the variable.  If the value of an environment variable is greater than
+65535 bytes, it is silently truncated.</p>
+</div>
 <div class="section" id="mkdir">
 <h2>mkdir<a class="headerlink" href="#mkdir" title="Permalink to this headline">¶</a></h2>
 <p>The request box has the following key:</p>
 <dl class="docutils">
 <dt><tt class="docutils literal"><span class="pre">dir</span></tt></dt>
 <dd>directory to create</dd>
-</dl>
-<p>The response box is empty.</p>
-</div>
-<div class="section" id="unlink">
-<h2>unlink<a class="headerlink" href="#unlink" title="Permalink to this headline">¶</a></h2>
-<p>The request box has the following key:</p>
-<dl class="docutils">
-<dt><tt class="docutils literal"><span class="pre">file</span></tt></dt>
-<dd>file to unlink</dd>
 </dl>
 <p>The response box is empty.</p>
 </div>
@@ -110,6 +108,14 @@ are the standard streams)</dd>
 <dt><tt class="docutils literal"><span class="pre">result</span></tt></dt>
 <dd>exit value for this process, in decimal notation</dd>
 </dl>
+<div class="section" id="todo">
+<h3>TODO<a class="headerlink" href="#todo" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>optionally translate platform-specific newlines to &#8216;n&#8217; in execute, send, etc.</li>
+<li>provide a more generic list-of-strings thing, and quote NUL bytes in it</li>
+<li>support additional watched files</li>
+</ul>
+</div>
 </div>
 <div class="section" id="send">
 <h2>send<a class="headerlink" href="#send" title="Permalink to this headline">¶</a></h2>
@@ -126,16 +132,73 @@ makes a series of <tt class="docutils literal"><span class="pre">data</span></tt
 </dl>
 <p>The data stream is terminated by a <tt class="docutils literal"><span class="pre">finished</span></tt> request, which is empty, and to
 which the slave replies with an empty response (or an error response).</p>
-<div class="section" id="todo">
-<h3>TODO<a class="headerlink" href="#todo" title="Permalink to this headline">¶</a></h3>
+<p>Note that there is no provision to indicate an error during the data
+transmission phase.  If an error (e.g., running out of disk space) does occur,
+the slave must continue to read and discard <tt class="docutils literal"><span class="pre">data</span></tt> boxes until the
+<tt class="docutils literal"><span class="pre">finished</span></tt> box arrives, and then signal the error in the response box.</p>
+<div class="section" id="id1">
+<h3>TODO<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>optionally translate platform-specific newlines to &#8216;n&#8217; in execute, send, etc.</li>
-<li>provide a more generic list-of-strings thing, and quote NUL bytes in it</li>
-<li>support additional watched files</li>
 <li>should send include some chance for the slave to indicate error?</li>
 <li>support sending a literal string with send()</li>
 </ul>
 </div>
+</div>
+<div class="section" id="fetch">
+<h2>fetch<a class="headerlink" href="#fetch" title="Permalink to this headline">¶</a></h2>
+<p>The initial request box has the following key:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">src</span></tt></dt>
+<dd>source filename on the slave system</dd>
+</dl>
+<p>The response is an empty box.  Once the response is received, the slave side
+makes a series of <tt class="docutils literal"><span class="pre">data</span></tt> calls identical to those for <tt class="docutils literal"><span class="pre">send</span></tt>.</p>
+<p>The data stream is terminated by a <tt class="docutils literal"><span class="pre">finished</span></tt> request, this time from the
+slave to the master.  This request has the following key:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">errmsg</span></tt> (optional)</dt>
+<dd>the slave-side error message</dd>
+</dl>
+<p>The response from the server is empty.</p>
+<p>As with <tt class="docutils literal"><span class="pre">send</span></tt>, there is no provision to indicate an error during data
+transmission.  If a problem occurs on the master, it must continue to read and
+discard <tt class="docutils literal"><span class="pre">data</span></tt> boxes and reply to the terminating <tt class="docutils literal"><span class="pre">finished</span></tt> box.  The
+error message should not be sent to the slave.  If a problem occurs on the
+slave, it should stop sending <tt class="docutils literal"><span class="pre">data</span></tt> boxes and send a <tt class="docutils literal"><span class="pre">finished</span></tt> box
+containing the optional <tt class="docutils literal"><span class="pre">errmsg</span></tt> key with a suitable error message.</p>
+</div>
+<div class="section" id="remove">
+<h2>remove<a class="headerlink" href="#remove" title="Permalink to this headline">¶</a></h2>
+<p>The request has the key,</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">path</span></tt></dt>
+<dd>path to the file or directory to remove</dd>
+</dl>
+<p>and the response is an empty box or an error.</p>
+</div>
+<div class="section" id="rename">
+<h2>rename<a class="headerlink" href="#rename" title="Permalink to this headline">¶</a></h2>
+<p>The request has the following keys:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">src</span></tt></dt>
+<dd>pathname of the file or directory to mvoe</dd>
+<dt><tt class="docutils literal"><span class="pre">dest</span></tt></dt>
+<dd>pathname to which it should be moved</dd>
+</dl>
+<p>and the response is an empty box or an error.</p>
+</div>
+<div class="section" id="stat">
+<h2>stat<a class="headerlink" href="#stat" title="Permalink to this headline">¶</a></h2>
+<p>The request has the following key:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">pathname</span></tt></dt>
+<dd>pathname to stat</dd>
+</dl>
+<p>and the response is a empty box with the following key (or an error):</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">result</span></tt></dt>
+<dd>one of <tt class="docutils literal"><span class="pre">d</span></tt>, <tt class="docutils literal"><span class="pre">f</span></tt>, or an empty string</dd>
+</dl>
 </div>
 </div>
 
@@ -149,13 +212,20 @@ which the slave replies with an empty response (or an error response).</p>
             <ul>
 <li><a class="reference" href="">Operations</a><ul>
 <li><a class="reference" href="#set-cwd">set_cwd</a></li>
+<li><a class="reference" href="#getenv">getenv</a></li>
 <li><a class="reference" href="#mkdir">mkdir</a></li>
-<li><a class="reference" href="#unlink">unlink</a></li>
-<li><a class="reference" href="#execute">execute</a></li>
-<li><a class="reference" href="#send">send</a><ul>
+<li><a class="reference" href="#execute">execute</a><ul>
 <li><a class="reference" href="#todo">TODO</a></li>
 </ul>
 </li>
+<li><a class="reference" href="#send">send</a><ul>
+<li><a class="reference" href="#id1">TODO</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#fetch">fetch</a></li>
+<li><a class="reference" href="#remove">remove</a></li>
+<li><a class="reference" href="#rename">rename</a></li>
+<li><a class="reference" href="#stat">stat</a></li>
 </ul>
 </li>
 </ul>
@@ -187,7 +257,7 @@ which the slave replies with an empty response (or an error response).</p>
     </div>
     <div class="footer">
       &copy; Copyright 2009-2009, Dustin J. Mitchell &lt;dustin@zmanda.com&gt;.
-      Last updated on Jul 06, 2009.
+      Last updated on Jul 15, 2009.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.5.2.
     </div>
   </body>

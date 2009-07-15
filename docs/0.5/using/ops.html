@@ -1,0 +1,375 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Operations &mdash; remsh v0.5 documentation</title>
+    <link rel="stylesheet" href="../static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.5',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false
+      };
+    </script>
+    <script type="text/javascript" src="../static/jquery.js"></script>
+    <script type="text/javascript" src="../static/doctools.js"></script>
+    <link rel="top" title="remsh v0.5 documentation" href="../index.html" />
+    <link rel="up" title="Using Remsh" href="../using.html" />
+    <link rel="next" title="Slave Listeners" href="slave_listeners.html" />
+    <link rel="prev" title="Using Remsh" href="../using.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="slave_listeners.html" title="Slave Listeners"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../using.html" title="Using Remsh"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">remsh v0.5 documentation</a> &raquo;</li>
+          <li><a href="../using.html" accesskey="U">Using Remsh</a> &raquo;</li> 
+      </ul>
+    </div>  
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  
+  <div class="section" id="operations">
+<span id="slaves"></span><h1>Operations<a class="headerlink" href="#operations" title="Permalink to this headline">¶</a></h1>
+<p>The primary purpose of Remsh is to perform operations on remote systems.  The
+interface to those remote operations is the <a title="remsh.master.slave.Slave" class="reference" href="#remsh.master.slave.Slave"><tt class="xref docutils literal"><span class="pre">Slave</span></tt></a>
+class.  Each instance of this class represents a distinct remote system, and
+that system can perform at most one operation at any given time.</p>
+<dl class="class">
+<dt id="remsh.master.slave.Slave">
+<!--[remsh.master.slave.Slave]-->class <tt class="descclassname">remsh.master.slave.</tt><tt class="descname">Slave</tt><big>(</big><em>wire</em>, <em>hostname</em>, <em>version</em><big>)</big><a class="headerlink" href="#remsh.master.slave.Slave" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><em>wire</em> &#8211; <a title="remsh.amp.wire.SimpleWire" class="reference" href="../developer/amp.html#remsh.amp.wire.SimpleWire"><tt class="xref docutils literal"><span class="pre">SimpleWire</span></tt></a> instance this slave should use</li>
+<li><em>hostname</em> &#8211; hostname of the slave</li>
+<li><em>version</em> &#8211; protocol version the slave supplied</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Slave objects give access to all of the operations supported by remsh.
+Note that these operations all block, first waiting for any already-running
+operations to finish, and then waiting for the requested operation to
+finish.  To support concurrent use of multiple slaves, invoke operations
+from different Python threads on the master.</p>
+<p>The class is designed to be easily subclassed by users, but only one
+implementation is included with Remsh.</p>
+<p>Any of the following operation methods may raise
+<a title="remsh.amp.rpc.RemoteError" class="reference" href="../developer/rpc.html#remsh.amp.rpc.RemoteError"><tt class="xref docutils literal"><span class="pre">RemoteError</span></tt></a>, <a title="remsh.amp.wire.Error" class="reference" href="../developer/amp.html#remsh.amp.wire.Error"><tt class="xref docutils literal"><span class="pre">Error</span></tt></a>, or
+<tt class="xref docutils literal"><span class="pre">socket.error</span></tt>.</p>
+<dl class="method">
+<dt id="remsh.master.slave.Slave.set_cwd">
+<!--[remsh.master.slave.Slave.set_cwd]--><tt class="descname">set_cwd</tt><big>(</big><em>cwd=None</em><big>)</big><a class="headerlink" href="#remsh.master.slave.Slave.set_cwd" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><em>cwd</em> &#8211; directory to switch to, or None for basedir</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Sets the working directory of the slave, returning the new working
+directory.  Raises an <a title="remsh.amp.rpc.RemoteError" class="reference" href="../developer/rpc.html#remsh.amp.rpc.RemoteError"><tt class="xref docutils literal"><span class="pre">RemoteError</span></tt></a> if the
+designated directory is not found.  The pathname is treated as a simple
+bytestring, to be interepreted by the slave.</p>
+<p>If <cite>cwd</cite> is None, then this method resets the working directory to the
+slave&#8217;s base directory.  Note that such an invocation may still raise
+<a title="remsh.amp.rpc.RemoteError" class="reference" href="../developer/rpc.html#remsh.amp.rpc.RemoteError"><tt class="xref docutils literal"><span class="pre">RemoteError</span></tt></a>, if the slave&#8217;s base directory has
+been deleted.</p>
+<p>if <cite>cwd</cite> is an empty string, then no directory change takes place, and
+the method returns the current directory.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="remsh.master.slave.Slave.getenv">
+<!--[remsh.master.slave.Slave.getenv]--><tt class="descname">getenv</tt><big>(</big><big>)</big><a class="headerlink" href="#remsh.master.slave.Slave.getenv" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">the slave environment as a dictionary</td>
+</tr>
+</tbody>
+</table>
+<p>Get all environment variables on the slave which might be sent to a
+child process.  Note that the slave environment cannot be edited, but
+may be overridden on each invocation of <tt class="xref docutils literal"><span class="pre">execute()</span></tt>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="remsh.master.slave.Slave.mkdir">
+<!--[remsh.master.slave.Slave.mkdir]--><tt class="descname">mkdir</tt><big>(</big><em>dir</em><big>)</big><a class="headerlink" href="#remsh.master.slave.Slave.mkdir" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><em>dir</em> &#8211; directory to create (relative or absolute)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Does the equivalent of <tt class="docutils literal"><span class="pre">mkdir</span> <span class="pre">-p</span></tt> on the remote system.  Raises an
+<a title="remsh.amp.rpc.RemoteError" class="reference" href="../developer/rpc.html#remsh.amp.rpc.RemoteError"><tt class="xref docutils literal"><span class="pre">RemoteError</span></tt></a> in the event of an error on the
+slave side.  It is <em>not</em> an error to create a directory that already
+exists.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="remsh.master.slave.Slave.unlink">
+<!--[remsh.master.slave.Slave.unlink]--><tt class="descname">unlink</tt><big>(</big><em>file</em><big>)</big><a class="headerlink" href="#remsh.master.slave.Slave.unlink" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><em>file</em> &#8211; the file to unlink</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Deletes the given file, raising a <a title="remsh.amp.rpc.RemoteError" class="reference" href="../developer/rpc.html#remsh.amp.rpc.RemoteError"><tt class="xref docutils literal"><span class="pre">RemoteError</span></tt></a>
+in the event of an error.  It is an error to delete a file that does
+not exist.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="remsh.master.slave.Slave.execute">
+<!--[remsh.master.slave.Slave.execute]--><tt class="descname">execute</tt><big>(</big><em>args=</em><span class="optional">[</span><span class="optional">]</span>, <em>stdout_cb=None</em>, <em>stderr_cb=None</em><big>)</big><a class="headerlink" href="#remsh.master.slave.Slave.execute" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><em>args</em> &#8211; sequence of command-line arguments</li>
+<li><em>stdout_cb</em> &#8211; callback for stdout data</li>
+<li><em>stderr_cb</em> &#8211; callback for stderr data</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">process exit code (0 generally meaning success)</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Execute <cite>args</cite> in a subprocess.</p>
+<p>If <cite>stdout_cb</cite> is not None, it is called for each &#8220;chunk&#8221; of the
+executable&#8217;s standard output seen; <cite>stderr_cb</cite> does the same for
+standard error.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="remsh.master.slave.Slave.send">
+<!--[remsh.master.slave.Slave.send]--><tt class="descname">send</tt><big>(</big><em>src</em>, <em>dest</em><big>)</big><a class="headerlink" href="#remsh.master.slave.Slave.send" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><em>src</em> &#8211; source filename (on the master)</li>
+<li><em>dest</em> &#8211; destination filename (on the slave)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Copies <cite>src</cite>, on the master, to <cite>dest</cite> on the slave.  This is a basic,
+data-only copy, so no file metadata, &#8220;forks&#8221;, &#8220;streams&#8221;, or anything
+like that will be copied.  The destination filename can be relative to
+the current directory or absolute.</p>
+<p>This method raises <a title="remsh.amp.rpc.RemoteError" class="reference" href="../developer/rpc.html#remsh.amp.rpc.RemoteError"><tt class="xref docutils literal"><span class="pre">RemoteError</span></tt></a> if <cite>dest</cite>
+already exists.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="remsh.master.slave.Slave.fetch">
+<!--[remsh.master.slave.Slave.fetch]--><tt class="descname">fetch</tt><big>(</big><em>src</em>, <em>dest</em><big>)</big><a class="headerlink" href="#remsh.master.slave.Slave.fetch" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><em>src</em> &#8211; source filename (on the slave)</li>
+<li><em>dest</em> &#8211; destination filename (on the master)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Copies <cite>src</cite>, on the slave, to <cite>dest</cite> on the master.  Like
+<tt class="xref docutils literal"><span class="pre">send()</span></tt>, this is a data-only copy.  The source filename can be
+relative to the current directory or absolute.</p>
+<p>This method raises <a title="remsh.amp.rpc.RemoteError" class="reference" href="../developer/rpc.html#remsh.amp.rpc.RemoteError"><tt class="xref docutils literal"><span class="pre">RemoteError</span></tt></a> if <cite>src</cite> does
+not exist or is not readable, or if <cite>dest</cite> already exists.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="remsh.master.slave.Slave.remove">
+<!--[remsh.master.slave.Slave.remove]--><tt class="descname">remove</tt><big>(</big><em>path</em><big>)</big><a class="headerlink" href="#remsh.master.slave.Slave.remove" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><em>path</em> &#8211; path to the file or directory to remove</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Remove <cite>path</cite> and all files and directories beneath it.  This method is
+most often used for cleanup, so it tries everything possible (including
+resetting subdirectory permissions) to delete the file or directory,
+but raises <a title="remsh.amp.rpc.RemoteError" class="reference" href="../developer/rpc.html#remsh.amp.rpc.RemoteError"><tt class="xref docutils literal"><span class="pre">RemoteError</span></tt></a> if it is not successful.</p>
+<p>This method will succeed trivially if <cite>path</cite> does not exist.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="remsh.master.slave.Slave.rename">
+<!--[remsh.master.slave.Slave.rename]--><tt class="descname">rename</tt><big>(</big><em>src</em>, <em>dest</em><big>)</big><a class="headerlink" href="#remsh.master.slave.Slave.rename" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><em>src</em> &#8211; file or directory to rename</li>
+<li><em>dest</em> &#8211; destination filename (must not already exist)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Rename <cite>src</cite> to <cite>dest</cite>, subject to any local restrictions on renames
+across filesystems.  Raises <a title="remsh.amp.rpc.RemoteError" class="reference" href="../developer/rpc.html#remsh.amp.rpc.RemoteError"><tt class="xref docutils literal"><span class="pre">RemoteError</span></tt></a> if the
+operation is not successful.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="remsh.master.slave.Slave.stat">
+<!--[remsh.master.slave.Slave.stat]--><tt class="descname">stat</tt><big>(</big><em>pathname</em><big>)</big><a class="headerlink" href="#remsh.master.slave.Slave.stat" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><em>pathname</em> &#8211; pathname to stat</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><tt class="docutils literal"><span class="pre">&quot;d&quot;</span></tt> or <tt class="docutils literal"><span class="pre">&quot;f&quot;</span></tt> or <tt class="xref docutils literal"><span class="pre">None</span></tt></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Check the given pathname for existence, and return <tt class="docutils literal"><span class="pre">&quot;d&quot;</span></tt> for a
+directory, <tt class="docutils literal"><span class="pre">&quot;f&quot;</span></tt> for a file (actually, anything but a directory), or
+<tt class="xref docutils literal"><span class="pre">None</span></tt> if the path does not exist.  Raises
+<a title="remsh.amp.rpc.RemoteError" class="reference" href="../developer/rpc.html#remsh.amp.rpc.RemoteError"><tt class="xref docutils literal"><span class="pre">RemoteError</span></tt></a> if a permission error prevents the
+check.</p>
+</dd></dl>
+
+<p>The Slave class also implements a few utility methods:</p>
+<dl class="method">
+<dt id="remsh.master.slave.Slave.setup">
+<!--[remsh.master.slave.Slave.setup]--><tt class="descname">setup</tt><big>(</big><big>)</big><a class="headerlink" href="#remsh.master.slave.Slave.setup" title="Permalink to this definition">¶</a></dt>
+<dd>This method is a hook, called after the slave has registered, but
+before it is added to the slave collection. The method is called in its
+own thread, and can do whatever additional setup is required, including
+executing operations on the slave.  One possibility is to dynamically
+investigate the capabilities of the slave for later use.  Another is to
+set up periodic commands, e.g. keepalives or load monitoring.  These
+should run in a separate thread.</dd></dl>
+
+<dl class="method">
+<dt id="remsh.master.slave.Slave.on_disconnect">
+<!--[remsh.master.slave.Slave.on_disconnect]--><tt class="descname">on_disconnect</tt><big>(</big><em>callable</em><big>)</big><a class="headerlink" href="#remsh.master.slave.Slave.on_disconnect" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><em>callable</em> &#8211; invoked when the slave disconnects</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Register <cite>callable</cite> to be called when this slave disconnects,
+whether smoothly or in the midst of an operation.  Slave collection
+objects (see <a class="reference" href="slave_collections.html#slave-collections"><em>Slave Collections</em></a>) should use this to mark the
+slave as no longer available.  The callable is invoked with the
+<tt class="xref docutils literal"><span class="pre">Slave</span></tt> instance as its argument.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="../using.html" title="previous chapter">Using Remsh</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="slave_listeners.html" title="next chapter">Slave Listeners</a></p>
+          <h3>Quick search</h3>
+            <form class="search" action="../search.html" method="get">
+              <input type="text" name="q" size="18" /> <input type="submit" value="Go" />
+              <input type="hidden" name="check_keywords" value="yes" />
+              <input type="hidden" name="area" value="default" />
+            </form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="slave_listeners.html" title="Slave Listeners"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../using.html" title="Using Remsh"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">remsh v0.5 documentation</a> &raquo;</li>
+          <li><a href="../using.html" accesskey="U">Using Remsh</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2009-2009, Dustin J. Mitchell &lt;dustin@zmanda.com&gt;.
+      Last updated on Jul 15, 2009.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.5.2.
+    </div>
+  </body>
+</html>

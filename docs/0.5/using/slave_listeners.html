@@ -4,39 +4,39 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
     <title>Slave Listeners &mdash; remsh v0.5 documentation</title>
-    <link rel="stylesheet" href="static/default.css" type="text/css" />
-    <link rel="stylesheet" href="static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
+        URL_ROOT:    '../',
         VERSION:     '0.5',
         COLLAPSE_MODINDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  false
       };
     </script>
-    <script type="text/javascript" src="static/jquery.js"></script>
-    <script type="text/javascript" src="static/doctools.js"></script>
-    <link rel="top" title="remsh v0.5 documentation" href="index.html" />
-    <link rel="up" title="Using Remsh" href="using_remsh.html" />
+    <script type="text/javascript" src="../static/jquery.js"></script>
+    <script type="text/javascript" src="../static/doctools.js"></script>
+    <link rel="top" title="remsh v0.5 documentation" href="../index.html" />
+    <link rel="up" title="Using Remsh" href="../using.html" />
     <link rel="next" title="Slave Collections" href="slave_collections.html" />
-    <link rel="prev" title="Using Remsh" href="using_remsh.html" /> 
+    <link rel="prev" title="Operations" href="ops.html" /> 
   </head>
   <body>
     <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
+          <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
           <a href="slave_collections.html" title="Slave Collections"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="using_remsh.html" title="Using Remsh"
+          <a href="ops.html" title="Operations"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">remsh v0.5 documentation</a> &raquo;</li>
-          <li><a href="using_remsh.html" accesskey="U">Using Remsh</a> &raquo;</li> 
+        <li><a href="../index.html">remsh v0.5 documentation</a> &raquo;</li>
+          <li><a href="../using.html" accesskey="U">Using Remsh</a> &raquo;</li> 
       </ul>
     </div>  
     <div class="document">
@@ -69,7 +69,7 @@ listener = tcp.TcpSlaveListener(..)</pre>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><em>slave_class</em> &#8211; class to instantiate for new slaves (defaults to <a title="remsh.master.slave.Slave" class="reference" href="slaves.html#remsh.master.slave.Slave"><tt class="xref docutils literal"><span class="pre">Slave</span></tt></a>)</li>
+<li><em>slave_class</em> &#8211; class to instantiate for new slaves (defaults to <a title="remsh.master.slave.Slave" class="reference" href="ops.html#remsh.master.slave.Slave"><tt class="xref docutils literal"><span class="pre">Slave</span></tt></a>)</li>
 <li><em>slave_collection</em> &#8211; slave collection object to which new slaves should be added (see below)</li>
 </ul>
 </td>
@@ -91,13 +91,13 @@ subclasses take the named parameters <tt class="docutils literal"><span class="p
 
 <dl class="method">
 <dt id="remsh.master.slavelistener.base.SlaveListener.handle_new_connection">
-<!--[remsh.master.slavelistener.base.SlaveListener.handle_new_connection]--><tt class="descname">handle_new_connection</tt><big>(</big><em>conn</em><big>)</big><a class="headerlink" href="#remsh.master.slavelistener.base.SlaveListener.handle_new_connection" title="Permalink to this definition">¶</a></dt>
+<!--[remsh.master.slavelistener.base.SlaveListener.handle_new_connection]--><tt class="descname">handle_new_connection</tt><big>(</big><em>wire</em><big>)</big><a class="headerlink" href="#remsh.master.slavelistener.base.SlaveListener.handle_new_connection" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><em>conn</em> &#8211; <tt class="xref docutils literal"><span class="pre">Connection</span></tt> object</li>
+<li><em>wire</em> &#8211; <a title="remsh.amp.wire.SimpleWire" class="reference" href="../developer/amp.html#remsh.amp.wire.SimpleWire"><tt class="xref docutils literal"><span class="pre">SimpleWire</span></tt></a> intance</li>
 </ul>
 </td>
 </tr>
@@ -111,7 +111,7 @@ for a connection to a new slave.  The method should be called in a
 thread, as it will block while performing operations on the slave.  It
 handles the registration phase of the protocol, then creates a new
 instance of <tt class="xref docutils literal"><span class="pre">slave_class</span></tt>, calls its
-<a title="remsh.master.slave.Slave.setup" class="reference" href="slaves.html#remsh.master.slave.Slave.setup"><tt class="xref docutils literal"><span class="pre">setup()</span></tt></a> method, and then adds it to
+<a title="remsh.master.slave.Slave.setup" class="reference" href="ops.html#remsh.master.slave.Slave.setup"><tt class="xref docutils literal"><span class="pre">setup()</span></tt></a> method, and then adds it to
 <tt class="xref docutils literal"><span class="pre">slave_collection</span></tt>.</p>
 </dd></dl>
 
@@ -199,7 +199,7 @@ locally, on the master.</p>
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
-            <h3><a href="index.html">Table Of Contents</a></h3>
+            <h3><a href="../index.html">Table Of Contents</a></h3>
             <ul>
 <li><a class="reference" href="">Slave Listeners</a><ul>
 <li><a class="reference" href="#base-class">Base Class</a></li>
@@ -210,11 +210,11 @@ locally, on the master.</p>
 </ul>
 
             <h4>Previous topic</h4>
-            <p class="topless"><a href="using_remsh.html" title="previous chapter">Using Remsh</a></p>
+            <p class="topless"><a href="ops.html" title="previous chapter">Operations</a></p>
             <h4>Next topic</h4>
             <p class="topless"><a href="slave_collections.html" title="next chapter">Slave Collections</a></p>
           <h3>Quick search</h3>
-            <form class="search" action="search.html" method="get">
+            <form class="search" action="../search.html" method="get">
               <input type="text" name="q" size="18" /> <input type="submit" value="Go" />
               <input type="hidden" name="check_keywords" value="yes" />
               <input type="hidden" name="area" value="default" />
@@ -227,21 +227,21 @@ locally, on the master.</p>
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
+          <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
           <a href="slave_collections.html" title="Slave Collections"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="using_remsh.html" title="Using Remsh"
+          <a href="ops.html" title="Operations"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">remsh v0.5 documentation</a> &raquo;</li>
-          <li><a href="using_remsh.html" accesskey="U">Using Remsh</a> &raquo;</li> 
+        <li><a href="../index.html">remsh v0.5 documentation</a> &raquo;</li>
+          <li><a href="../using.html" accesskey="U">Using Remsh</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
       &copy; Copyright 2009-2009, Dustin J. Mitchell &lt;dustin@zmanda.com&gt;.
-      Last updated on Jul 06, 2009.
+      Last updated on Jul 15, 2009.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.5.2.
     </div>
   </body>
