@@ -131,6 +131,11 @@ class Slave(object):
     def rename(self, src, dest):
         self.rpc.call_remote('rename', src=src, dest=dest)
 
+    def stat(self, pathname):
+        resp = self.rpc.call_remote('stat', pathname=pathname)
+        if resp['result']:
+            return resp['result']
+
     def on_disconnect(self, callable):
         # TODO: synchronization so that this gets called immediately if
         # the slave has already disconnected?

@@ -8,6 +8,8 @@ import socket
 import subprocess
 import select
 import shutil
+import errno
+import stat
 
 from remsh.amp.rpc import RPC, RemoteError
 
@@ -210,6 +212,22 @@ class SlaveRPC(RPC):
             raise RemoteError(e.strerror)
 
         self.send_response({})
+
+    def remote_stat(self, rq):
+        pathname = rq['pathname']
+
+        try:
+            st = os.stat(pathname)
+        except OSError, e:
+            if e.errno == errno.ENOENT:
+                self.send_response({'result' : ''})
+                return
+            raise RemoteError(e.strerror)
+
+        if stat.S_ISDIR(st.st_mode):
+            self.send_response({'result' : 'd'})
+        else:
+            self.send_response({'result' : 'f'})
 
     def _getbool(self, rq, name):
         if name not in rq or rq[name] not in 'ny':

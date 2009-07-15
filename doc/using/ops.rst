@@ -118,6 +118,17 @@ that system can perform at most one operation at any given time.
         across filesystems.  Raises :class:`~remsh.amp.rpc.RemoteError` if the
         operation is not successful.
 
+    .. method:: stat(pathname)
+
+        :param pathname: pathname to stat
+        :returns: ``"d"`` or ``"f"`` or ``None``
+
+        Check the given pathname for existence, and return ``"d"`` for a
+        directory, ``"f"`` for a file (actually, anything but a directory), or
+        ``None`` if the path does not exist.  Raises
+        :class:`~remsh.amp.rpc.RemoteError` if a permission error prevents the
+        check.
+
     The Slave class also implements a few utility methods:
 
     .. method:: setup()

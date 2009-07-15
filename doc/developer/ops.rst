@@ -76,6 +76,13 @@ The ``finished`` request has the following key:
 ``result``
     exit value for this process, in decimal notation
 
+TODO
+''''
+
+* optionally translate platform-specific newlines to '\n' in execute, send, etc.
+* provide a more generic list-of-strings thing, and quote NUL bytes in it
+* support additional watched files
+
 send
 ----
 
@@ -97,6 +104,12 @@ Note that there is no provision to indicate an error during the data
 transmission phase.  If an error (e.g., running out of disk space) does occur,
 the slave must continue to read and discard ``data`` boxes until the
 ``finished`` box arrives, and then signal the error in the response box.
+
+TODO
+''''
+
+* should send include some chance for the slave to indicate error?
+* support sending a literal string with send()
 
 fetch
 -----
@@ -146,11 +159,15 @@ The request has the following keys:
 
 and the response is an empty box or an error.
 
-TODO
-''''
+stat
+----
 
-* optionally translate platform-specific newlines to '\n' in execute, send, etc.
-* provide a more generic list-of-strings thing, and quote NUL bytes in it
-* support additional watched files
-* should send include some chance for the slave to indicate error?
-* support sending a literal string with send()
+The request has the following key:
+
+``pathname``
+    pathname to stat
+
+and the response is a empty box with the following key (or an error):
+
+``result``
+    one of ``d``, ``f``, or an empty string

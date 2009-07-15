@@ -238,6 +238,20 @@ class OpsTestMixin(object):
         self.assert_(not os.path.exists(exists))
         self.assert_(os.path.exists(missing))
 
+    def test_stat(self):
+        missing = os.path.join(self.basedir, "missing")
+        somedir = os.path.join(self.basedir, "somedir")
+        somefile = os.path.join(somedir, "somefile")
+        os.mkdir(somedir)
+        open(somefile, "w")
+
+        self.assertEquals(self.slave.stat(missing), None)
+        self.assertEquals(self.slave.stat(somedir), 'd')
+        self.assertEquals(self.slave.stat(somefile), 'f')
+        os.chmod(somedir, 0) # remove r/x permission
+        self.assertRaises(RemoteError, lambda : self.slave.stat(somefile))
+        os.chmod(somedir, 0777) # restore permission
+
 class LocalSlaveMixin(object):
 
     def setUpSlave(self):
