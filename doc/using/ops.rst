@@ -128,6 +128,15 @@ that system can perform at most one operation at any given time.
         across filesystems.  Raises :class:`~remsh.amp.rpc.RemoteError` if the
         operation is not successful.
 
+    .. method:: copy(src, dest)
+
+        :param src: file to copy
+        :param dest: destination filename (must not already exist)
+
+        Copy `src` to `dest`.  This copy operation is not guaranteed to
+        replicate any metadata on `src`, and does not copy directories.  Raises
+        :class:`~remsh.amp.rpc.RemoteError` if the operation is not successful.
+
     .. method:: stat(pathname)
 
         :param pathname: pathname to stat

@@ -241,6 +241,18 @@ class OpsTestMixin(object):
         self.assert_(not os.path.exists(exists))
         self.assert_(os.path.exists(missing))
 
+    def test_copy(self):
+        exists = os.path.join(self.basedir, "exists")
+        open(exists, "w")
+        missing = os.path.join(self.basedir, "missing")
+
+        self.assertRaises(RemoteError, lambda : self.slave.copy(missing, missing))
+        self.assertRaises(RemoteError, lambda : self.slave.copy(exists, exists))
+
+        self.slave.copy(exists, missing)
+        self.assert_(os.path.exists(exists))
+        self.assert_(os.path.exists(missing))
+
     def test_stat(self):
         missing = os.path.join(self.basedir, "missing")
         somedir = os.path.join(self.basedir, "somedir")

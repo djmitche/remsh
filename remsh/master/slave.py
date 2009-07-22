@@ -132,6 +132,9 @@ class Slave(object):
     def rename(self, src, dest):
         self.rpc.call_remote('rename', src=src, dest=dest)
 
+    def copy(self, src, dest):
+        self.rpc.call_remote('copy', src=src, dest=dest)
+
     def stat(self, pathname):
         resp = self.rpc.call_remote('stat', pathname=pathname)
         if resp['result']:

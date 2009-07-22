@@ -151,9 +151,21 @@ rename
 The request has the following keys:
 
 ``src``
-    pathname of the file or directory to mvoe
+    pathname of the file or directory to move
 ``dest``
     pathname to which it should be moved
+
+and the response is an empty box or an error.
+
+copy
+----
+
+The request has the following keys:
+
+``src``
+    pathname of the file to copy
+``dest``
+    pathname to which it should be copied
 
 and the response is an empty box or an error.
 

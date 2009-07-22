@@ -213,6 +213,24 @@ class SlaveRPC(RPC):
 
         self.send_response({})
 
+    def remote_copy(self, rq):
+        src = rq['src']
+        dest = rq['dest']
+
+        if not os.path.exists(src):
+            raise RemoteError("'%s' does not exist" % src)
+        if os.path.exists(dest):
+            raise RemoteError("'%s' already exists" % dest)
+
+        try:
+            shutil.copyfile(src, dest)
+        except OSError, e:
+            raise RemoteError(e.strerror)
+        except Exception, e:
+            raise RemoteError(str(e))
+
+        self.send_response({})
+
     def remote_stat(self, rq):
         pathname = rq['pathname']
 
