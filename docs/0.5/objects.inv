@@ -18,6 +18,7 @@ remsh.master.slavecollection.simple.SimpleSlaveCollection.get_all_slaves method 
 remsh.master.slavelistener.base.SlaveListener.handle_new_connection method using/slave_listeners.html
 remsh.amp.wire.SimpleWire.read_box method developer/amp.html
 remsh.master.slave.Slave.remove method using/ops.html
+remsh.master.slave.Slave.copy method using/ops.html
 remsh.master.slave.Slave.set_cwd method using/ops.html
 remsh.amp.wire.SimpleWire.stop method developer/amp.html
 remsh.master.slave.Slave.mkdir method using/ops.html

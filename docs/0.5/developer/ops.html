@@ -181,9 +181,20 @@ containing the optional <tt class="docutils literal"><span class="pre">errmsg</s
 <p>The request has the following keys:</p>
 <dl class="docutils">
 <dt><tt class="docutils literal"><span class="pre">src</span></tt></dt>
-<dd>pathname of the file or directory to mvoe</dd>
+<dd>pathname of the file or directory to move</dd>
 <dt><tt class="docutils literal"><span class="pre">dest</span></tt></dt>
 <dd>pathname to which it should be moved</dd>
+</dl>
+<p>and the response is an empty box or an error.</p>
+</div>
+<div class="section" id="copy">
+<h2>copy<a class="headerlink" href="#copy" title="Permalink to this headline">¶</a></h2>
+<p>The request has the following keys:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">src</span></tt></dt>
+<dd>pathname of the file to copy</dd>
+<dt><tt class="docutils literal"><span class="pre">dest</span></tt></dt>
+<dd>pathname to which it should be copied</dd>
 </dl>
 <p>and the response is an empty box or an error.</p>
 </div>
@@ -225,6 +236,7 @@ containing the optional <tt class="docutils literal"><span class="pre">errmsg</s
 <li><a class="reference" href="#fetch">fetch</a></li>
 <li><a class="reference" href="#remove">remove</a></li>
 <li><a class="reference" href="#rename">rename</a></li>
+<li><a class="reference" href="#copy">copy</a></li>
 <li><a class="reference" href="#stat">stat</a></li>
 </ul>
 </li>
@@ -257,7 +269,7 @@ containing the optional <tt class="docutils literal"><span class="pre">errmsg</s
     </div>
     <div class="footer">
       &copy; Copyright 2009-2009, Dustin J. Mitchell &lt;dustin@zmanda.com&gt;.
-      Last updated on Jul 15, 2009.
+      Last updated on Jul 22, 2009.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.5.2.
     </div>
   </body>
