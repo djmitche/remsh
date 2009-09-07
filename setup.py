@@ -14,7 +14,20 @@
 # You should have received a copy of the GNU General Public License
 # along with remsh.  If not, see <http://www.gnu.org/licenses/>.
 
-from setuptools import setup, find_packages
+import os
+
+from setuptools import Command, setup, find_packages
+
+
+class DocUpdate(Command):
+    """
+    Executes the upload-docs.sh from setuptools.
+    """
+    description = "Execute doc shell command"
+    user_options = []
+
+    initialize_options = finalize_options = lambda s: s
+    run = lambda s: os.system('pushd doc/; sh upload-docs.sh; popd')
 
 
 setup(name='remsh',
@@ -31,4 +44,5 @@ setup(name='remsh',
         ],
       },
       test_suite='test',
+      cmdclass = {'docupdate': DocUpdate},
       )
