@@ -14,7 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with remsh.  If not, see <http://www.gnu.org/licenses/>.
 
-from setuptools import setup
+from setuptools import setup, find_packages
+
 
 setup(name='remsh',
       version=open("VERSION").read().strip(),
@@ -22,14 +23,7 @@ setup(name='remsh',
       author='Dustin J. Mitchell',
       author_email='dustin@zmanda.com',
       url='http://github.com/djmitche/remsh',
-      packages=[
-        'remsh',
-        'remsh.master',
-        'remsh.master.scripts',
-        'remsh.master.slavelistener',
-        'remsh.slave',
-        'remsh.slave.scripts',
-      ],
+      packages=find_packages('.', ['test']),
       entry_points = {
         'console_scripts': [
           'remsh-slave = remsh.slave.scripts.remsh_slave:main',
