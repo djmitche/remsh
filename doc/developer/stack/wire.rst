@@ -1,29 +1,51 @@
-AMP
-===
+Wire Layer
+==========
 
-AMP is the "Asynchronous Messaging Protocol", a message-based protocol designed
-by the folks at Twisted Matrix
-(http://twistedmatrix.com/documents/current/api/twisted.protocols.amp.html).
+The wire layer provides a very simple interface to higher layers.  It is
+symmetrical - the slave and master both use the same source.  It provides a way
+to send and receive "boxes", which are small sets of key/value pairs.
 
-Remsh uses only the AMP wire protocol, because it is a simple protocol that can
-be implemented with minimal code in any language.  Remsh does not exploit the
-asynchronous nature of the protocol, however: in general, both sides of a
-connection always know which side will send the next message.
+Boxes are sent to the other side of the connection, in order and without loss.
 
-This section describes the protocol and its implementation within Remsh.  It
-does not describe the implementation of Remsh operations on top of this
-protocol.
+API
+'''
+
+This layer is represented as an object, the constructor for which takes a
+reference to a transport object.  The object has two methods: ``send_box`` and
+``read_box``.  The first takes a box to be transmitted to the remote side, and
+the second returns a box from the remote side, blocking until the box is
+received.
+
+Boxes are implemented in a language-specific fashion.
 
 Protocol
---------
+''''''''
+
+All remsh implementations must support an implementation of the wire layer
+using AMP, and may support other implementations.  The user must explicitly
+configure any alternative implementations on both the master and slave.
+Without any such configuration, implementations must assume that AMP is in use.
+
+AMP is the `Asynchronous Messaging Protocol
+<http://twistedmatrix.com/documents/current/api/twisted.protocols.amp.html>`_,
+a message-based protocol designed by the folks at Twisted Matrix.  This
+protocol operates over the transport layer, adding its own framing.
+
+Of the details described in the link above, remsh uses only the AMP wire
+protocol, because it is a simple protocol that can be implemented with minimal
+code in any language.  Remsh does not exploit the asynchronous nature of the
+protocol, however: in general, both sides of a connection always know which
+side will send the next message.
 
 An AMP "box" is a sequence of key-value pairs, with unique keys.  Both keys and
 values are arbitrary 8-bit bytestrings with no particular encoding specified.
 A box is represented in a bytestream by alternating keys and values, each
 prefixed with a 2-byte length, with an empty key signalling the end of a box.
 The lengths are specified in network byte order.  Key order in the bytestream
-is irrelevant.  Boxes are often written as Python dictionaries in this
-documentation.
+is irrelevant, and duplicate keys are not allowed.
+
+Boxes are often written as Python dictionaries in this documentation, for
+brevity.
 
 For example, the box ::
 
@@ -48,8 +70,8 @@ consequence reasonable limits on the overall size of a box are possible (based
 on the largest number of allowed keys in a remsh box), for security- or
 memory-conscious uses.
 
-Implementation
---------------
+Python Implementation
+'''''''''''''''''''''
 
 The implementation of this protocol is entirely synchronous.  Callers should
 use Python threads to handle multiple simultaneous connections.

@@ -1,4 +1,5 @@
-***********
+.. _using-remsh:
+
 Using Remsh
 ***********
 
