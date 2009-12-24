@@ -5,7 +5,7 @@
 import unittest
 import threading
 
-from remsh.xport import LocalXport
+from remsh.xport.local import LocalXport
 
 
 class TestLocalXport(unittest.TestCase):
