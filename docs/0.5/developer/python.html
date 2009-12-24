@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Python &mdash; remsh v0.5 documentation</title>
+    <link rel="stylesheet" href="../static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.5',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false
+      };
+    </script>
+    <script type="text/javascript" src="../static/jquery.js"></script>
+    <script type="text/javascript" src="../static/doctools.js"></script>
+    <link rel="top" title="remsh v0.5 documentation" href="../index.html" />
+    <link rel="up" title="Developer Documentation" href="../developer.html" />
+    <link rel="prev" title="Operations Layer" href="stack/operations.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="stack/operations.html" title="Operations Layer"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">remsh v0.5 documentation</a> &raquo;</li>
+          <li><a href="../developer.html" accesskey="U">Developer Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  
+  <div class="section" id="python">
+<h1>Python<a class="headerlink" href="#python" title="Permalink to this headline">¶</a></h1>
+<p>This section describes the Python implemtation of remsh.</p>
+<p>Remsh is packaged in the <tt class="docutils literal"><span class="pre">remsh</span></tt> namespace, and exposes symbols at particular
+places in the hierarchy that are guaranteed to remain available.  This allows
+flexibility to move modules around in the future without breaking links.</p>
+<div class="section" id="transport-layer">
+<h2>Transport Layer<a class="headerlink" href="#transport-layer" title="Permalink to this headline">¶</a></h2>
+<p>The transport layer is in the <tt class="docutils literal"><span class="pre">remsh.xport</span></tt> namespace.  The <tt class="docutils literal"><span class="pre">base</span></tt> module
+defines a the Python API for all transport classes, although it does not
+implement any functionality.  Because Python is duck-typed, it&#8217;s not critical
+to inherit from this class, but it is a helpful indicator for other developers.</p>
+<p>A &#8220;local&#8221; xport is available for testing purposes in <tt class="docutils literal"><span class="pre">remsh.xport.local</span></tt>.
+Objects of this type are created in pairs, similar to the <tt class="docutils literal"><span class="pre">pipe(2)</span></tt> function:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">remsh.xport.local</span> <span class="kn">import</span> <span class="n">LocalXport</span>
+<span class="n">left</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="n">LocalXport</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Note that, because the transport API is blocking, these transport objects
+cannot be used simultaneously in the same thread.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="../index.html">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference" href="">Python</a><ul>
+<li><a class="reference" href="#transport-layer">Transport Layer</a></li>
+</ul>
+</li>
+</ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="stack/operations.html" title="previous chapter">Operations Layer</a></p>
+          <h3>Quick search</h3>
+            <form class="search" action="../search.html" method="get">
+              <input type="text" name="q" size="18" /> <input type="submit" value="Go" />
+              <input type="hidden" name="check_keywords" value="yes" />
+              <input type="hidden" name="area" value="default" />
+            </form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="stack/operations.html" title="Operations Layer"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">remsh v0.5 documentation</a> &raquo;</li>
+          <li><a href="../developer.html" accesskey="U">Developer Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2009-2009, Dustin J. Mitchell &lt;dustin@zmanda.com&gt;.
+      Last updated on Dec 24, 2009.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.5.2.
+    </div>
+  </body>
+</html>
