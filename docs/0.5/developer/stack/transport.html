@@ -1,0 +1,143 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Transport Layer &mdash; remsh v0.5 documentation</title>
+    <link rel="stylesheet" href="../../static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.5',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false
+      };
+    </script>
+    <script type="text/javascript" src="../../static/jquery.js"></script>
+    <script type="text/javascript" src="../../static/doctools.js"></script>
+    <link rel="top" title="remsh v0.5 documentation" href="../../index.html" />
+    <link rel="up" title="Network Stack" href="../stack.html" />
+    <link rel="next" title="Wire Layer" href="wire.html" />
+    <link rel="prev" title="Network Stack" href="../stack.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="wire.html" title="Wire Layer"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../stack.html" title="Network Stack"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../../index.html">remsh v0.5 documentation</a> &raquo;</li>
+          <li><a href="../../developer.html" accesskey="U">Developer Documentation</a> &raquo;</li>
+          <li><a href="../stack.html" accesskey="U">Network Stack</a> &raquo;</li> 
+      </ul>
+    </div>  
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  
+  <div class="section" id="transport-layer">
+<h1>Transport Layer<a class="headerlink" href="#transport-layer" title="Permalink to this headline">¶</a></h1>
+<p>The transport layer provides a stream-based interface to the wire layer.  It
+also provides authentication, encryption, and reliability.</p>
+<div class="section" id="api">
+<h2>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h2>
+<p>The connection-setup phase of the API is implementation-specific, including any
+authentication and encryption setup.  Once that is complete, though, the caller
+is left with a &#8220;connected&#8221; transport object, which is symmetric from the
+perspective of this API.  This object has a <tt class="docutils literal"><span class="pre">read</span></tt> method that will read an
+arbitrary amount of data from the connection, and a <tt class="docutils literal"><span class="pre">write</span></tt> method that will
+write data to the connection.  Both methods are synchronous and unbuffered:
+reads must block until data is available, and any data written to the
+connection must be sent before the method returns.</p>
+<p>To close a connection, use the object&#8217;s <tt class="docutils literal"><span class="pre">close</span></tt> method.  The object is
+considered completely unusable after this method is called.  The <tt class="docutils literal"><span class="pre">read</span></tt>
+method indicates that the remote end has closed the connection by returning a
+zero-length buffer.</p>
+<p>TODO: async interface</p>
+</div>
+<div class="section" id="protocols">
+<h2>Protocols<a class="headerlink" href="#protocols" title="Permalink to this headline">¶</a></h2>
+<p>Several protocols are defined here.  Implementations must support
+slave-initiated TCP, and should support any other protocols that are practical
+on the platform in question.</p>
+<p>Note that there is no provision for negotiating transport protocol - the slave
+and master must both be configured for the same protocol.</p>
+<div class="section" id="slave-initiated-tcp">
+<h3>Slave-Initiated TCP<a class="headerlink" href="#slave-initiated-tcp" title="Permalink to this headline">¶</a></h3>
+<p>In this protocol, the slave initiates a TCP/IP connection to the master on a
+pre-configured port.  Once the connection is established, the master sends the
+five ASCII characters <tt class="docutils literal"><span class="pre">remsh</span></tt> followed by a newline (0x0a).</p>
+<p>The slave responds by sending a username and password, each terminated by a
+newline.  If no authentication is configured, then the username <tt class="docutils literal"><span class="pre">anonymous</span></tt>
+should be employed, with an empty password.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="../../index.html">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference" href="">Transport Layer</a><ul>
+<li><a class="reference" href="#api">API</a></li>
+<li><a class="reference" href="#protocols">Protocols</a><ul>
+<li><a class="reference" href="#slave-initiated-tcp">Slave-Initiated TCP</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="../stack.html" title="previous chapter">Network Stack</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="wire.html" title="next chapter">Wire Layer</a></p>
+          <h3>Quick search</h3>
+            <form class="search" action="../../search.html" method="get">
+              <input type="text" name="q" size="18" /> <input type="submit" value="Go" />
+              <input type="hidden" name="check_keywords" value="yes" />
+              <input type="hidden" name="area" value="default" />
+            </form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="wire.html" title="Wire Layer"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../stack.html" title="Network Stack"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../../index.html">remsh v0.5 documentation</a> &raquo;</li>
+          <li><a href="../../developer.html" accesskey="U">Developer Documentation</a> &raquo;</li>
+          <li><a href="../stack.html" accesskey="U">Network Stack</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2009-2009, Dustin J. Mitchell &lt;dustin@zmanda.com&gt;.
+      Last updated on Dec 24, 2009.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.5.2.
+    </div>
+  </body>
+</html>
