@@ -8,7 +8,7 @@ to send and receive "boxes", which are small sets of key/value pairs.
 Boxes are sent to the other side of the connection, in order and without loss.
 
 API
-'''
+---
 
 This layer is represented as an object, the constructor for which takes a
 reference to a transport object.  The object has two methods: ``send_box`` and
@@ -19,7 +19,7 @@ received.
 Boxes are implemented in a language-specific fashion.
 
 Protocol
-''''''''
+--------
 
 All remsh implementations must support an implementation of the wire layer
 using AMP, and may support other implementations.  The user must explicitly
@@ -69,54 +69,3 @@ Note that this places an upper limit on the size of a value (64k), and as a
 consequence reasonable limits on the overall size of a box are possible (based
 on the largest number of allowed keys in a remsh box), for security- or
 memory-conscious uses.
-
-Python Implementation
-'''''''''''''''''''''
-
-The implementation of this protocol is entirely synchronous.  Callers should
-use Python threads to handle multiple simultaneous connections.
-
-.. class:: remsh.amp.wire.Error
-
-   An exception indicating an error in the AMP protocol
-
-.. class:: remsh.amp.wire.SimpleWire(socket)
-
-    :param socket: the socket on which to communicate
-   
-    Implements the AMP protocol as described above.
-
-    .. method:: send_box(box)
-
-        :param box: the box to send
-        :type box: dictionary
-        :raises: :class:`~remsh.amp.wire.Error` for protocol errors
-        :raises: :class:`socket.error` for socket errors
-
-        Send the given box, returning once it is completley transmitted (but
-        not necessarily received by the remote end).
-
-    .. method:: read_box()
-
-        :returns: dictionary
-        :raises: :class:`~remsh.amp.wire.Error` for protocol errors
-        :raises: :class:`socket.error` for socket errors
-        :raises: :class:`EOFError` on EOF in the middle of a box
-
-        Read a box from the remote system, blocking until one is received.
-
-        Raises :class:`~remsh.amp.wire.Error` for protocol errors or socket.error for network
-        errors.  Returns None on a normal EOF.
-
-    .. method:: stop()
-
-        Stop using the socket.
-
-.. class:: remsh.amp.wire.ResilientWire(socket)
-
-   This class has an identical interface to
-   :class:`~remsh.amp.wire.SimpleWire`, but runs in its own socket to permit
-   bidirectional communication and to handle buffering and retransmission of
-   lost boxes.
-
-   It's not done yet.

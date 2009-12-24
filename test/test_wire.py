@@ -4,36 +4,32 @@
 
 import unittest
 import threading
-import socket
 import os
 import time
 
-from remsh.amp import wire
+from remsh.xport.local import LocalXport
+from remsh.wire import Wire
 
-NAGLE_SLEEP = 0.05
 
+class TestWireReading(unittest.TestCase):
+    """
 
-class TestWireReadingMixin(object):
-    # test reading packets from ampwire; the mixin uses self.wire_class as the
-    # class to test
+    test reading packets from the xport layer
+
+    """
 
     def read_with_wire(self, writes):
-        """
-        Make a socket to which each string in WRITES is written, separated by
-        apause long enough to avoid invoking Nagle's algorithm.
-        """
-        wire_socket, thread_sock = socket.socketpair()
+        wire_xport, thread_xport = LocalXport.create()
 
         def thd():
             for wr in writes:
-                thread_sock.sendall(wr)
-                time.sleep(NAGLE_SLEEP)
-            thread_sock.close()
+                thread_xport.write(wr)
+            thread_xport.close()
         self.thread = threading.Thread(target=thd)
         self.thread.setDaemon(1)
         self.thread.start()
 
-        self.wire = self.wire_class(wire_socket)
+        self.wire = Wire(wire_xport)
         return self.wire
 
     def stop(self):
@@ -41,7 +37,7 @@ class TestWireReadingMixin(object):
             self.thread.join()
         self.thread = None
         if self.wire:
-            self.wire.stop()
+            self.wire.close()
 
     def setUp(self):
         self.wire = None
@@ -74,15 +70,18 @@ class TestWireReadingMixin(object):
 
     def test_multiple_keys(self):
         data = [
-            """\x00\x06orange\x00\x05fruit\x00\x06carrot\x00\x09vegetable\x00\x00""",
+            """\x00\x06orange\x00\x05fruit"""
+            + """\x00\x06carrot\x00\x09vegetable\x00\x00""",
         ]
         wire = self.read_with_wire(data)
-        self.failUnlessEqual(wire.read_box(), {'orange': 'fruit', 'carrot': 'vegetable'})
+        self.failUnlessEqual(wire.read_box(),
+            {'orange': 'fruit', 'carrot': 'vegetable'})
         self.failUnlessEqual(wire.read_box(), None)
 
     def test_multiple_boxes(self):
         data = [
-            """\x00\x06orange\x00\x05fruit\x00\x00\x00\x06carrot\x00\x09vegetable\x00\x00""",
+            """\x00\x06orange\x00\x05fruit\x00\x00"""
+            + """\x00\x06carrot\x00\x09vegetable\x00\x00""",
         ]
         wire = self.read_with_wire(data)
         self.failUnlessEqual(wire.read_box(), {'orange': 'fruit'})
@@ -100,43 +99,36 @@ class TestWireReadingMixin(object):
             """grain\x00\x00""",
         ]
         wire = self.read_with_wire(data)
-        self.failUnlessEqual(wire.read_box(), {'orange': 'fruit', 'carrot': 'vegetable'})
-        self.failUnlessEqual(wire.read_box(), {'barley': 'grain'})
-        self.failUnlessEqual(wire.read_box(), None)
+        self.failUnlessEqual(wire.read_box(),
+            {'orange': 'fruit', 'carrot': 'vegetable'})
+        self.failUnlessEqual(wire.read_box(),
+            {'barley': 'grain'})
+        self.failUnlessEqual(wire.read_box(),
+            None)
 
 
-class TestSimpleWireReading(TestWireReadingMixin, unittest.TestCase):
-    wire_class = wire.SimpleWire
+class TestWireWriting(unittest.TestCase):
+    """
 
+    test writing packets to the xport layer
 
-class TestResilientWireReading(TestWireReadingMixin, unittest.TestCase):
-    wire_class = wire.ResilientWire
-
-
-class TestWireWritingMixin(object):
-    # test writing packets with ampwire; the mixin uses self.wire_class as the
-    # class to test
+    """
 
     def write_to_wire(self, boxes):
-        """
-        Write boxes using the appropriate wire_class, and return the resulting
-        bytes from the socket.
-        """
-        result_socket, thread_sock = socket.socketpair()
+        result_xport, thread_xport = LocalXport.create()
 
         def thd():
-            wire = self.wire_class(thread_sock)
+            wire = Wire(thread_xport)
             for box in boxes:
                 wire.send_box(box)
-            wire.stop()
-            thread_sock.close()
+            wire.close()
         thread = threading.Thread(target=thd)
         thread.setDaemon(1)
         thread.start()
 
         buf = ''
         while 1:
-            d = result_socket.recv(1024)
+            d = result_xport.read()
             if not d:
                 break
             buf += d
@@ -154,23 +146,19 @@ class TestWireWritingMixin(object):
         self.failUnlessEqual(self.write_to_wire([
             {'hello': 'world'},
             {'hola': 'compadre'},
-        ]), """\x00\x05hello\x00\x05world\x00\x00\x00\x04hola\x00\x08compadre\x00\x00""")
+        ]), """\x00\x05hello\x00\x05world\x00\x00"""
+            + """\x00\x04hola\x00\x08compadre\x00\x00""")
+
     def test_multiple_keys(self):
         # multiple keys can render differently depending on the dict ordering
         self.failUnless(self.write_to_wire([
             {'hello': 'world', 'world_mood': 'grumpy'},
         ]) in (
-            """\x00\x05hello\x00\x05world\x00\x0aworld_mood\x00\x06grumpy\x00\x00""",
-            """\x00\x0aworld_mood\x00\x06grumpy\x00\x05hello\x00\x05world\x00\x00""",
+            """\x00\x05hello\x00\x05world"""
+                + """\x00\x0aworld_mood\x00\x06grumpy\x00\x00""",
+            """\x00\x0aworld_mood\x00\x06grumpy"""
+                + """\x00\x05hello\x00\x05world\x00\x00""",
         ))
-
-
-class TestSimpleWireWriting(TestWireWritingMixin, unittest.TestCase):
-    wire_class = wire.SimpleWire
-
-
-class TestResilientWireWriting(TestWireWritingMixin, unittest.TestCase):
-    wire_class = wire.ResilientWire
 
 
 if __name__ == '__main__':
