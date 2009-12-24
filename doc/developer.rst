@@ -7,3 +7,4 @@ This section is intended for developers working on remsh itself.
    :maxdepth: 2
 
    developer/stack
+   developer/python
