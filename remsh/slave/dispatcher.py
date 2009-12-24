@@ -11,17 +11,94 @@ import shutil
 import errno
 import stat
 
-from remsh.amp.rpc import RPC, RemoteError
+class RemoteError(Exception):
+    """
+    
+    Utility class for sending error boxes
+    
+    """
+
+    def __init__(self, errtag, error):
+        self.errbox = {
+            'errtag' : errtag,
+            'error' : error }
+
+# contains pointers to the SlaveServer methods for each operation, in a
+# two-level dictionary by key and then version.  This has to be global
+# during parsing, but is made a class variable below
+op_methods = {}
 
 
-class SlaveRPC(RPC):
+class SlaveServer(object):
 
     def __init__(self, wire):
-        RPC.__init__(self, wire)
+        self.wire = wire
         self.default_wd = os.getcwd()
 
-    def remote_set_cwd(self, rq):
-        cwd = rq.get('cwd')
+    # decorator for op methods
+    def op_method(name, version=1):
+        def wrap(f):
+            meth_dict = op_methods.setdefault(name, {})
+            assert version not in meth_dict
+            meth_dict[version] = f
+            return f
+        return wrap
+
+    # include op_methods in the class scope
+    op_methods = op_methods
+
+    ## main method
+
+    def serve(self):
+        while 1:
+            box = self.wire.read_box()
+            if box is None: break
+
+            if 'meth' not in box or 'version' not in box: 
+                self.wire.send_box({ 'error' : 'invalid request',
+                                     'errtag' : 'invalid'})
+                continue
+
+            meth = box['meth']
+            if meth not in self.op_methods:
+                self.wire.send_box({ 'error' : 'unknown method',
+                                     'errtag' : 'invalid-meth'})
+                continue
+
+            try:
+                version = int(box['version'])
+            except:
+                self.wire.send_box({ 'error' : 'invalid request',
+                                     'errtag' : 'invalid'})
+                continue
+
+            meth_dict = self.op_methods[meth]
+            if version not in meth_dict:
+                # find out if the version was too new or too old
+                supported_versions = meth_dict.keys()
+                supported_versions.sort()
+                if version > supported_versions[-1]:
+                    self.wire.send_box(
+                        { 'error' : 'version too new (highest supported: %d)'
+                                                    % supported_versions[-1],
+                          'errtag' : 'version-too-new'})
+                else:
+                    self.wire.send_box(
+                        { 'error' : 'version not supported',
+                          'errtag' : 'version-unsupported'})
+                continue
+
+            # finally, we can actually execute the method!
+            try:
+                meth_dict[version](self, box)
+            except RemoteError, e:
+                self.wire.send_box(e.errbox)
+
+    ## operations
+
+    @op_method('set_cwd', 1)
+    def remote_set_cwd(self, box):
+        cwd = box.get('cwd')
         if cwd is None:
             cwd = self.default_wd
 
@@ -29,14 +106,14 @@ class SlaveRPC(RPC):
             try:
                 os.chdir(cwd)
             except OSError, e:
-                raise RemoteError(e.strerror)
+                raise RemoteError('notfound', e.strerror)
 
         cwd = os.getcwd()
-        self.send_response({'cwd': cwd})
+        self.wire.send_box({'cwd': cwd})
 
     def remote_getenv(self, rq):
         resp = dict([ ('env_%s' % k, v[:65535]) for (k,v) in os.environ.iteritems() ])
-        self.send_response(resp)
+        self.wire.send_box(resp)
 
     def remote_mkdir(self, rq):
         dir = rq['dir']
@@ -47,7 +124,7 @@ class SlaveRPC(RPC):
             except OSError, e:
                 raise RemoteError(e.strerror)
 
-        self.send_response({})
+        self.wire.send_box({})
 
     def remote_execute(self, rq):
         want_stdout = self._getbool(rq, 'want_stdout')
@@ -56,8 +133,14 @@ class SlaveRPC(RPC):
 
         # run the command
         null = open("/dev/null", "r+")
-        stdout = subprocess.PIPE if want_stdout else null
-        stderr = subprocess.PIPE if want_stderr else null
+        if want_stdout:
+            stdout = subprocess.PIPE
+        else:
+            stdout = null
+        if want_stderr:
+            stderr = subprocess.PIPE
+        else:
+            stderr = null
         try:
             proc = subprocess.Popen(args=args,
                 stdin=null, stdout=stdout, stderr=stderr,
@@ -67,7 +150,7 @@ class SlaveRPC(RPC):
 
         # we can send a response now, as (hopefully) everything that could
         # raise RemoteError has been done
-        self.send_response({})
+        self.wire.send_box({})
 
         # now use select to watch those files, with a short timeout to watch
         # for process exit (this timeout grows up to 1 second)
@@ -108,7 +191,7 @@ class SlaveRPC(RPC):
 
         # we can send a response now, as (hopefully) everything that could
         # raise RemoteError has been done, except for the
-        self.send_response({})
+        self.wire.send_box({})
 
         # now handle data() calls until we get a 'finished', using a dictionary
         # to store state (due to Python's problems with nested lexical scopes)
@@ -127,7 +210,7 @@ class SlaveRPC(RPC):
             if state['error']:
                 raise state['error']
             file.close()
-            self.send_response({})
+            self.wire.send_box({})
 
         while not state['done']:
             self.handle_call(
@@ -146,7 +229,7 @@ class SlaveRPC(RPC):
             raise RemoteError(e.strerror)
 
         # we can send a response now
-        self.send_response({})
+        self.wire.send_box({})
 
         # now *make* data() calls until EOF
         state = {'error': False}
@@ -195,7 +278,7 @@ class SlaveRPC(RPC):
                 except OSError, e:
                     raise RemoteError(e.strerror)
 
-        self.send_response({})
+        self.wire.send_box({})
 
     def remote_rename(self, rq):
         src = rq['src']
@@ -211,7 +294,7 @@ class SlaveRPC(RPC):
         except OSError, e:
             raise RemoteError(e.strerror)
 
-        self.send_response({})
+        self.wire.send_box({})
 
     def remote_copy(self, rq):
         src = rq['src']
@@ -229,7 +312,7 @@ class SlaveRPC(RPC):
         except Exception, e:
             raise RemoteError(str(e))
 
-        self.send_response({})
+        self.wire.send_box({})
 
     def remote_stat(self, rq):
         pathname = rq['pathname']
@@ -238,34 +321,19 @@ class SlaveRPC(RPC):
             st = os.stat(pathname)
         except OSError, e:
             if e.errno == errno.ENOENT:
-                self.send_response({'result' : ''})
+                self.wire.send_box({'result' : ''})
                 return
             raise RemoteError(e.strerror)
 
         if stat.S_ISDIR(st.st_mode):
-            self.send_response({'result' : 'd'})
+            self.wire.send_box({'result' : 'd'})
         else:
-            self.send_response({'result' : 'f'})
+            self.wire.send_box({'result' : 'f'})
 
     def _getbool(self, rq, name):
         if name not in rq or rq[name] not in 'ny':
             raise RuntimeError("invalid boolean value")
         return rq[name] == 'y'
 
-
-# TODO: figure out what to do about registration
-
-def run(wire):
-    """
-    Run a slave on ``wire``, a L{wire.SimpleWire} object.  This function
-    returns if the remote end disconnects cleanly.
-    """
-    wire.send_box(
-        {'type': 'register', 'hostname': socket.gethostname(), 'version': 1})
-    box = wire.read_box()
-    if not box or box['type'] != 'registered':
-        raise RuntimeError("expected a 'registered' box, got %s" % (box, ))
-
-    rpc = SlaveRPC(wire)
-    while 1:
-        rpc.handle_call()
+# delete op_methods from the global scope; it's not needed anymore
+del op_methods

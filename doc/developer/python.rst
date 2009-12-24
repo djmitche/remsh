@@ -35,3 +35,19 @@ values of which are stringified if necessary.  The ``read_box`` method returns
 ``None`` if it receives an EOF between boxes, and otherwise raises
 ``EOFError``.  The ``remsh.wire.Error`` exception class is used to indicate
 protocol-specific errors.
+
+Operations Layer
+----------------
+
+The operations layer is not symmetrical, so it has distinct implementations on
+the master and slave sides.  These are embedded in the ``remsh.master`` and
+``remsh.slave`` namespaces, respectively, which also contain the mechanics of
+usable Python applications.
+
+Master Operations
+.................
+
+TODO
+
+Slave Operations
+................

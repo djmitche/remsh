@@ -7,13 +7,13 @@ Contains the L{Slave} class.
 
 import sys
 import os
-import threading
-
-from remsh.amp import rpc
-
 
 class ProtocolError(Exception):
     "An error in the internal protocol between master and slave"
+
+
+class NotFoundError(ProtocolError):
+    "Error code 'notfound'"
 
 
 class SlaveDisconnected(ProtocolError):
@@ -22,26 +22,21 @@ class SlaveDisconnected(ProtocolError):
 
 class Slave(object):
 
-    def __init__(self, wire, hostname, version):
-        self.rpc = rpc.RPC(wire)
-        self.hostname = hostname
-        self.version = version
+    def __init__(self, wire):
+        self.wire = wire
 
-        # lock governing the connection
-        self._lock = threading.Lock()
-
+        # TODO: ???
         self._disconnect_listeners = []
 
-    # TODO: locking
-    def setup(self):
-        pass # does nothing by default
-
     def set_cwd(self, cwd=None):
-        kwargs = {}
+        box = { 'meth' : 'set_cwd', 'version' : 1 }
         if cwd is not None:
-            kwargs['cwd'] = cwd
-        resp = self.rpc.call_remote('set_cwd', **kwargs)
-        return resp['cwd']
+            box['cwd'] = cwd
+        self.wire.send_box(box)
+        box = self.wire.read_box()
+        self.handle_errors(box,
+            notfound=NotFoundError)
+        return box['cwd']
 
     def getenv(self):
         resp = self.rpc.call_remote('getenv')
@@ -51,10 +46,18 @@ class Slave(object):
         self.rpc.call_remote('mkdir', dir=dir)
 
     def execute(self, args=[], stdout_cb=None, stderr_cb=None):
+        if stdout_cb:
+            want_stdout='y'
+        else:
+            want_stdout = 'n',
+        if stderr_cb:
+            want_stderr='y'
+        else:
+            want_stderr = 'n',
         self.rpc.call_remote('execute',
             args='\0'.join(args),
-            want_stdout='y' if stdout_cb else 'n',
-            want_stderr='y' if stderr_cb else 'n')
+            want_stdout=want_stdout,
+            want_stderr=want_stderr)
 
         # loop, handling calls without answers, until we get 'finished'
         result = {}
@@ -139,6 +142,30 @@ class Slave(object):
         resp = self.rpc.call_remote('stat', pathname=pathname)
         if resp['result']:
             return resp['result']
+
+    ## utilities
+
+    standard_errors = {
+        'invalid-meth' : ProtocolError,
+        'version-too-new' : ProtocolError,
+        'version-unsupported' : ProtocolError,
+        'invalid' : ProtocolError,
+        'unknown' : RuntimeError,
+    }
+
+    def handle_errors(self, box, **more_errcodes):
+        if 'error' not in box:
+            return
+
+        if 'errtag' not in box: box['errtag'] = 'unknown'
+        errtag = box['errtag']
+        exc_cls = more_errcodes.get(errtag)
+        if not exc_cls:
+            exc_cls = self.standard_errors.get(errtag)
+        if not exc_cls:
+            exc_cls = self.standard_errors.get('unknown')
+
+        raise exc_cls(box['error'])
 
     def on_disconnect(self, callable):
         # TODO: synchronization so that this gets called immediately if

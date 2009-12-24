@@ -42,15 +42,16 @@ class LocalSlaveListener(base.SlaveListener):
 
         # child
         try:
-            parsock.close()
-            os.chdir(basedir)
-            w = wire.SimpleWire(kidsock)
-            dispatcher.run(w)
-        except KeyboardInterrupt:
-            pass
-        except:
-            print >>sys.stderr, "EXCEPTION IN LOCAL CHILD:"
-            traceback.print_exc()
+            try:
+                parsock.close()
+                os.chdir(basedir)
+                w = wire.SimpleWire(kidsock)
+                dispatcher.run(w)
+            except KeyboardInterrupt:
+                pass
+            except:
+                print >>sys.stderr, "EXCEPTION IN LOCAL CHILD:"
+                traceback.print_exc()
         finally:
             os._exit(1)
 

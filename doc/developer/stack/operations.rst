@@ -107,7 +107,8 @@ The response box from the slave has the following key.
 
 The following error tags may be returned:
 
-TODO
+``notfound``
+    The new directory could not be found
 
 getenv
 ------
