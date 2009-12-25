@@ -195,13 +195,6 @@ following error tags may be returned:
 ``execfailed``
     execution of the command failed
 
-TODO
-````
-
-* optionally translate platform-specific newlines to '\n' in execute, send, etc.
-* provide a more generic list-of-strings thing, and quote NUL bytes in it
-* support additional watched files
-
 send
 ++++
 
