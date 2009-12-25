@@ -6,6 +6,7 @@
 import sys
 import os
 
+
 class ProtocolError(Exception):
     "An error in the internal protocol between master and slave"
 
@@ -28,7 +29,8 @@ class FailedError(ProtocolError):
 
 # utility function
 def bool(b):
-    if b: return 'y'
+    if b:
+        return 'y'
     return 'n'
 
 
@@ -41,7 +43,10 @@ class Slave(object):
         self._disconnect_listeners = []
 
     def set_cwd(self, cwd=None):
-        box = { 'meth' : 'set_cwd', 'version' : 1 }
+        box = {
+            'meth': 'set_cwd',
+            'version': 1,
+        }
         if cwd is not None:
             box['cwd'] = cwd
         self.wire.send_box(box)
@@ -51,25 +56,34 @@ class Slave(object):
         return box['cwd']
 
     def getenv(self):
-        box = { 'meth' : 'getenv', 'version' : 1 }
+        box = {
+            'meth': 'getenv',
+            'version': 1,
+        }
         self.wire.send_box(box)
         box = self.wire.read_box()
         self.handle_errors(box)
-        return dict([ (k[4:], v) for (k,v) in box.iteritems() if k.startswith('env_') ])
+        return dict([(k[4:], v)
+                      for (k, v) in box.iteritems()
+                      if k.startswith('env_')])
 
     def mkdir(self, dir):
-        box = { 'meth' : 'mkdir', 'version' : 1, 'dir' : dir }
+        box = {
+            'meth': 'mkdir',
+            'version': 1,
+            'dir': dir,
+        }
         self.wire.send_box(box)
         box = self.wire.read_box()
         self.handle_errors(box)
 
     def execute(self, args=[], stdout_cb=None, stderr_cb=None):
         box = {
-            'meth' : 'execute',
-            'version' : 1,
-            'args' : '\0'.join(args),
-            'want_stdout' : bool(stdout_cb),
-            'want_stderr' : bool(stderr_cb),
+            'meth': 'execute',
+            'version': 1,
+            'args': '\0'.join(args),
+            'want_stdout': bool(stdout_cb),
+            'want_stderr': bool(stderr_cb),
         }
         self.wire.send_box(box)
 
@@ -114,15 +128,15 @@ class Slave(object):
         srcfile = open(src, "rb")
 
         error_handling = {
-            'fileexists' : FileExistsError,
-            'openfailed' : OpenFailedError,
-            'failed' : FailedError,
+            'fileexists': FileExistsError,
+            'openfailed': OpenFailedError,
+            'failed': FailedError,
         }
 
         self.wire.send_box({
-            'meth' : 'send',
-            'version' : 1,
-            'dest' : dest,
+            'meth': 'send',
+            'version': 1,
+            'dest': dest,
         })
 
         box = self.wire.read_box()
@@ -133,7 +147,9 @@ class Slave(object):
             data = srcfile.read(65535)
             if not data:
                 break
-            self.wire.send_box({ 'data' : data })
+            self.wire.send_box({
+                'data': data,
+            })
 
         self.wire.send_box({})
         box = self.wire.read_box()
@@ -147,15 +163,15 @@ class Slave(object):
         destfile = open(dest, "wb")
 
         error_handling = {
-            'notfound' : NotFoundError,
-            'openfailed' : OpenFailedError,
-            'failed' : FailedError,
+            'notfound': NotFoundError,
+            'openfailed': OpenFailedError,
+            'failed': FailedError,
         }
 
         self.wire.send_box({
-            'meth' : 'fetch',
-            'version' : 1,
-            'src' : src
+            'meth': 'fetch',
+            'version': 1,
+            'src': src,
         })
 
         while True:
@@ -168,7 +184,8 @@ class Slave(object):
             try:
                 destfile.write(box['data'])
             except IOError:
-                # read and ignore the rest of the data, then raise the exception
+                # read and ignore the rest of the data, then raise the
+                # exception
                 while True:
                     box = self.wire.read_box()
                     self.handle_errors(box, **error_handling)
@@ -176,14 +193,23 @@ class Slave(object):
                         raise
 
     def remove(self, path):
-        box = { 'meth' : 'remove', 'version' : 1, 'path' : path }
+        box = {
+            'meth': 'remove',
+            'version': 1,
+            'path': path,
+        }
         self.wire.send_box(box)
         box = self.wire.read_box()
         self.handle_errors(box,
             failed=FailedError)
 
     def rename(self, src, dest):
-        box = { 'meth' : 'rename', 'version' : 1, 'src' : src, 'dest' : dest }
+        box = {
+            'meth': 'rename',
+            'version': 1,
+            'src': src,
+            'dest': dest,
+        }
         self.wire.send_box(box)
         box = self.wire.read_box()
         self.handle_errors(box,
@@ -192,7 +218,12 @@ class Slave(object):
             failed=FailedError)
 
     def copy(self, src, dest):
-        box = { 'meth' : 'copy', 'version' : 1, 'src' : src, 'dest' : dest }
+        box = {
+            'meth': 'copy',
+            'version': 1,
+            'src': src,
+            'dest': dest,
+        }
         self.wire.send_box(box)
         box = self.wire.read_box()
         self.handle_errors(box,
@@ -201,7 +232,11 @@ class Slave(object):
             failed=FailedError)
 
     def stat(self, path):
-        box = { 'meth' : 'stat', 'version' : 1, 'path' : path }
+        box = {
+            'meth': 'stat',
+            'version': 1,
+            'path': path,
+        }
         self.wire.send_box(box)
         box = self.wire.read_box()
         self.handle_errors(box,
@@ -213,11 +248,11 @@ class Slave(object):
     ## utilities
 
     standard_errors = {
-        'invalid-meth' : ProtocolError,
-        'version-too-new' : ProtocolError,
-        'version-unsupported' : ProtocolError,
-        'invalid' : ProtocolError,
-        'unknown' : RuntimeError,
+        'invalid-meth': ProtocolError,
+        'version-too-new': ProtocolError,
+        'version-unsupported': ProtocolError,
+        'invalid': ProtocolError,
+        'unknown': RuntimeError,
     }
 
     def handle_errors(self, box, **more_errcodes):
@@ -227,7 +262,8 @@ class Slave(object):
         if 'error' not in box:
             return
 
-        if 'errtag' not in box: box['errtag'] = 'unknown'
+        if 'errtag' not in box:
+            box['errtag'] = 'unknown'
         errtag = box['errtag']
         exc_cls = more_errcodes.get(errtag)
         if not exc_cls:

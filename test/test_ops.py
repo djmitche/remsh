@@ -10,7 +10,9 @@ import os
 from remsh.xport.local import LocalXport
 from remsh.wire import Wire
 from remsh.slave.dispatcher import SlaveServer
-from remsh.master.slave import Slave, NotFoundError, FileExistsError, FailedError
+from remsh.master.slave import Slave, NotFoundError, \
+                               FileExistsError, FailedError
+
 
 class Ops(unittest.TestCase):
     # get this value at class initialization time, since we change the cwd
@@ -83,9 +85,7 @@ class Ops(unittest.TestCase):
 
     def make_callback(self, file):
         self.files[file] = []
-        def cb(data):
-            self.files[file].append(data)
-        return cb
+        return lambda(data): self.files[file].append(data)
 
     ## tests
 
@@ -123,9 +123,9 @@ class Ops(unittest.TestCase):
         self.assertRaises(NotFoundError, lambda: self.slave.set_cwd("z"))
 
     def test_getenv(self):
-        # slave environment should look just like our environment
-        # (TODO: if this turns out to be fragile, then insert a specific value into
-        # the env while launching the slave, and test for it here)
+        # slave environment should look just like our environment (TODO: if
+        # this turns out to be fragile, then insert a specific value into the
+        # env while launching the slave, and test for it here)
         env = self.slave.getenv()
         self.assertEqual(env, os.environ)
 
@@ -259,8 +259,10 @@ class Ops(unittest.TestCase):
         open(exists, "w")
         missing = os.path.join(self.basedir, "missing")
 
-        self.assertRaises(NotFoundError, lambda : self.slave.rename(missing, missing))
-        self.assertRaises(FileExistsError, lambda : self.slave.rename(exists, exists))
+        self.assertRaises(NotFoundError,
+            lambda: self.slave.rename(missing, missing))
+        self.assertRaises(FileExistsError,
+            lambda: self.slave.rename(exists, exists))
 
         self.slave.rename(exists, missing)
         self.assert_(not os.path.exists(exists))
@@ -271,8 +273,10 @@ class Ops(unittest.TestCase):
         open(exists, "w")
         missing = os.path.join(self.basedir, "missing")
 
-        self.assertRaises(NotFoundError, lambda : self.slave.copy(missing, missing))
-        self.assertRaises(FileExistsError, lambda : self.slave.copy(exists, exists))
+        self.assertRaises(NotFoundError,
+            lambda: self.slave.copy(missing, missing))
+        self.assertRaises(FileExistsError,
+            lambda: self.slave.copy(exists, exists))
 
         self.slave.copy(exists, missing)
         self.assert_(os.path.exists(exists))
@@ -289,7 +293,7 @@ class Ops(unittest.TestCase):
         self.assertEquals(self.slave.stat(somedir), 'd')
         self.assertEquals(self.slave.stat(somefile), 'f')
         os.chmod(somedir, 0) # remove r/x permission
-        self.assertRaises(FailedError, lambda : self.slave.stat(somefile))
+        self.assertRaises(FailedError, lambda: self.slave.stat(somefile))
         os.chmod(somedir, 0777) # restore permission
 
 if __name__ == '__main__':

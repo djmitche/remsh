@@ -12,17 +12,19 @@ import shutil
 import errno
 import stat
 
+
 class RemoteError(Exception):
     """
-    
+
     Utility exception for sending error boxes
-    
+
     """
 
     def __init__(self, errtag, error):
         self.errbox = {
-            'errtag' : errtag,
-            'error' : error }
+            'errtag': errtag,
+            'error': error,
+        }
 
 
 class InvalidRequestError(RemoteError):
@@ -49,11 +51,14 @@ class SlaveServer(object):
 
     # decorator for op methods
     def op_method(name, version=1):
+
+        # this decorator method must return another function
         def wrap(f):
             meth_dict = op_methods.setdefault(name, {})
             assert version not in meth_dict
             meth_dict[version] = f
             return f
+
         return wrap
 
     # include op_methods in the class scope
@@ -64,24 +69,31 @@ class SlaveServer(object):
     def serve(self):
         while 1:
             box = self.wire.read_box()
-            if box is None: break
+            if box is None:
+                break
 
-            if 'meth' not in box or 'version' not in box: 
-                self.wire.send_box({ 'error' : 'invalid request',
-                                     'errtag' : 'invalid'})
+            if 'meth' not in box or 'version' not in box:
+                self.wire.send_box({
+                    'error': 'invalid request',
+                    'errtag': 'invalid',
+                })
                 continue
 
             meth = box['meth']
             if meth not in self.op_methods:
-                self.wire.send_box({ 'error' : 'unknown method',
-                                     'errtag' : 'invalid-meth'})
+                self.wire.send_box({
+                    'error': 'unknown method',
+                    'errtag': 'invalid-meth',
+                })
                 continue
 
             try:
                 version = int(box['version'])
             except:
-                self.wire.send_box({ 'error' : 'invalid request',
-                                     'errtag' : 'invalid'})
+                self.wire.send_box({
+                    'error': 'invalid request',
+                    'errtag': 'invalid',
+                })
                 continue
 
             meth_dict = self.op_methods[meth]
@@ -90,14 +102,16 @@ class SlaveServer(object):
                 supported_versions = meth_dict.keys()
                 supported_versions.sort()
                 if version > supported_versions[-1]:
-                    self.wire.send_box(
-                        { 'error' : 'version too new (highest supported: %d)'
+                    self.wire.send_box({
+                        'error': 'version too new (highest supported: %d)'
                                                     % supported_versions[-1],
-                          'errtag' : 'version-too-new'})
+                        'errtag': 'version-too-new',
+                     })
                 else:
-                    self.wire.send_box(
-                        { 'error' : 'version not supported',
-                          'errtag' : 'version-unsupported'})
+                    self.wire.send_box({
+                        'error': 'version not supported',
+                        'errtag': 'version-unsupported',
+                    })
                 continue
 
             # finally, we can actually execute the method!
@@ -125,7 +139,8 @@ class SlaveServer(object):
 
     @op_method('getenv', 1)
     def remote_getenv(self, box):
-        resp = dict([ ('env_%s' % k, v[:65535]) for (k,v) in os.environ.iteritems() ])
+        resp = dict([('env_%s' % k, v[:65535])
+                     for (k, v) in os.environ.iteritems()])
         self.wire.send_box(resp)
 
     @op_method('mkdir', 1)
@@ -187,8 +202,8 @@ class SlaveServer(object):
                     readfiles.remove(file)
                 else:
                     self.wire.send_box({
-                        'data' : data,
-                        'stream' : name,
+                        'data': data,
+                        'stream': name,
                     })
             if proc.stdout in rlist:
                 send(proc.stdout, 'stdout')
@@ -197,7 +212,7 @@ class SlaveServer(object):
             if not rlist and proc.poll() is not None:
                 break
         self.wire.send_box({
-            'result' : proc.returncode
+            'result': proc.returncode,
         })
 
     @op_method("send", 1)
@@ -266,7 +281,7 @@ class SlaveServer(object):
                 raise RemoteError('readfailed', str(e))
             if not data:
                 break
-            self.wire.send_box({'data' : data})
+            self.wire.send_box({'data': data})
 
         file.close()
         self.wire.send_box({})
@@ -356,14 +371,14 @@ class SlaveServer(object):
             st = os.stat(pathname)
         except OSError, e:
             if e.errno == errno.ENOENT:
-                self.wire.send_box({'result' : ''})
+                self.wire.send_box({'result': ''})
                 return
             raise RemoteError('failed', e.strerror)
 
         if stat.S_ISDIR(st.st_mode):
-            self.wire.send_box({'result' : 'd'})
+            self.wire.send_box({'result': 'd'})
         else:
-            self.wire.send_box({'result' : 'f'})
+            self.wire.send_box({'result': 'f'})
 
     def _getbool(self, rq, name):
         if name not in rq or rq[name] not in 'ny':
