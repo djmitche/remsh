@@ -1,6 +1,7 @@
 # This file is part of remsh
 # Copyright 2009 Dustin J. Mitchell
 # See COPYING for license information
+# -*- test-case-name: test.test_wire -*-
 
 import os
 import types

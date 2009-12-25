@@ -1,9 +1,7 @@
 # This file is part of remsh
 # Copyright 2009 Dustin J. Mitchell
 # See COPYING for license information
-"""
-Contains the L{Slave} class.
-"""
+# -*- test-case-name: test.test_ops -*-
 
 import sys
 import os

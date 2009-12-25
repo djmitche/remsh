@@ -1,0 +1,25 @@
+fun! Remsh_run_test_for_file()
+    let l:test = ''
+    if bufname("%") =~ '^test/test_.*\.py'
+        let l:test = bufname("%")
+        let l:test = substitute(l:test, "/", ".", "")
+        let l:test = substitute(l:test, "\.py$", "", "")
+        " TODO: run the specific test case, if we're in one
+    else
+        let l:tcline = search('-\*- test-case-name: .* -\*-')
+        if l:tcline == 0
+            echohl Error
+            echo "no test case found"
+        else
+            let l:test = getline(l:tcline)
+            let l:test = substitute(l:test, '.* -\*- test-case-name: \(.*\) -\*-', '\1', '')
+        endif
+    endif
+    if l:test != ''
+        exec '!python setup.py test -s ' . l:test
+    endif
+endfun
+
+" source this file from your vimrc, and add something like:
+"   map <Leader><Leader> :call Remsh_run_test_for_file()<cr>
+" (if you use this, hit \\ in normal mode to test the current file)
