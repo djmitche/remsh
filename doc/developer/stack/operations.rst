@@ -8,7 +8,7 @@ operation, while the slave side implements each operation.  There is at most
 one implementation of this layer on each side, in each language.
 
 API
-'''
+---
 
 The slave side API is simply a loop that performs operations sequentially,
 given a wire-layer object.  The specifics are implementation-dependent.
@@ -22,11 +22,11 @@ Each method is described below, although the language-specific details of the
 argument and return values are not covered here.  Note that the operation
 methods all block until the operation is complete.
 
-The semantic meaning of each operation is described in :ref:`using-remsh`, and
-is not duplicated here.
+The meaning of each operation is described in :ref:`using-remsh`, and is not
+duplicated here.
 
 Protocol
-''''''''
+--------
 
 The operations are all defined in terms of a sequences of boxes sent between
 the master and slave.  At all times, the master and slave operation
@@ -42,7 +42,7 @@ implement lower-version requests wherever possible.  The sequence of boxes for
 each method is described in the "Operations" section, below.  
 
 Error Handling
---------------
+..............
 
 When an error occurs while executing an operation on the slave side, the slave
 must send an error box, which can be identified by having an ``error`` key.  It
@@ -78,10 +78,10 @@ The following error tags can be returned any time an error box is allowed:
     The request was invalid for any reason not convered by a more specific error tag.
 
 Operations
-''''''''''
+..........
 
 set_cwd
--------
++++++++
 
 The ``set_cwd`` method takes a single, optional argument, ``cwd``, and returns a
 string.  The master sends a box with the following keys:
@@ -111,7 +111,7 @@ The following error tags may be returned:
     The new directory could not be found
 
 getenv
-------
+++++++
 
 The ``getenv`` method takes no arguments, and returns a set of key/value pairs.
 
@@ -134,7 +134,7 @@ The following error tags may be returned:
 TODO
 
 mkdir
------
++++++
 
 The ``mkdir`` method takes a single argument, ``dir``, and returns nothing.
 
@@ -156,7 +156,7 @@ The following error tags may be returned:
 TODO
 
 execute
--------
++++++++
 
 The ``execute`` method takes a number of arguments: ``args``, a list of
 arguments; and ``want_stdout`` and ``want_stderr``, booleans.  The request box
@@ -208,7 +208,7 @@ TODO
 * support additional watched files
 
 send
-----
+++++
 
 A send operation is initiated by a box with these keys:
 
@@ -247,7 +247,7 @@ TODO
 * support sending a literal string with send()
 
 fetch
------
++++++
 
 The initial box from the master has the following keys:
 
@@ -276,7 +276,7 @@ The following error tags may be returned:
 TODO
 
 remove
-------
+++++++
 
 The initial box from the master has the following keys:
 
@@ -296,7 +296,7 @@ The following error tags may be returned:
 TODO
 
 rename
-------
+++++++
 
 The request has the following keys:
 
@@ -319,7 +319,7 @@ The following error tags may be returned:
 TODO
 
 copy
-----
+++++
 
 The request has the following keys:
 
@@ -342,7 +342,7 @@ The following error tags may be returned:
 TODO
 
 stat
-----
+++++
 
 The request has the following key:
 

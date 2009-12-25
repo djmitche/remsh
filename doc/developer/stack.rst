@@ -15,7 +15,8 @@ Remsh implements a network stack of its own, with three layers:
   uploading and downloading files, etc. - on top of the wire layer.
 
 The following sections describe this stack in a language-agnostic fashion.
-Language-specific descriptions appear below.
+Language-specific descriptions appear below.  Each section describes both the
+APIs exposed to higher layers and the communication protocols.
 
 .. toctree::
    :maxdepth: 2
