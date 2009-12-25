@@ -129,9 +129,7 @@ the value of an environment variable is greater than 65535 bytes, it is
 silently truncated.  There is no limit to the number of environment variables
 which can be returned.
 
-The following error tags may be returned:
-
-TODO
+This operation does not return any unique error tags.
 
 mkdir
 +++++

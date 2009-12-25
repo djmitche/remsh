@@ -37,8 +37,11 @@ class Slave(object):
         return box['cwd']
 
     def getenv(self):
-        resp = self.rpc.call_remote('getenv')
-        return dict([ (k[4:], v) for (k,v) in resp.iteritems() if k.startswith('env_') ])
+        box = { 'meth' : 'getenv', 'version' : 1 }
+        self.wire.send_box(box)
+        box = self.wire.read_box()
+        self.handle_errors(box)
+        return dict([ (k[4:], v) for (k,v) in box.iteritems() if k.startswith('env_') ])
 
     def mkdir(self, dir):
         self.rpc.call_remote('mkdir', dir=dir)

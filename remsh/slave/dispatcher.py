@@ -112,6 +112,7 @@ class SlaveServer(object):
         cwd = os.getcwd()
         self.wire.send_box({'cwd': cwd})
 
+    @op_method('getenv', 1)
     def remote_getenv(self, rq):
         resp = dict([ ('env_%s' % k, v[:65535]) for (k,v) in os.environ.iteritems() ])
         self.wire.send_box(resp)

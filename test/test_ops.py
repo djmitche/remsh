@@ -13,6 +13,9 @@ from remsh.slave.dispatcher import SlaveServer
 from remsh.master.slave import Slave, NotFoundError
 
 class OpsTestMixin(unittest.TestCase):
+    # get this value at class initialization time, since we change the cwd
+    # later
+    basedir = os.path.abspath("optests")
 
     def setUpFilesystem(self):
         self.tearDownFilesystem()
@@ -56,7 +59,6 @@ class OpsTestMixin(unittest.TestCase):
         self.slave = None
 
     def setUp(self):
-        self.basedir = os.path.abspath("optests")
         self.clear_files()
         self.setUpFilesystem()
         self.setUpSlave()
@@ -83,22 +85,6 @@ class OpsTestMixin(unittest.TestCase):
         return cb
 
     ## tests
-
-    def dont_test_mkdir(self):
-        newdir = os.path.join(self.basedir, "newdir")
-        self.assert_(not os.path.exists(newdir))
-        self.slave.mkdir("newdir")
-        self.assert_(os.path.exists(newdir))
-
-        # should not fail if the directory already exists
-        self.slave.mkdir("newdir")
-        self.assert_(os.path.exists(newdir))
-
-        # nested directories
-        nested = os.path.join(self.basedir, "nested/bested/quested")
-        self.assert_(not os.path.exists(nested))
-        self.slave.mkdir("nested/bested/quested")
-        self.assert_(os.path.exists(nested))
 
     def test_set_cwd(self):
         # set up directories first
@@ -133,12 +119,28 @@ class OpsTestMixin(unittest.TestCase):
         # invalid dir raises NotFoundError
         self.assertRaises(NotFoundError, lambda: self.slave.set_cwd("z"))
 
-    def dont_test_getenv(self):
+    def test_getenv(self):
         # slave environment should look just like our environment
         # (TODO: if this turns out to be fragile, then insert a specific value into
         # the env while launching the slave, and test for it here)
         env = self.slave.getenv()
         self.assertEqual(env, os.environ)
+
+    def dont_test_mkdir(self):
+        newdir = os.path.join(self.basedir, "newdir")
+        self.assert_(not os.path.exists(newdir))
+        self.slave.mkdir("newdir")
+        self.assert_(os.path.exists(newdir))
+
+        # should not fail if the directory already exists
+        self.slave.mkdir("newdir")
+        self.assert_(os.path.exists(newdir))
+
+        # nested directories
+        nested = os.path.join(self.basedir, "nested/bested/quested")
+        self.assert_(not os.path.exists(nested))
+        self.slave.mkdir("nested/bested/quested")
+        self.assert_(os.path.exists(nested))
 
     def dont_test_execute(self):
         # note that all of these tests are just using 'sh'
