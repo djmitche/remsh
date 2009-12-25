@@ -147,11 +147,7 @@ The request box has the following keys:
 ``dir``
     directory to create
 
-The response box is empty.
-
-The following error tags may be returned:
-
-TODO
+The response box is empty.  This operation does not return any unique error tags.
 
 execute
 +++++++

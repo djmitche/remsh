@@ -44,7 +44,10 @@ class Slave(object):
         return dict([ (k[4:], v) for (k,v) in box.iteritems() if k.startswith('env_') ])
 
     def mkdir(self, dir):
-        self.rpc.call_remote('mkdir', dir=dir)
+        box = { 'meth' : 'mkdir', 'version' : 1, 'dir' : dir }
+        self.wire.send_box(box)
+        box = self.wire.read_box()
+        self.handle_errors(box)
 
     def execute(self, args=[], stdout_cb=None, stderr_cb=None):
         if stdout_cb:

@@ -113,19 +113,24 @@ class SlaveServer(object):
         self.wire.send_box({'cwd': cwd})
 
     @op_method('getenv', 1)
-    def remote_getenv(self, rq):
+    def remote_getenv(self, box):
         resp = dict([ ('env_%s' % k, v[:65535]) for (k,v) in os.environ.iteritems() ])
         self.wire.send_box(resp)
 
-    def remote_mkdir(self, rq):
-        dir = rq['dir']
+    @op_method('mkdir', 1)
+    def remote_mkdir(self, box):
+        if 'dir' not in box:
+            self.wire.send_box({ 'error' : 'invalid request',
+                                 'errtag' : 'invalid'})
+            return
+
+        dir = box['dir']
 
         if not os.path.exists(dir):
             try:
                 os.makedirs(dir)
             except OSError, e:
-                raise RemoteError(e.strerror)
-
+                raise RemoteError('unknown', e.strerror)
         self.wire.send_box({})
 
     def remote_execute(self, rq):

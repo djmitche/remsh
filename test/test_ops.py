@@ -126,7 +126,7 @@ class OpsTestMixin(unittest.TestCase):
         env = self.slave.getenv()
         self.assertEqual(env, os.environ)
 
-    def dont_test_mkdir(self):
+    def test_mkdir(self):
         newdir = os.path.join(self.basedir, "newdir")
         self.assert_(not os.path.exists(newdir))
         self.slave.mkdir("newdir")
