@@ -200,44 +200,48 @@ class SlaveServer(object):
             'result' : proc.returncode
         })
 
-    def remote_send(self, rq):
-        dest = rq['dest']
+    @op_method("send", 1)
+    def remote_send(self, box):
+        if 'dest' not in box:
+            raise InvalidRequestError()
+
+        dest = box['dest']
 
         # try to open the file for writing
         if os.path.exists(dest):
-            raise RemoteError("File '%s' already exists" % dest)
+            raise RemoteError('fileexists', "destination file already exists")
         try:
-            file = open(dest, "wb") # TODO: support non-binary
+            file = open(dest, "wb")
         except IOError, e:
-            raise RemoteError(e.strerror)
+            raise RemoteError('openfailed', e.strerror)
 
-        # we can send a response now, as (hopefully) everything that could
-        # raise RemoteError has been done, except for the
+        # send an empty box to indicate "go ahead"
         self.wire.send_box({})
 
-        # now handle data() calls until we get a 'finished', using a dictionary
-        # to store state (due to Python's problems with nested lexical scopes)
-        state = {'done': False, 'error': False}
+        error = None
+        while True:
+            box = self.wire.read_box()
+            if not box:
+                if box is None:
+                    raise InvalidRequestError() # TODO: how to handle EOF?
+                break # empty box signals transmission complete
 
-        def remote_data(rq):
-            if state['error']:
-                return
+            if 'data' not in box:
+                raise InvalidRequestError()
             try:
-                file.write(rq['data'])
+                file.write(box['data'])
             except Exception, e:
-                state['error'] = e
+                error = str(e)
+                break
+        # consume any unnecessary data boxes, if we've hit an error
+        if error:
+            while box:
+                box = self.wire.read_box()
 
-        def remote_finished(rq):
-            state['done'] = True
-            if state['error']:
-                raise state['error']
-            file.close()
+        if error:
+            raise RemoteError('writefailed', error)
+        else:
             self.wire.send_box({})
-
-        while not state['done']:
-            self.handle_call(
-                remote_data=remote_data,
-                remote_finished=remote_finished)
 
     def remote_fetch(self, rq):
         src = rq['src']

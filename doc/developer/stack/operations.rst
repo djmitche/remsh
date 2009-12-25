@@ -224,15 +224,14 @@ transmission phase.  If an error (e.g., running out of disk space) does occur,
 the slave must continue to read and discard data boxes until an empty box
 arrives, and then send the error box.
 
-The following error tags may be returned:
+``fileexists``
+    the destination file already exists on the slave filesystem
 
-TODO
+``openfailed``
+    opening the destination file failed for some other reason
 
-TODO
-````
-
-* should send include some chance for the slave to indicate error?
-* support sending a literal string with send()
+``writefailed``
+    writing to the file failed
 
 fetch
 +++++

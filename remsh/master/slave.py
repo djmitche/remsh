@@ -11,11 +11,20 @@ class ProtocolError(Exception):
 
 
 class NotFoundError(ProtocolError):
-    "Error code 'notfound'"
+    "Something was not found (notfound)"
 
 
-class SlaveDisconnected(ProtocolError):
-    "The slave disconnected in the midst of an operation"
+class FileExistsError(ProtocolError):
+    "A file already exists (fileexists)"
+
+
+class OpenFailedError(ProtocolError):
+    "Open of a file on the slave failed (openfailed)"
+
+
+class WriteFailedError(ProtocolError):
+    "A write on the slave failed (writefailed)"
+
 
 # utility function
 def bool(b):
@@ -103,19 +112,32 @@ class Slave(object):
     def send(self, src, dest):
         # the caller is responsible for any errors from open()
         srcfile = open(src, "rb")
-        self.rpc.call_remote('send',
-            dest=dest)
+
+        error_handling = {
+            'fileexists' : FileExistsError,
+            'openfailed' : OpenFailedError,
+            'writefailed' : WriteFailedError,
+        }
+
+        self.wire.send_box({
+            'meth' : 'send',
+            'version' : 1,
+            'dest' : dest,
+        })
+
+        box = self.wire.read_box()
+        self.handle_errors(box, **error_handling)
 
         # write the data
         while 1:
             data = srcfile.read(65535)
             if not data:
                 break
-            self.rpc.call_remote_no_answer('data',
-                data=data)
+            self.wire.send_box({ 'data' : data })
 
-        # this may raise a RemoteError if the slave had trouble writing
-        self.rpc.call_remote('finished')
+        self.wire.send_box({})
+        box = self.wire.read_box()
+        self.handle_errors(box, **error_handling)
 
     def fetch(self, src, dest):
         if os.path.exists(dest):

@@ -10,7 +10,7 @@ import os
 from remsh.xport.local import LocalXport
 from remsh.wire import Wire
 from remsh.slave.dispatcher import SlaveServer
-from remsh.master.slave import Slave, NotFoundError
+from remsh.master.slave import Slave, NotFoundError, FileExistsError
 
 class Ops(unittest.TestCase):
     # get this value at class initialization time, since we change the cwd
@@ -169,7 +169,7 @@ class Ops(unittest.TestCase):
         execute_output('echo "oh noes" >&2', stderr="oh noes")
         execute_output('echo "yes"; echo "no" >&2', stdout="yes", stderr="no")
 
-    def dont_test_send(self):
+    def test_send(self):
         # prep
         destfile = os.path.join(self.basedir, "destfile")
         localfile = os.path.join(self.basedir, "localfile")
@@ -187,7 +187,7 @@ class Ops(unittest.TestCase):
         self.assertEqual(os.stat(localfile).st_size,
             os.stat(destfile).st_size, "sizes match")
 
-        self.assertRaises(RemoteError,
+        self.assertRaises(FileExistsError,
             lambda: self.slave.send(localfile, destfile))
 
         os.unlink(destfile)
