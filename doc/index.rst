@@ -14,6 +14,7 @@ Table of Contents:
    running_a_slave
    using
    developer
+   help
 
 Indices and tables
 ==================
