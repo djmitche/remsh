@@ -22,12 +22,8 @@ class OpenFailedError(ProtocolError):
     "Open of a file on the slave failed (openfailed)"
 
 
-class WriteFailedError(ProtocolError):
-    "A write on the slave failed (writefailed)"
-
-
-class ReadFailedError(ProtocolError):
-    "A write on the slave failed (readfailed)"
+class FailedError(ProtocolError):
+    "An operation on the slave failed (failed)"
 
 
 # utility function
@@ -120,7 +116,7 @@ class Slave(object):
         error_handling = {
             'fileexists' : FileExistsError,
             'openfailed' : OpenFailedError,
-            'writefailed' : WriteFailedError,
+            'failed' : FailedError,
         }
 
         self.wire.send_box({
@@ -153,7 +149,7 @@ class Slave(object):
         error_handling = {
             'notfound' : NotFoundError,
             'openfailed' : OpenFailedError,
-            'readfailed' : ReadFailedError,
+            'failed' : FailedError,
         }
 
         self.wire.send_box({
@@ -180,10 +176,20 @@ class Slave(object):
                         raise
 
     def remove(self, path):
-        self.rpc.call_remote('remove', path=path)
+        box = { 'meth' : 'remove', 'version' : 1, 'path' : path }
+        self.wire.send_box(box)
+        box = self.wire.read_box()
+        self.handle_errors(box,
+            failed=FailedError)
 
     def rename(self, src, dest):
-        self.rpc.call_remote('rename', src=src, dest=dest)
+        box = { 'meth' : 'rename', 'version' : 1, 'src' : src, 'dest' : dest }
+        self.wire.send_box(box)
+        box = self.wire.read_box()
+        self.handle_errors(box,
+            fileexists=FileExistsError,
+            notfound=NotFoundError,
+            failed=FailedError)
 
     def copy(self, src, dest):
         self.rpc.call_remote('copy', src=src, dest=dest)

@@ -271,8 +271,12 @@ class SlaveServer(object):
         file.close()
         self.wire.send_box({})
 
-    def remote_remove(self, rq):
-        path = rq['path']
+    @op_method('remove', 1)
+    def remote_remove(self, box):
+        if 'path' not in box:
+            raise InvalidRequestError()
+
+        path = box['path']
 
         if os.path.exists(path):
             if os.path.isdir(path):
@@ -287,10 +291,10 @@ class SlaveServer(object):
                     try:
                         shutil.rmtree(path)
                     except OSError, e:
-                        raise RemoteError(e.strerror)
+                        raise RemoteError('failed', e.strerror)
 
                 if os.path.exists(path):
-                    raise RemoteError("tree not removed")
+                    raise RemoteError('failed', "tree not removed")
             else:
                 try:
                     os.unlink(path)
@@ -299,19 +303,23 @@ class SlaveServer(object):
 
         self.wire.send_box({})
 
-    def remote_rename(self, rq):
-        src = rq['src']
-        dest = rq['dest']
+    @op_method('rename', 1)
+    def remote_rename(self, box):
+        if 'src' not in box or 'dest' not in box:
+            raise InvalidRequestError()
+
+        src = box['src']
+        dest = box['dest']
 
         if not os.path.exists(src):
-            raise RemoteError("'%s' does not exist" % src)
+            raise RemoteError('notfound', "source file does not exist")
         if os.path.exists(dest):
-            raise RemoteError("'%s' already exists" % dest)
+            raise RemoteError('fileexists', "destination file already exists")
 
         try:
             os.rename(src, dest)
         except OSError, e:
-            raise RemoteError(e.strerror)
+            raise RemoteError('failed', e.strerror)
 
         self.wire.send_box({})
 

@@ -232,7 +232,7 @@ The following error tags may be returned:
 ``openfailed``
     opening the destination file failed for some other reason
 
-``writefailed``
+``failed``
     writing to the file failed
 
 fetch
@@ -266,7 +266,7 @@ The following error tags may be returned:
 ``openfailed``
     opening the source file failed for some other reason
 
-``readfailed``
+``failed``
     reading from the file failed
 
 remove
@@ -287,7 +287,8 @@ and the response from the slave is an empty box or an error.
 
 The following error tags may be returned:
 
-TODO
+``failed``
+    the removal failed
 
 rename
 ++++++
@@ -310,7 +311,14 @@ and the response from the slave is an empty box or an error.
 
 The following error tags may be returned:
 
-TODO
+``fileexists``
+    the destination file already exists
+
+``notfound``
+    the source file was not found
+
+``failed``
+    the rename operation failed
 
 copy
 ++++

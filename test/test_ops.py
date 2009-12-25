@@ -223,7 +223,7 @@ class Ops(unittest.TestCase):
         os.unlink(srcfile)
         os.unlink(localfile)
 
-    def dont_test_remove(self):
+    def test_remove(self):
         exists = os.path.join(self.basedir, "exists")
         missing = os.path.join(self.basedir, "missing")
 
@@ -254,13 +254,13 @@ class Ops(unittest.TestCase):
         self.slave.remove(existing_file)
         self.assert_(not os.path.exists(existing_file))
 
-    def dont_test_rename(self):
+    def test_rename(self):
         exists = os.path.join(self.basedir, "exists")
         open(exists, "w")
         missing = os.path.join(self.basedir, "missing")
 
-        self.assertRaises(RemoteError, lambda : self.slave.rename(missing, missing))
-        self.assertRaises(RemoteError, lambda : self.slave.rename(exists, exists))
+        self.assertRaises(NotFoundError, lambda : self.slave.rename(missing, missing))
+        self.assertRaises(FileExistsError, lambda : self.slave.rename(exists, exists))
 
         self.slave.rename(exists, missing)
         self.assert_(not os.path.exists(exists))
