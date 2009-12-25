@@ -26,6 +26,10 @@ class WriteFailedError(ProtocolError):
     "A write on the slave failed (writefailed)"
 
 
+class ReadFailedError(ProtocolError):
+    "A write on the slave failed (readfailed)"
+
+
 # utility function
 def bool(b):
     if b: return 'y'
@@ -101,7 +105,7 @@ class Slave(object):
             elif 'result' in box:
                 try:
                     result = int(box['result'])
-                except:
+                except ValueError:
                     raise ProtocolError('invalid result value')
                 done = True
             else:
@@ -141,38 +145,39 @@ class Slave(object):
 
     def fetch(self, src, dest):
         if os.path.exists(dest):
-            raise rpc.RemoteError("'%s' already exists on the master" % dest)
+            raise FileExistsError("Destination already exists on the master")
 
         # the caller is responsible for any errors from open()
         destfile = open(dest, "wb")
 
-        self.rpc.call_remote('fetch',
-            src=src)
+        error_handling = {
+            'notfound' : NotFoundError,
+            'openfailed' : OpenFailedError,
+            'readfailed' : ReadFailedError,
+        }
 
-        # loop, handling data and finished calls
-        state = {'done': False, 'errmsg': None, 'localerr': None}
+        self.wire.send_box({
+            'meth' : 'fetch',
+            'version' : 1,
+            'src' : src
+        })
 
-        def data(rq):
-            if state['localerr']:
-                return
+        while True:
+            box = self.wire.read_box()
+            if box == {}:
+                break
+            self.handle_errors(box, **error_handling)
+            if 'data' not in box:
+                raise ProtocolError('not a data box')
             try:
-                destfile.write(rq['data'])
-            except Exception, e:
-                state['localerr'] = e
-
-        def finished(rq):
-            if 'errmsg' in rq:
-                state['errmsg'] = rc['errmsg']
-            state['done'] = True
-
-        while not state['done']:
-            self.rpc.handle_call(
-                remote_finished=finished,
-                remote_data=data)
-        if state['errmsg']:
-            raise rpc.RemoteError(state['errmsg'])
-        elif state['localerr']:
-            raise state['localerr']
+                destfile.write(box['data'])
+            except IOError:
+                # read and ignore the rest of the data, then raise the exception
+                while True:
+                    box = self.wire.read_box()
+                    self.handle_errors(box, **error_handling)
+                    if box == {}:
+                        raise
 
     def remove(self, path):
         self.rpc.call_remote('remove', path=path)

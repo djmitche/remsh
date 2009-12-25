@@ -193,7 +193,7 @@ class Ops(unittest.TestCase):
         os.unlink(destfile)
         os.unlink(localfile)
 
-    def dont_test_fetch(self):
+    def test_fetch(self):
         # prep
         srcfile = os.path.join(self.basedir, "srcfile")
         localfile = os.path.join(self.basedir, "localfile")
@@ -211,11 +211,11 @@ class Ops(unittest.TestCase):
         self.assertEqual(os.stat(localfile).st_size,
             os.stat(srcfile).st_size, "sizes match")
 
-        self.assertRaises(RemoteError,
+        self.assertRaises(FileExistsError,
             lambda: self.slave.fetch(srcfile, localfile))
 
-        self.assertRaises(RemoteError,
-             lambda: self.slave.fetch("/does/not/exist", localfile))
+        self.assertRaises(NotFoundError,
+            lambda: self.slave.fetch("/does/not/exist", localfile + "2"))
 
         self.assertRaises(IOError,
             lambda: self.slave.fetch(srcfile, "/does/not/exist"))

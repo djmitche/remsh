@@ -243,40 +243,33 @@ class SlaveServer(object):
         else:
             self.wire.send_box({})
 
-    def remote_fetch(self, rq):
-        src = rq['src']
+    @op_method("fetch", 1)
+    def remote_fetch(self, box):
+        if 'src' not in box:
+            raise InvalidRequestError()
+
+        src = box['src']
 
         # try to open the file for reading
         if not os.path.exists(src):
-            raise RemoteError("File '%s' does not exist" % src)
+            raise RemoteError('notfound', "Source file does not exist")
         try:
-            file = open(src, "rb") # TODO: support non-binary
+            file = open(src, "rb")
         except IOError, e:
-            raise RemoteError(e.strerror)
+            raise RemoteError('openfailed', e.strerror)
 
-        # we can send a response now
-        self.wire.send_box({})
-
-        # now *make* data() calls until EOF
-        state = {'error': False}
-
+        # now send data boxes until we're done
         while 1:
             try:
                 data = file.read(65535)
             except Exception, e:
-                state['error'] = e
-                break
+                raise RemoteError('readfailed', str(e))
             if not data:
                 break
-            self.call_remote_no_answer('data',
-                    data=data)
+            self.wire.send_box({'data' : data})
 
         file.close()
-        if state['error']:
-            self.call_remote('finished',
-                errstr=str(state['error']))
-        else:
-            self.call_remote('finished')
+        self.wire.send_box({})
 
     def remote_remove(self, rq):
         path = rq['path']

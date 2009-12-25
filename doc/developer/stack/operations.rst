@@ -224,6 +224,8 @@ transmission phase.  If an error (e.g., running out of disk space) does occur,
 the slave must continue to read and discard data boxes until an empty box
 arrives, and then send the error box.
 
+The following error tags may be returned:
+
 ``fileexists``
     the destination file already exists on the slave filesystem
 
@@ -247,20 +249,25 @@ The initial box from the master has the following keys:
 ``src``
     source filename on the slave system
 
-The slave responds by sending a series of data boxes identical to those for
-the *send* operation.  The data stream is terminated by an emtpy box, this time
-from the slave to the master.  If it
-encounters an error, the slave can send an error box at any time, terminating
-the tranfer.
+The slave responds by sending a series of data boxes identical to those for the
+*send* operation.  The data stream is terminated by an empty box, this time
+from the slave to the master.  If it encounters an error, the slave can send an
+error box at any time, terminating the tranfer.
 
 As with ``send``, there is no provision to indicate an error during data
 transmission.  If a problem occurs on the master, it must continue to read and
-discard data boxes and reply to the terminating empty box.  The
-error message should not be sent to the slave.  
+discard data boxes and reply to the terminating empty box.
 
 The following error tags may be returned:
 
-TODO
+``notfound``
+    the source does not exist on the slave filesystem
+
+``openfailed``
+    opening the source file failed for some other reason
+
+``readfailed``
+    reading from the file failed
 
 remove
 ++++++
