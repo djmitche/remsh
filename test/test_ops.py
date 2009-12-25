@@ -12,7 +12,7 @@ from remsh.wire import Wire
 from remsh.slave.dispatcher import SlaveServer
 from remsh.master.slave import Slave, NotFoundError
 
-class OpsTestMixin(unittest.TestCase):
+class Ops(unittest.TestCase):
     # get this value at class initialization time, since we change the cwd
     # later
     basedir = os.path.abspath("optests")
