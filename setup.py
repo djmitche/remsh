@@ -27,7 +27,7 @@ class DocUpdate(Command):
     user_options = []
 
     initialize_options = finalize_options = lambda s: s
-    run = lambda s: os.system('pushd doc/; sh upload-docs.sh; popd')
+    run = lambda s: os.system('cd doc/; sh upload-docs.sh')
 
 
 setup(name='remsh',

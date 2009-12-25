@@ -1,6 +1,7 @@
 #! /bin/sh
 
 VERSION=`cat ../VERSION`
+REV=`git rev-parse HEAD`
 
 (
 cd /tmp
@@ -27,10 +28,8 @@ cd /tmp/remsh-docs-tmp/remsh || exit 1
 
 # github doesn't allow directories beginning with a _, so we rename and move stuff around
 mv docs/$VERSION/_static docs/$VERSION/static || exit 1
-find docs/$VERSION -type f -exec sed -i -e 's!_static/!static/!g' \{} \;
-git add docs/$VERSION
+find docs/$VERSION -type f -exec sed -i -e 's!_static/!static/!g' \{} \; || exit 1
+git add docs/$VERSION || exit 1
+git commit -m "upload-docs - $REV" || exit 1
+git push origin gh-pages || exit 1
 )
-echo "NOW, MANUALLY:"
-echo "pushd /tmp/remsh-docs-tmp/remsh"
-echo "git commit WHATEVER"
-echo "git push origin gh-pages"
