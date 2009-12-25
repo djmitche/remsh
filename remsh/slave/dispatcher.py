@@ -323,21 +323,25 @@ class SlaveServer(object):
 
         self.wire.send_box({})
 
-    def remote_copy(self, rq):
-        src = rq['src']
-        dest = rq['dest']
+    @op_method('copy', 1)
+    def remote_copy(self, box):
+        if 'src' not in box or 'dest' not in box:
+            raise InvalidRequestError()
+
+        src = box['src']
+        dest = box['dest']
 
         if not os.path.exists(src):
-            raise RemoteError("'%s' does not exist" % src)
+            raise RemoteError('notfound', "source file does not exist")
         if os.path.exists(dest):
-            raise RemoteError("'%s' already exists" % dest)
+            raise RemoteError('fileexists', "destination file already exists")
 
         try:
             shutil.copyfile(src, dest)
         except OSError, e:
-            raise RemoteError(e.strerror)
+            raise RemoteError('failed', e.strerror)
         except Exception, e:
-            raise RemoteError(str(e))
+            raise RemoteError('failed', str(e))
 
         self.wire.send_box({})
 

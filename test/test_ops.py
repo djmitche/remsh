@@ -266,13 +266,13 @@ class Ops(unittest.TestCase):
         self.assert_(not os.path.exists(exists))
         self.assert_(os.path.exists(missing))
 
-    def dont_test_copy(self):
+    def test_copy(self):
         exists = os.path.join(self.basedir, "exists")
         open(exists, "w")
         missing = os.path.join(self.basedir, "missing")
 
-        self.assertRaises(RemoteError, lambda : self.slave.copy(missing, missing))
-        self.assertRaises(RemoteError, lambda : self.slave.copy(exists, exists))
+        self.assertRaises(NotFoundError, lambda : self.slave.copy(missing, missing))
+        self.assertRaises(FileExistsError, lambda : self.slave.copy(exists, exists))
 
         self.slave.copy(exists, missing)
         self.assert_(os.path.exists(exists))

@@ -341,7 +341,14 @@ and the response from the slave is an empty box or an error.
 
 The following error tags may be returned:
 
-TODO
+``fileexists``
+    the destination file already exists
+
+``notfound``
+    the source file was not found
+
+``failed``
+    the rename operation failed
 
 stat
 ++++

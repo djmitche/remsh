@@ -192,7 +192,13 @@ class Slave(object):
             failed=FailedError)
 
     def copy(self, src, dest):
-        self.rpc.call_remote('copy', src=src, dest=dest)
+        box = { 'meth' : 'copy', 'version' : 1, 'src' : src, 'dest' : dest }
+        self.wire.send_box(box)
+        box = self.wire.read_box()
+        self.handle_errors(box,
+            fileexists=FileExistsError,
+            notfound=NotFoundError,
+            failed=FailedError)
 
     def stat(self, pathname):
         resp = self.rpc.call_remote('stat', pathname=pathname)
