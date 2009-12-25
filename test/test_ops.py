@@ -43,12 +43,15 @@ class OpsTestMixin(unittest.TestCase):
     def setUpSlave(self):
         self.slave_xport, self.master_xport = LocalXport.create()
 
-        slave_server = SlaveServer(Wire(self.slave_xport))
+        slave_wire = Wire(self.slave_xport)
+        slave_server = SlaveServer(slave_wire)
+
         self.slave_server_thd = threading.Thread(target=slave_server.serve)
         self.slave_server_thd.setDaemon(1)
         self.slave_server_thd.start()
 
-        self.slave = Slave(Wire(self.master_xport))
+        master_wire = Wire(self.master_xport)
+        self.slave = Slave(master_wire)
 
     def tearDownSlave(self):
         self.master_xport.close()

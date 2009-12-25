@@ -17,8 +17,11 @@ class Wire(object):
     def __init__(self, xport):
         self.xport = xport
         self.read_buf = ''
+        self.debug = 0
 
     def send_box(self, box):
+        if self.debug:
+            print ">> ", box
         bytes = self._box_to_bytes(box)
         self.xport.write(bytes)
 
@@ -37,6 +40,8 @@ class Wire(object):
                 return None
             box, self.read_buf = self._bytes_to_box(self.read_buf + newd)
             if box is not None:
+                if self.debug:
+                    print "<< ", box
                 return box
 
     def close(self):
