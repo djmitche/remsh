@@ -1,5 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml">
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
@@ -29,6 +31,7 @@
         <li><a href="index.html">remsh v0.5 documentation</a> &raquo;</li> 
       </ul>
     </div>  
+
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
@@ -111,14 +114,10 @@
 <table width="100%" class="indextable"><tr><td width="33%" valign="top">
 <dl>
 
-<dt><a href="developer/stack/wire.html#remsh.amp.wire.SimpleWire.read_box">read_box() (remsh.amp.wire.SimpleWire method)</a></dt>
 <dt><a href="using/ops.html#remsh.master.slave.Slave.remove">remove() (remsh.master.slave.Slave method)</a></dt>
-<dt><a href="developer/stack/wire.html#remsh.amp.wire.Error">remsh.amp.wire.Error (built-in class)</a></dt>
-<dt><a href="developer/stack/wire.html#remsh.amp.wire.ResilientWire">remsh.amp.wire.ResilientWire (built-in class)</a></dt>
-<dt><a href="developer/stack/wire.html#remsh.amp.wire.SimpleWire">remsh.amp.wire.SimpleWire (built-in class)</a></dt>
-<dt><a href="using/ops.html#remsh.master.slave.Slave">remsh.master.slave.Slave (built-in class)</a></dt></dl></td><td width="33%" valign="top"><dl>
+<dt><a href="using/ops.html#remsh.master.slave.Slave">remsh.master.slave.Slave (built-in class)</a></dt>
 <dt><a href="using/slave_collections.html#remsh.master.slavecollection.simple.SimpleSlaveCollection">remsh.master.slavecollection.simple.SimpleSlaveCollection (built-in class)</a></dt>
-<dt><a href="using/slave_listeners.html#remsh.master.slavelistener.base.SlaveListener">remsh.master.slavelistener.base.SlaveListener (built-in class)</a></dt>
+<dt><a href="using/slave_listeners.html#remsh.master.slavelistener.base.SlaveListener">remsh.master.slavelistener.base.SlaveListener (built-in class)</a></dt></dl></td><td width="33%" valign="top"><dl>
 <dt><a href="using/slave_listeners.html#remsh.master.slavelistener.local.LocalSlaveListener">remsh.master.slavelistener.local.LocalSlaveListener (built-in class)</a></dt>
 <dt><a href="using/slave_listeners.html#remsh.master.slavelistener.tcp.TcpSlaveListener">remsh.master.slavelistener.tcp.TcpSlaveListener (built-in class)</a></dt>
 <dt><a href="using/ops.html#remsh.master.slave.Slave.rename">rename() (remsh.master.slave.Slave method)</a></dt>
@@ -129,7 +128,6 @@
 <dl>
 
 <dt><a href="using/ops.html#remsh.master.slave.Slave.send">send() (remsh.master.slave.Slave method)</a></dt>
-<dt><a href="developer/stack/wire.html#remsh.amp.wire.SimpleWire.send_box">send_box() (remsh.amp.wire.SimpleWire method)</a></dt>
 <dt><a href="using/ops.html#remsh.master.slave.Slave.set_cwd">set_cwd() (remsh.master.slave.Slave method)</a></dt>
 <dt><a href="using/ops.html#remsh.master.slave.Slave.setup">setup() (remsh.master.slave.Slave method)</a></dt>
 <dt><a href="using/slave_listeners.html#remsh.master.slavelistener.base.SlaveListener.slave_class">slave_class (remsh.master.slavelistener.base.SlaveListener attribute)</a></dt>
@@ -137,7 +135,6 @@
 <dt><a href="using/slave_listeners.html#remsh.master.slavelistener.tcp.TcpSlaveListener.start">start() (remsh.master.slavelistener.tcp.TcpSlaveListener method)</a></dt>
 <dt><a href="using/slave_listeners.html#remsh.master.slavelistener.local.LocalSlaveListener.start_slave">start_slave() (remsh.master.slavelistener.local.LocalSlaveListener method)</a></dt>
 <dt><a href="using/ops.html#remsh.master.slave.Slave.stat">stat() (remsh.master.slave.Slave method)</a></dt>
-<dt><a href="developer/stack/wire.html#remsh.amp.wire.SimpleWire.stop">stop() (remsh.amp.wire.SimpleWire method)</a></dt>
 </dl></td></tr></table>
 
 <h2 id="U">U</h2>
@@ -157,12 +154,19 @@
 
    
 
-          <h3>Quick search</h3>
-            <form class="search" action="search.html" method="get">
-              <input type="text" name="q" size="18" /> <input type="submit" value="Go" />
-              <input type="hidden" name="check_keywords" value="yes" />
-              <input type="hidden" name="area" value="default" />
-            </form>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -172,14 +176,14 @@
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="" title="General Index"
-             accesskey="I">index</a></li>
+             >index</a></li>
         <li><a href="index.html">remsh v0.5 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
       &copy; Copyright 2009-2009, Dustin J. Mitchell &lt;dustin@zmanda.com&gt;.
-      Last updated on Dec 24, 2009.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.5.2.
+      Last updated on Dec 25, 2009.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.3.
     </div>
   </body>
 </html>

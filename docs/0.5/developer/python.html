@@ -1,5 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml">
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
@@ -19,6 +21,7 @@
     <script type="text/javascript" src="../static/doctools.js"></script>
     <link rel="top" title="remsh v0.5 documentation" href="../index.html" />
     <link rel="up" title="Developer Documentation" href="../developer.html" />
+    <link rel="next" title="Getting Help" href="../help.html" />
     <link rel="prev" title="Operations Layer" href="stack/operations.html" /> 
   </head>
   <body>
@@ -29,18 +32,21 @@
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
+          <a href="../help.html" title="Getting Help"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
           <a href="stack/operations.html" title="Operations Layer"
              accesskey="P">previous</a> |</li>
         <li><a href="../index.html">remsh v0.5 documentation</a> &raquo;</li>
           <li><a href="../developer.html" accesskey="U">Developer Documentation</a> &raquo;</li> 
       </ul>
     </div>  
+
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
           <div class="body">
             
-  
   <div class="section" id="python">
 <h1>Python<a class="headerlink" href="#python" title="Permalink to this headline">¶</a></h1>
 <p>This section describes the Python implemtation of remsh.</p>
@@ -50,9 +56,8 @@ flexibility to move modules around in the future without breaking links.</p>
 <div class="section" id="transport-layer">
 <h2>Transport Layer<a class="headerlink" href="#transport-layer" title="Permalink to this headline">¶</a></h2>
 <p>The transport layer is in the <tt class="docutils literal"><span class="pre">remsh.xport</span></tt> namespace.  The <tt class="docutils literal"><span class="pre">base</span></tt> module
-defines a the Python API for all transport classes, although it does not
-implement any functionality.  Because Python is duck-typed, it&#8217;s not critical
-to inherit from this class, but it is a helpful indicator for other developers.</p>
+defines a the Python API for all transport classes, in the form of a base
+class.</p>
 <p>A &#8220;local&#8221; xport is available for testing purposes in <tt class="docutils literal"><span class="pre">remsh.xport.local</span></tt>.
 Objects of this type are created in pairs, similar to the <tt class="docutils literal"><span class="pre">pipe(2)</span></tt> function:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">remsh.xport.local</span> <span class="kn">import</span> <span class="n">LocalXport</span>
@@ -61,6 +66,31 @@ Objects of this type are created in pairs, similar to the <tt class="docutils li
 </div>
 <p>Note that, because the transport API is blocking, these transport objects
 cannot be used simultaneously in the same thread.</p>
+</div>
+<div class="section" id="wire-layer">
+<h2>Wire Layer<a class="headerlink" href="#wire-layer" title="Permalink to this headline">¶</a></h2>
+<p>The wire layer is in the <tt class="docutils literal"><span class="pre">remsh.wire</span></tt> namespace.  Since there is only one
+wire implementation, this is implemented as a module, and exposes the class
+with the name <tt class="docutils literal"><span class="pre">remsh.wire.Wire</span></tt>.</p>
+<p>Note that boxes are represented as simple Python dictionaries, the keys and
+values of which are stringified if necessary.  The <tt class="docutils literal"><span class="pre">read_box</span></tt> method returns
+<tt class="xref docutils literal"><span class="pre">None</span></tt> if it receives an EOF between boxes, and otherwise raises
+<tt class="docutils literal"><span class="pre">EOFError</span></tt>.  The <tt class="docutils literal"><span class="pre">remsh.wire.Error</span></tt> exception class is used to indicate
+protocol-specific errors.</p>
+</div>
+<div class="section" id="operations-layer">
+<h2>Operations Layer<a class="headerlink" href="#operations-layer" title="Permalink to this headline">¶</a></h2>
+<p>The operations layer is not symmetrical, so it has distinct implementations on
+the master and slave sides.  These are embedded in the <tt class="docutils literal"><span class="pre">remsh.master</span></tt> and
+<tt class="docutils literal"><span class="pre">remsh.slave</span></tt> namespaces, respectively, which also contain the mechanics of
+usable Python applications.</p>
+<div class="section" id="master-operations">
+<h3>Master Operations<a class="headerlink" href="#master-operations" title="Permalink to this headline">¶</a></h3>
+<p>TODO</p>
+</div>
+<div class="section" id="slave-operations">
+<h3>Slave Operations<a class="headerlink" href="#slave-operations" title="Permalink to this headline">¶</a></h3>
+</div>
 </div>
 </div>
 
@@ -72,20 +102,37 @@ cannot be used simultaneously in the same thread.</p>
         <div class="sphinxsidebarwrapper">
             <h3><a href="../index.html">Table Of Contents</a></h3>
             <ul>
-<li><a class="reference" href="">Python</a><ul>
-<li><a class="reference" href="#transport-layer">Transport Layer</a></li>
+<li><a class="reference external" href="">Python</a><ul>
+<li><a class="reference external" href="#transport-layer">Transport Layer</a></li>
+<li><a class="reference external" href="#wire-layer">Wire Layer</a></li>
+<li><a class="reference external" href="#operations-layer">Operations Layer</a><ul>
+<li><a class="reference external" href="#master-operations">Master Operations</a></li>
+<li><a class="reference external" href="#slave-operations">Slave Operations</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 
             <h4>Previous topic</h4>
-            <p class="topless"><a href="stack/operations.html" title="previous chapter">Operations Layer</a></p>
-          <h3>Quick search</h3>
-            <form class="search" action="../search.html" method="get">
-              <input type="text" name="q" size="18" /> <input type="submit" value="Go" />
-              <input type="hidden" name="check_keywords" value="yes" />
-              <input type="hidden" name="area" value="default" />
-            </form>
+            <p class="topless"><a href="stack/operations.html"
+                                  title="previous chapter">Operations Layer</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="../help.html"
+                                  title="next chapter">Getting Help</a></p>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="../search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -95,18 +142,21 @@ cannot be used simultaneously in the same thread.</p>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
+             >index</a></li>
+        <li class="right" >
+          <a href="../help.html" title="Getting Help"
+             >next</a> |</li>
         <li class="right" >
           <a href="stack/operations.html" title="Operations Layer"
-             accesskey="P">previous</a> |</li>
+             >previous</a> |</li>
         <li><a href="../index.html">remsh v0.5 documentation</a> &raquo;</li>
-          <li><a href="../developer.html" accesskey="U">Developer Documentation</a> &raquo;</li> 
+          <li><a href="../developer.html" >Developer Documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
       &copy; Copyright 2009-2009, Dustin J. Mitchell &lt;dustin@zmanda.com&gt;.
-      Last updated on Dec 24, 2009.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.5.2.
+      Last updated on Dec 25, 2009.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.3.
     </div>
   </body>
 </html>

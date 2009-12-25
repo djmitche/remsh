@@ -1,5 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml">
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
@@ -36,16 +38,16 @@
           <a href="wire.html" title="Wire Layer"
              accesskey="P">previous</a> |</li>
         <li><a href="../../index.html">remsh v0.5 documentation</a> &raquo;</li>
-          <li><a href="../../developer.html" accesskey="U">Developer Documentation</a> &raquo;</li>
+          <li><a href="../../developer.html" >Developer Documentation</a> &raquo;</li>
           <li><a href="../stack.html" accesskey="U">Network Stack</a> &raquo;</li> 
       </ul>
     </div>  
+
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
           <div class="body">
             
-  
   <div class="section" id="operations-layer">
 <h1>Operations Layer<a class="headerlink" href="#operations-layer" title="Permalink to this headline">¶</a></h1>
 <p>The operations layer makes use of the wire layer to get real work done on the
@@ -64,8 +66,8 @@ a given wire connection.</p>
 <p>Each method is described below, although the language-specific details of the
 argument and return values are not covered here.  Note that the operation
 methods all block until the operation is complete.</p>
-<p>The semantic meaning of each operation is described in <a class="reference" href="../../using.html#using-remsh"><em>Using Remsh</em></a>, and
-is not duplicated here.</p>
+<p>The meaning of each operation is described in <a class="reference external" href="../../using.html#using-remsh"><em>Using Remsh</em></a>, and is not
+duplicated here.</p>
 </div>
 <div class="section" id="protocol">
 <h2>Protocol<a class="headerlink" href="#protocol" title="Permalink to this headline">¶</a></h2>
@@ -111,11 +113,10 @@ higher versions.</dd>
 <dd>The request was invalid for any reason not convered by a more specific error tag.</dd>
 </dl>
 </div>
-</div>
 <div class="section" id="operations">
-<h2>Operations<a class="headerlink" href="#operations" title="Permalink to this headline">¶</a></h2>
+<h3>Operations<a class="headerlink" href="#operations" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="set-cwd">
-<h3>set_cwd<a class="headerlink" href="#set-cwd" title="Permalink to this headline">¶</a></h3>
+<h4>set_cwd<a class="headerlink" href="#set-cwd" title="Permalink to this headline">¶</a></h4>
 <p>The <tt class="docutils literal"><span class="pre">set_cwd</span></tt> method takes a single, optional argument, <tt class="docutils literal"><span class="pre">cwd</span></tt>, and returns a
 string.  The master sends a box with the following keys:</p>
 <dl class="docutils">
@@ -136,10 +137,13 @@ current directory without changing it.</p>
 <dd>resulting working directory; this should be an absolute path</dd>
 </dl>
 <p>The following error tags may be returned:</p>
-<p>TODO</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">notfound</span></tt></dt>
+<dd>The new directory could not be found</dd>
+</dl>
 </div>
 <div class="section" id="getenv">
-<h3>getenv<a class="headerlink" href="#getenv" title="Permalink to this headline">¶</a></h3>
+<h4>getenv<a class="headerlink" href="#getenv" title="Permalink to this headline">¶</a></h4>
 <p>The <tt class="docutils literal"><span class="pre">getenv</span></tt> method takes no arguments, and returns a set of key/value pairs.</p>
 <p>The request box has a single key:</p>
 <dl class="docutils">
@@ -153,11 +157,10 @@ consists of the suffix <tt class="docutils literal"><span class="pre">env_</span
 the value of an environment variable is greater than 65535 bytes, it is
 silently truncated.  There is no limit to the number of environment variables
 which can be returned.</p>
-<p>The following error tags may be returned:</p>
-<p>TODO</p>
+<p>This operation does not return any unique error tags.</p>
 </div>
 <div class="section" id="mkdir">
-<h3>mkdir<a class="headerlink" href="#mkdir" title="Permalink to this headline">¶</a></h3>
+<h4>mkdir<a class="headerlink" href="#mkdir" title="Permalink to this headline">¶</a></h4>
 <p>The <tt class="docutils literal"><span class="pre">mkdir</span></tt> method takes a single argument, <tt class="docutils literal"><span class="pre">dir</span></tt>, and returns nothing.</p>
 <p>The request box has the following keys:</p>
 <dl class="docutils">
@@ -168,12 +171,10 @@ which can be returned.</p>
 <dt><tt class="docutils literal"><span class="pre">dir</span></tt></dt>
 <dd>directory to create</dd>
 </dl>
-<p>The response box is empty.</p>
-<p>The following error tags may be returned:</p>
-<p>TODO</p>
+<p>The response box is empty.  This operation does not return any unique error tags.</p>
 </div>
 <div class="section" id="execute">
-<h3>execute<a class="headerlink" href="#execute" title="Permalink to this headline">¶</a></h3>
+<h4>execute<a class="headerlink" href="#execute" title="Permalink to this headline">¶</a></h4>
 <p>The <tt class="docutils literal"><span class="pre">execute</span></tt> method takes a number of arguments: <tt class="docutils literal"><span class="pre">args</span></tt>, a list of
 arguments; and <tt class="docutils literal"><span class="pre">want_stdout</span></tt> and <tt class="docutils literal"><span class="pre">want_stderr</span></tt>, booleans.  The request box
 has the following keys:</p>
@@ -208,18 +209,13 @@ are the standard streams)</dd>
 </dl>
 <p>At any time, the slave may send an error box, terminating the operation.  The
 following error tags may be returned:</p>
-<p>TODO</p>
-<div class="section" id="todo">
-<h4>TODO<a class="headerlink" href="#todo" title="Permalink to this headline">¶</a></h4>
-<ul class="simple">
-<li>optionally translate platform-specific newlines to &#8216;n&#8217; in execute, send, etc.</li>
-<li>provide a more generic list-of-strings thing, and quote NUL bytes in it</li>
-<li>support additional watched files</li>
-</ul>
-</div>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">execfailed</span></tt></dt>
+<dd>execution of the command failed</dd>
+</dl>
 </div>
 <div class="section" id="send">
-<h3>send<a class="headerlink" href="#send" title="Permalink to this headline">¶</a></h3>
+<h4>send<a class="headerlink" href="#send" title="Permalink to this headline">¶</a></h4>
 <p>A send operation is initiated by a box with these keys:</p>
 <dl class="docutils">
 <dt><tt class="docutils literal"><span class="pre">version</span></tt></dt>
@@ -243,17 +239,17 @@ transmission phase.  If an error (e.g., running out of disk space) does occur,
 the slave must continue to read and discard data boxes until an empty box
 arrives, and then send the error box.</p>
 <p>The following error tags may be returned:</p>
-<p>TODO</p>
-<div class="section" id="id1">
-<h4>TODO<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
-<ul class="simple">
-<li>should send include some chance for the slave to indicate error?</li>
-<li>support sending a literal string with send()</li>
-</ul>
-</div>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">fileexists</span></tt></dt>
+<dd>the destination file already exists on the slave filesystem</dd>
+<dt><tt class="docutils literal"><span class="pre">openfailed</span></tt></dt>
+<dd>opening the destination file failed for some other reason</dd>
+<dt><tt class="docutils literal"><span class="pre">failed</span></tt></dt>
+<dd>writing to the file failed</dd>
+</dl>
 </div>
 <div class="section" id="fetch">
-<h3>fetch<a class="headerlink" href="#fetch" title="Permalink to this headline">¶</a></h3>
+<h4>fetch<a class="headerlink" href="#fetch" title="Permalink to this headline">¶</a></h4>
 <p>The initial box from the master has the following keys:</p>
 <dl class="docutils">
 <dt><tt class="docutils literal"><span class="pre">version</span></tt></dt>
@@ -263,20 +259,25 @@ arrives, and then send the error box.</p>
 <dt><tt class="docutils literal"><span class="pre">src</span></tt></dt>
 <dd>source filename on the slave system</dd>
 </dl>
-<p>The slave responds by sending a series of data boxes identical to those for
-the <em>send</em> operation.  The data stream is terminated by an emtpy box, this time
-from the slave to the master.  If it
-encounters an error, the slave can send an error box at any time, terminating
-the tranfer.</p>
+<p>The slave responds by sending a series of data boxes identical to those for the
+<em>send</em> operation.  The data stream is terminated by an empty box, this time
+from the slave to the master.  If it encounters an error, the slave can send an
+error box at any time, terminating the tranfer.</p>
 <p>As with <tt class="docutils literal"><span class="pre">send</span></tt>, there is no provision to indicate an error during data
 transmission.  If a problem occurs on the master, it must continue to read and
-discard data boxes and reply to the terminating empty box.  The
-error message should not be sent to the slave.</p>
+discard data boxes and reply to the terminating empty box.</p>
 <p>The following error tags may be returned:</p>
-<p>TODO</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">notfound</span></tt></dt>
+<dd>the source does not exist on the slave filesystem</dd>
+<dt><tt class="docutils literal"><span class="pre">openfailed</span></tt></dt>
+<dd>opening the source file failed for some other reason</dd>
+<dt><tt class="docutils literal"><span class="pre">failed</span></tt></dt>
+<dd>reading from the file failed</dd>
+</dl>
 </div>
 <div class="section" id="remove">
-<h3>remove<a class="headerlink" href="#remove" title="Permalink to this headline">¶</a></h3>
+<h4>remove<a class="headerlink" href="#remove" title="Permalink to this headline">¶</a></h4>
 <p>The initial box from the master has the following keys:</p>
 <dl class="docutils">
 <dt><tt class="docutils literal"><span class="pre">version</span></tt></dt>
@@ -288,10 +289,13 @@ error message should not be sent to the slave.</p>
 </dl>
 <p>and the response from the slave is an empty box or an error.</p>
 <p>The following error tags may be returned:</p>
-<p>TODO</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">failed</span></tt></dt>
+<dd>the removal failed</dd>
+</dl>
 </div>
 <div class="section" id="rename">
-<h3>rename<a class="headerlink" href="#rename" title="Permalink to this headline">¶</a></h3>
+<h4>rename<a class="headerlink" href="#rename" title="Permalink to this headline">¶</a></h4>
 <p>The request has the following keys:</p>
 <dl class="docutils">
 <dt><tt class="docutils literal"><span class="pre">version</span></tt></dt>
@@ -305,10 +309,17 @@ error message should not be sent to the slave.</p>
 </dl>
 <p>and the response from the slave is an empty box or an error.</p>
 <p>The following error tags may be returned:</p>
-<p>TODO</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">fileexists</span></tt></dt>
+<dd>the destination file already exists</dd>
+<dt><tt class="docutils literal"><span class="pre">notfound</span></tt></dt>
+<dd>the source file was not found</dd>
+<dt><tt class="docutils literal"><span class="pre">failed</span></tt></dt>
+<dd>the rename operation failed</dd>
+</dl>
 </div>
 <div class="section" id="copy">
-<h3>copy<a class="headerlink" href="#copy" title="Permalink to this headline">¶</a></h3>
+<h4>copy<a class="headerlink" href="#copy" title="Permalink to this headline">¶</a></h4>
 <p>The request has the following keys:</p>
 <dl class="docutils">
 <dt><tt class="docutils literal"><span class="pre">version</span></tt></dt>
@@ -322,17 +333,24 @@ error message should not be sent to the slave.</p>
 </dl>
 <p>and the response from the slave is an empty box or an error.</p>
 <p>The following error tags may be returned:</p>
-<p>TODO</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">fileexists</span></tt></dt>
+<dd>the destination file already exists</dd>
+<dt><tt class="docutils literal"><span class="pre">notfound</span></tt></dt>
+<dd>the source file was not found</dd>
+<dt><tt class="docutils literal"><span class="pre">failed</span></tt></dt>
+<dd>the copy operation failed</dd>
+</dl>
 </div>
 <div class="section" id="stat">
-<h3>stat<a class="headerlink" href="#stat" title="Permalink to this headline">¶</a></h3>
+<h4>stat<a class="headerlink" href="#stat" title="Permalink to this headline">¶</a></h4>
 <p>The request has the following key:</p>
 <dl class="docutils">
 <dt><tt class="docutils literal"><span class="pre">version</span></tt></dt>
 <dd><tt class="docutils literal"><span class="pre">1</span></tt></dd>
 <dt><tt class="docutils literal"><span class="pre">meth</span></tt></dt>
 <dd><tt class="docutils literal"><span class="pre">stat</span></tt></dd>
-<dt><tt class="docutils literal"><span class="pre">pathname</span></tt></dt>
+<dt><tt class="docutils literal"><span class="pre">path</span></tt></dt>
 <dd>pathname to stat</dd>
 </dl>
 <p>and the response is a box with the following key (or an error):</p>
@@ -341,7 +359,11 @@ error message should not be sent to the slave.</p>
 <dd>one of <tt class="docutils literal"><span class="pre">d</span></tt>, <tt class="docutils literal"><span class="pre">f</span></tt>, or an empty string</dd>
 </dl>
 <p>The following error tags may be returned:</p>
-<p>TODO</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">failed</span></tt></dt>
+<dd>the stat operation failed for some other reason</dd>
+</dl>
+</div>
 </div>
 </div>
 </div>
@@ -354,29 +376,23 @@ error message should not be sent to the slave.</p>
         <div class="sphinxsidebarwrapper">
             <h3><a href="../../index.html">Table Of Contents</a></h3>
             <ul>
-<li><a class="reference" href="">Operations Layer</a><ul>
-<li><a class="reference" href="#api">API</a></li>
-<li><a class="reference" href="#protocol">Protocol</a><ul>
-<li><a class="reference" href="#error-handling">Error Handling</a></li>
+<li><a class="reference external" href="">Operations Layer</a><ul>
+<li><a class="reference external" href="#api">API</a></li>
+<li><a class="reference external" href="#protocol">Protocol</a><ul>
+<li><a class="reference external" href="#error-handling">Error Handling</a></li>
+<li><a class="reference external" href="#operations">Operations</a><ul>
+<li><a class="reference external" href="#set-cwd">set_cwd</a></li>
+<li><a class="reference external" href="#getenv">getenv</a></li>
+<li><a class="reference external" href="#mkdir">mkdir</a></li>
+<li><a class="reference external" href="#execute">execute</a></li>
+<li><a class="reference external" href="#send">send</a></li>
+<li><a class="reference external" href="#fetch">fetch</a></li>
+<li><a class="reference external" href="#remove">remove</a></li>
+<li><a class="reference external" href="#rename">rename</a></li>
+<li><a class="reference external" href="#copy">copy</a></li>
+<li><a class="reference external" href="#stat">stat</a></li>
 </ul>
 </li>
-<li><a class="reference" href="#operations">Operations</a><ul>
-<li><a class="reference" href="#set-cwd">set_cwd</a></li>
-<li><a class="reference" href="#getenv">getenv</a></li>
-<li><a class="reference" href="#mkdir">mkdir</a></li>
-<li><a class="reference" href="#execute">execute</a><ul>
-<li><a class="reference" href="#todo">TODO</a></li>
-</ul>
-</li>
-<li><a class="reference" href="#send">send</a><ul>
-<li><a class="reference" href="#id1">TODO</a></li>
-</ul>
-</li>
-<li><a class="reference" href="#fetch">fetch</a></li>
-<li><a class="reference" href="#remove">remove</a></li>
-<li><a class="reference" href="#rename">rename</a></li>
-<li><a class="reference" href="#copy">copy</a></li>
-<li><a class="reference" href="#stat">stat</a></li>
 </ul>
 </li>
 </ul>
@@ -384,15 +400,24 @@ error message should not be sent to the slave.</p>
 </ul>
 
             <h4>Previous topic</h4>
-            <p class="topless"><a href="wire.html" title="previous chapter">Wire Layer</a></p>
+            <p class="topless"><a href="wire.html"
+                                  title="previous chapter">Wire Layer</a></p>
             <h4>Next topic</h4>
-            <p class="topless"><a href="../python.html" title="next chapter">Python</a></p>
-          <h3>Quick search</h3>
-            <form class="search" action="../../search.html" method="get">
-              <input type="text" name="q" size="18" /> <input type="submit" value="Go" />
-              <input type="hidden" name="check_keywords" value="yes" />
-              <input type="hidden" name="area" value="default" />
-            </form>
+            <p class="topless"><a href="../python.html"
+                                  title="next chapter">Python</a></p>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="../../search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -402,22 +427,22 @@ error message should not be sent to the slave.</p>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
+             >index</a></li>
         <li class="right" >
           <a href="../python.html" title="Python"
-             accesskey="N">next</a> |</li>
+             >next</a> |</li>
         <li class="right" >
           <a href="wire.html" title="Wire Layer"
-             accesskey="P">previous</a> |</li>
+             >previous</a> |</li>
         <li><a href="../../index.html">remsh v0.5 documentation</a> &raquo;</li>
-          <li><a href="../../developer.html" accesskey="U">Developer Documentation</a> &raquo;</li>
-          <li><a href="../stack.html" accesskey="U">Network Stack</a> &raquo;</li> 
+          <li><a href="../../developer.html" >Developer Documentation</a> &raquo;</li>
+          <li><a href="../stack.html" >Network Stack</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
       &copy; Copyright 2009-2009, Dustin J. Mitchell &lt;dustin@zmanda.com&gt;.
-      Last updated on Dec 24, 2009.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.5.2.
+      Last updated on Dec 25, 2009.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.3.
     </div>
   </body>
 </html>

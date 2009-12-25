@@ -1,5 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml">
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
@@ -36,16 +38,16 @@
           <a href="transport.html" title="Transport Layer"
              accesskey="P">previous</a> |</li>
         <li><a href="../../index.html">remsh v0.5 documentation</a> &raquo;</li>
-          <li><a href="../../developer.html" accesskey="U">Developer Documentation</a> &raquo;</li>
+          <li><a href="../../developer.html" >Developer Documentation</a> &raquo;</li>
           <li><a href="../stack.html" accesskey="U">Network Stack</a> &raquo;</li> 
       </ul>
     </div>  
+
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
           <div class="body">
             
-  
   <div class="section" id="wire-layer">
 <h1>Wire Layer<a class="headerlink" href="#wire-layer" title="Permalink to this headline">¶</a></h1>
 <p>The wire layer provides a very simple interface to higher layers.  It is
@@ -67,7 +69,7 @@ received.</p>
 using AMP, and may support other implementations.  The user must explicitly
 configure any alternative implementations on both the master and slave.
 Without any such configuration, implementations must assume that AMP is in use.</p>
-<p>AMP is the <a class="reference" href="http://twistedmatrix.com/documents/current/api/twisted.protocols.amp.html">Asynchronous Messaging Protocol</a>,
+<p>AMP is the <a class="reference external" href="http://twistedmatrix.com/documents/current/api/twisted.protocols.amp.html">Asynchronous Messaging Protocol</a>,
 a message-based protocol designed by the folks at Twisted Matrix.  This
 protocol operates over the transport layer, adding its own framing.</p>
 <p>Of the details described in the link above, remsh uses only the AMP wire
@@ -104,94 +106,6 @@ consequence reasonable limits on the overall size of a box are possible (based
 on the largest number of allowed keys in a remsh box), for security- or
 memory-conscious uses.</p>
 </div>
-<div class="section" id="python-implementation">
-<h2>Python Implementation<a class="headerlink" href="#python-implementation" title="Permalink to this headline">¶</a></h2>
-<p>The implementation of this protocol is entirely synchronous.  Callers should
-use Python threads to handle multiple simultaneous connections.</p>
-<dl class="class">
-<dt id="remsh.amp.wire.Error">
-<!--[remsh.amp.wire.Error]-->class <tt class="descclassname">remsh.amp.wire.</tt><tt class="descname">Error</tt><a class="headerlink" href="#remsh.amp.wire.Error" title="Permalink to this definition">¶</a></dt>
-<dd>An exception indicating an error in the AMP protocol</dd></dl>
-
-<dl class="class">
-<dt id="remsh.amp.wire.SimpleWire">
-<!--[remsh.amp.wire.SimpleWire]-->class <tt class="descclassname">remsh.amp.wire.</tt><tt class="descname">SimpleWire</tt><big>(</big><em>socket</em><big>)</big><a class="headerlink" href="#remsh.amp.wire.SimpleWire" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><em>socket</em> &#8211; the socket on which to communicate</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<p>Implements the AMP protocol as described above.</p>
-<dl class="method">
-<dt id="remsh.amp.wire.SimpleWire.send_box">
-<!--[remsh.amp.wire.SimpleWire.send_box]--><tt class="descname">send_box</tt><big>(</big><em>box</em><big>)</big><a class="headerlink" href="#remsh.amp.wire.SimpleWire.send_box" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><em>box</em> (dictionary) &#8211; the box to send</li>
-</ul>
-</td>
-</tr>
-<tr class="field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a title="remsh.amp.wire.Error" class="reference" href="#remsh.amp.wire.Error"><tt class="xref docutils literal"><span class="pre">Error</span></tt></a> for protocol errors</p>
-</td>
-</tr>
-<tr class="field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><tt class="xref docutils literal"><span class="pre">socket.error</span></tt> for socket errors</p>
-</td>
-</tr>
-</tbody>
-</table>
-<p>Send the given box, returning once it is completley transmitted (but
-not necessarily received by the remote end).</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="remsh.amp.wire.SimpleWire.read_box">
-<!--[remsh.amp.wire.SimpleWire.read_box]--><tt class="descname">read_box</tt><big>(</big><big>)</big><a class="headerlink" href="#remsh.amp.wire.SimpleWire.read_box" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field"><th class="field-name">Returns:</th><td class="field-body">dictionary</td>
-</tr>
-<tr class="field"><th class="field-name">Raises:</th><td class="field-body"><a title="remsh.amp.wire.Error" class="reference" href="#remsh.amp.wire.Error"><tt class="xref docutils literal"><span class="pre">Error</span></tt></a> for protocol errors</td>
-</tr>
-<tr class="field"><th class="field-name">Raises:</th><td class="field-body"><tt class="xref docutils literal"><span class="pre">socket.error</span></tt> for socket errors</td>
-</tr>
-<tr class="field"><th class="field-name">Raises:</th><td class="field-body"><tt class="xref docutils literal"><span class="pre">EOFError</span></tt> on EOF in the middle of a box</td>
-</tr>
-</tbody>
-</table>
-<p>Read a box from the remote system, blocking until one is received.</p>
-<p>Raises <a title="remsh.amp.wire.Error" class="reference" href="#remsh.amp.wire.Error"><tt class="xref docutils literal"><span class="pre">Error</span></tt></a> for protocol errors or socket.error for network
-errors.  Returns None on a normal EOF.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="remsh.amp.wire.SimpleWire.stop">
-<!--[remsh.amp.wire.SimpleWire.stop]--><tt class="descname">stop</tt><big>(</big><big>)</big><a class="headerlink" href="#remsh.amp.wire.SimpleWire.stop" title="Permalink to this definition">¶</a></dt>
-<dd>Stop using the socket.</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="remsh.amp.wire.ResilientWire">
-<!--[remsh.amp.wire.ResilientWire]-->class <tt class="descclassname">remsh.amp.wire.</tt><tt class="descname">ResilientWire</tt><big>(</big><em>socket</em><big>)</big><a class="headerlink" href="#remsh.amp.wire.ResilientWire" title="Permalink to this definition">¶</a></dt>
-<dd><p>This class has an identical interface to
-<a title="remsh.amp.wire.SimpleWire" class="reference" href="#remsh.amp.wire.SimpleWire"><tt class="xref docutils literal"><span class="pre">SimpleWire</span></tt></a>, but runs in its own socket to permit
-bidirectional communication and to handle buffering and retransmission of
-lost boxes.</p>
-<p>It&#8217;s not done yet.</p>
-</dd></dl>
-
-</div>
 </div>
 
 
@@ -202,24 +116,32 @@ lost boxes.</p>
         <div class="sphinxsidebarwrapper">
             <h3><a href="../../index.html">Table Of Contents</a></h3>
             <ul>
-<li><a class="reference" href="">Wire Layer</a><ul>
-<li><a class="reference" href="#api">API</a></li>
-<li><a class="reference" href="#protocol">Protocol</a></li>
-<li><a class="reference" href="#python-implementation">Python Implementation</a></li>
+<li><a class="reference external" href="">Wire Layer</a><ul>
+<li><a class="reference external" href="#api">API</a></li>
+<li><a class="reference external" href="#protocol">Protocol</a></li>
 </ul>
 </li>
 </ul>
 
             <h4>Previous topic</h4>
-            <p class="topless"><a href="transport.html" title="previous chapter">Transport Layer</a></p>
+            <p class="topless"><a href="transport.html"
+                                  title="previous chapter">Transport Layer</a></p>
             <h4>Next topic</h4>
-            <p class="topless"><a href="operations.html" title="next chapter">Operations Layer</a></p>
-          <h3>Quick search</h3>
-            <form class="search" action="../../search.html" method="get">
-              <input type="text" name="q" size="18" /> <input type="submit" value="Go" />
-              <input type="hidden" name="check_keywords" value="yes" />
-              <input type="hidden" name="area" value="default" />
-            </form>
+            <p class="topless"><a href="operations.html"
+                                  title="next chapter">Operations Layer</a></p>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="../../search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -229,22 +151,22 @@ lost boxes.</p>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
+             >index</a></li>
         <li class="right" >
           <a href="operations.html" title="Operations Layer"
-             accesskey="N">next</a> |</li>
+             >next</a> |</li>
         <li class="right" >
           <a href="transport.html" title="Transport Layer"
-             accesskey="P">previous</a> |</li>
+             >previous</a> |</li>
         <li><a href="../../index.html">remsh v0.5 documentation</a> &raquo;</li>
-          <li><a href="../../developer.html" accesskey="U">Developer Documentation</a> &raquo;</li>
-          <li><a href="../stack.html" accesskey="U">Network Stack</a> &raquo;</li> 
+          <li><a href="../../developer.html" >Developer Documentation</a> &raquo;</li>
+          <li><a href="../stack.html" >Network Stack</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
       &copy; Copyright 2009-2009, Dustin J. Mitchell &lt;dustin@zmanda.com&gt;.
-      Last updated on Dec 24, 2009.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.5.2.
+      Last updated on Dec 25, 2009.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.3.
     </div>
   </body>
 </html>
