@@ -36,7 +36,7 @@ class Wire(object):
                     raise EOFError
                 return None
             box, self.read_buf = self._bytes_to_box(self.read_buf + newd)
-            if box:
+            if box is not None:
                 return box
 
     def close(self):
