@@ -17,6 +17,11 @@ class NotFoundError(ProtocolError):
 class SlaveDisconnected(ProtocolError):
     "The slave disconnected in the midst of an operation"
 
+# utility function
+def bool(b):
+    if b: return 'y'
+    return 'n'
+
 
 class Slave(object):
 
@@ -50,22 +55,16 @@ class Slave(object):
         self.handle_errors(box)
 
     def execute(self, args=[], stdout_cb=None, stderr_cb=None):
-        if stdout_cb:
-            want_stdout='y'
-        else:
-            want_stdout = 'n',
-        if stderr_cb:
-            want_stderr='y'
-        else:
-            want_stderr = 'n',
-        self.rpc.call_remote('execute',
-            args='\0'.join(args),
-            want_stdout=want_stdout,
-            want_stderr=want_stderr)
+        box = {
+            'meth' : 'execute',
+            'version' : 1,
+            'args' : '\0'.join(args),
+            'want_stdout' : bool(stdout_cb),
+            'want_stderr' : bool(stderr_cb),
+        }
+        self.wire.send_box(box)
 
         # loop, handling calls without answers, until we get 'finished'
-        result = {}
-
         def finished(rq):
             result['result'] = int(rq['result'])
 
@@ -75,11 +74,31 @@ class Slave(object):
             elif rq['stream'] == 'stderr':
                 stderr_cb(rq['data'])
 
-        while not result:
-            self.rpc.handle_call(
-                remote_finished=finished,
-                remote_data=data)
-        return result['result']
+        done = False
+        while not done:
+            box = self.wire.read_box()
+            self.handle_errors(box)
+            if 'stream' in box:
+                stream = box['stream']
+                if 'data' not in box:
+                    raise ProtocolError('stream box without data')
+                data = box['data']
+                if stdout_cb and stream == 'stdout':
+                    stdout_cb(data)
+                elif stderr_cb and stream == 'stderr':
+                    stderr_cb(data)
+                else:
+                    raise ProtocolError('got data for unknown stream')
+            elif 'result' in box:
+                try:
+                    result = int(box['result'])
+                except:
+                    raise ProtocolError('invalid result value')
+                done = True
+            else:
+                raise ProtocolError('unknown response box')
+
+        return result
 
     def send(self, src, dest):
         # the caller is responsible for any errors from open()
@@ -158,6 +177,9 @@ class Slave(object):
     }
 
     def handle_errors(self, box, **more_errcodes):
+        if box is None:
+            raise ProtocolError("unexpected EOF during operation")
+
         if 'error' not in box:
             return
 

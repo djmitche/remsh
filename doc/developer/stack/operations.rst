@@ -192,7 +192,8 @@ The result box can be distinguished from a data box by having a ``result`` key:
 At any time, the slave may send an error box, terminating the operation.  The
 following error tags may be returned:
 
-TODO
+``execfailed``
+    execution of the command failed
 
 TODO
 ````

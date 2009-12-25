@@ -15,7 +15,7 @@ import stat
 class RemoteError(Exception):
     """
     
-    Utility class for sending error boxes
+    Utility exception for sending error boxes
     
     """
 
@@ -23,6 +23,17 @@ class RemoteError(Exception):
         self.errbox = {
             'errtag' : errtag,
             'error' : error }
+
+
+class InvalidRequestError(RemoteError):
+    """
+
+    An 'invalid' RemoteError
+
+    """
+
+    def __init__(self):
+        RemoteError.__init__(self, 'invalid', 'invalid format for this method')
 
 # contains pointers to the SlaveServer methods for each operation, in a
 # two-level dictionary by key and then version.  This has to be global
@@ -120,9 +131,7 @@ class SlaveServer(object):
     @op_method('mkdir', 1)
     def remote_mkdir(self, box):
         if 'dir' not in box:
-            self.wire.send_box({ 'error' : 'invalid request',
-                                 'errtag' : 'invalid'})
-            return
+            raise InvalidRequestError()
 
         dir = box['dir']
 
@@ -133,10 +142,14 @@ class SlaveServer(object):
                 raise RemoteError('unknown', e.strerror)
         self.wire.send_box({})
 
-    def remote_execute(self, rq):
-        want_stdout = self._getbool(rq, 'want_stdout')
-        want_stderr = self._getbool(rq, 'want_stderr')
-        args = rq['args'].split('\0')
+    @op_method('execute', 1)
+    def remote_execute(self, box):
+        for k in 'want_stdout want_stderr args'.split():
+            if k not in box:
+                raise InvalidRequestError()
+        want_stdout = self._getbool(box, 'want_stdout')
+        want_stderr = self._getbool(box, 'want_stderr')
+        args = box['args'].split('\0')
 
         # run the command
         null = open("/dev/null", "r+")
@@ -153,11 +166,8 @@ class SlaveServer(object):
                 stdin=null, stdout=stdout, stderr=stderr,
                 universal_newlines=False)
         except Exception, e:
-            raise RemoteError(`e`)
-
-        # we can send a response now, as (hopefully) everything that could
-        # raise RemoteError has been done
-        self.wire.send_box({})
+            # TODO: more explicit
+            raise RemoteError('execfail', `e`)
 
         # now use select to watch those files, with a short timeout to watch
         # for process exit (this timeout grows up to 1 second)
@@ -176,14 +186,19 @@ class SlaveServer(object):
                 if not data:
                     readfiles.remove(file)
                 else:
-                    self.call_remote_no_answer('data', stream=name, data=data)
+                    self.wire.send_box({
+                        'data' : data,
+                        'stream' : name,
+                    })
             if proc.stdout in rlist:
                 send(proc.stdout, 'stdout')
             if proc.stderr in rlist:
                 send(proc.stderr, 'stderr')
             if not rlist and proc.poll() is not None:
                 break
-        self.call_remote_no_answer('finished', result=proc.returncode)
+        self.wire.send_box({
+            'result' : proc.returncode
+        })
 
     def remote_send(self, rq):
         dest = rq['dest']
@@ -339,7 +354,7 @@ class SlaveServer(object):
 
     def _getbool(self, rq, name):
         if name not in rq or rq[name] not in 'ny':
-            raise RuntimeError("invalid boolean value")
+            raise RemoteError('invalid', "invalid boolean value")
         return rq[name] == 'y'
 
 # delete op_methods from the global scope; it's not needed anymore

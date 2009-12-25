@@ -142,7 +142,7 @@ class OpsTestMixin(unittest.TestCase):
         self.slave.mkdir("nested/bested/quested")
         self.assert_(os.path.exists(nested))
 
-    def dont_test_execute(self):
+    def test_execute(self):
         # note that all of these tests are just using 'sh'
 
         # simple shell exit status
