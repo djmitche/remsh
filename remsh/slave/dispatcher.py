@@ -345,8 +345,12 @@ class SlaveServer(object):
 
         self.wire.send_box({})
 
-    def remote_stat(self, rq):
-        pathname = rq['pathname']
+    @op_method('stat', 1)
+    def remote_stat(self, box):
+        if 'path' not in box:
+            raise InvalidRequestError()
+
+        pathname = box['path']
 
         try:
             st = os.stat(pathname)
@@ -354,7 +358,7 @@ class SlaveServer(object):
             if e.errno == errno.ENOENT:
                 self.wire.send_box({'result' : ''})
                 return
-            raise RemoteError(e.strerror)
+            raise RemoteError('failed', e.strerror)
 
         if stat.S_ISDIR(st.st_mode):
             self.wire.send_box({'result' : 'd'})

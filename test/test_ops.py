@@ -10,7 +10,7 @@ import os
 from remsh.xport.local import LocalXport
 from remsh.wire import Wire
 from remsh.slave.dispatcher import SlaveServer
-from remsh.master.slave import Slave, NotFoundError, FileExistsError
+from remsh.master.slave import Slave, NotFoundError, FileExistsError, FailedError
 
 class Ops(unittest.TestCase):
     # get this value at class initialization time, since we change the cwd
@@ -278,18 +278,18 @@ class Ops(unittest.TestCase):
         self.assert_(os.path.exists(exists))
         self.assert_(os.path.exists(missing))
 
-    def dont_test_stat(self):
+    def test_stat(self):
         missing = os.path.join(self.basedir, "missing")
         somedir = os.path.join(self.basedir, "somedir")
         somefile = os.path.join(somedir, "somefile")
         os.mkdir(somedir)
         open(somefile, "w")
 
-        self.assertEquals(self.slave.stat(missing), None)
+        self.assertEquals(self.slave.stat(missing), '')
         self.assertEquals(self.slave.stat(somedir), 'd')
         self.assertEquals(self.slave.stat(somefile), 'f')
         os.chmod(somedir, 0) # remove r/x permission
-        self.assertRaises(RemoteError, lambda : self.slave.stat(somefile))
+        self.assertRaises(FailedError, lambda : self.slave.stat(somefile))
         os.chmod(somedir, 0777) # restore permission
 
 if __name__ == '__main__':

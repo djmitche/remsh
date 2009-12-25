@@ -348,7 +348,7 @@ The following error tags may be returned:
     the source file was not found
 
 ``failed``
-    the rename operation failed
+    the copy operation failed
 
 stat
 ++++
@@ -361,7 +361,7 @@ The request has the following key:
 ``meth``
     ``stat``
 
-``pathname``
+``path``
     pathname to stat
 
 and the response is a box with the following key (or an error):
@@ -371,5 +371,5 @@ and the response is a box with the following key (or an error):
 
 The following error tags may be returned:
 
-TODO
-
+``failed``
+    the stat operation failed for some other reason

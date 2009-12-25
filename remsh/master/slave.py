@@ -200,10 +200,15 @@ class Slave(object):
             notfound=NotFoundError,
             failed=FailedError)
 
-    def stat(self, pathname):
-        resp = self.rpc.call_remote('stat', pathname=pathname)
-        if resp['result']:
-            return resp['result']
+    def stat(self, path):
+        box = { 'meth' : 'stat', 'version' : 1, 'path' : path }
+        self.wire.send_box(box)
+        box = self.wire.read_box()
+        self.handle_errors(box,
+            failed=FailedError)
+        if 'result' not in box:
+            raise ProtocolError('response did not include a result')
+        return box['result']
 
     ## utilities
 
