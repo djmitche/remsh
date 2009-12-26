@@ -13,11 +13,23 @@ all: common-files
 
 ### common-files
 
-common-files: $(VERSION_FILES)
-
 VERSION_FILES = doc/VERSION py/VERSION
 $(VERSION_FILES): VERSION
 	cp $< $@
+
+AUTHORS_FILES = py/AUTHORS
+$(AUTHORS_FILES): AUTHORS
+	cp $< $@
+
+COPYING_FILES = py/COPYING
+$(COPYING_FILES): COPYING
+	cp $< $@
+
+README_FILES = py/README.txt
+$(README_FILES): README
+	cp $< $@
+
+common-files: $(VERSION_FILES) $(AUTHORS_FILES) $(COPYING_FILES) $(README_FILES)
 
 ### doc, doc-upload
 
@@ -29,14 +41,14 @@ doc-upload: common-files
 
 ### test
 
-test: test-py
-
 test-py:
 	cd py && python setup.py test
 
-### dist
+test: test-py
 
-dist: dist-py
+### dist
 
 dist-py: common-files test-py
 	cd py && python setup.py bdist_egg --dist-dir=../dist
+
+dist: dist-py
