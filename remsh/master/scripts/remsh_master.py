@@ -4,18 +4,18 @@
 
 import sys
 import readline
-import threading
+import socket
 
-from remsh.amp import wire
-from remsh.master.slavecollection import simple
-from remsh.master.slavelistener import tcp
+from remsh.xport.fd import FDXport
+from remsh.wire import Wire
+from remsh.master.remote import RemoteSlave
 
 
 def print_stream(data):
     sys.stdout.write(data)
 
 
-def run_on_all(slaves, cmd):
+def run_on_all(sslavelaves, cmd):
 
     def run_on(slave, cmd):
 
@@ -38,37 +38,31 @@ def run_on_all(slaves, cmd):
 
 
 def main():
-    coll = simple.SimpleSlaveCollection()
-    listener = tcp.TcpSlaveListener(
-        slave_collection=coll, port=int(sys.argv[1]))
-    listener.start()
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind(("", 0))
+    print "connect to port %d" % s.getsockname()[1]
+
+    s.listen(5)
+    subsock, addr = s.accept()
+    s.close()
+    rem = RemoteSlave(Wire(FDXport(subsock.fileno())))
+    print "connected"
 
     done = False
-    slave = None
-    slavename = None
     while not done:
-        slavenames = ", ".join(sl.hostname for sl in coll.get_all_slaves())
-        cmd = raw_input("  slaves: %s\nremsh on %s> " % (
-            slavenames, slavename, )).strip()
-        if cmd.startswith('slave '):
-            slavename = cmd[6:]
-            slave = coll.get_slave(True, lambda sl: sl.hostname == slavename)
-        elif cmd == "quit":
+        cmd = raw_input("remsh> ")
+        if cmd == "quit":
             done = True
         elif cmd == "cd":
-            newdir = slave.set_cwd()
+            newdir = rem.set_cwd()
             print "now in %s" % newdir
         elif cmd.startswith("cd "):
-            newdir = slave.set_cwd(cwd[3:])
+            newdir = rem.set_cwd(cmd[3:])
             print "now in %s" % newdir
-        elif cmd.startswith("all "):
-            run_on_all(coll.get_all_slaves(), cmd[4:])
         elif cmd:
-            if not slave:
-                print "no slave"
-                continue
-            rc = slave.execute(args=['/bin/sh', '-c', cmd],
+            rc = rem.execute(args=['/bin/sh', '-c', cmd],
                     stdout_cb=print_stream, stderr_cb=print_stream)
             print "$? = %d" % rc
 
-main()
+if __name__ == "__main__":
+    main()

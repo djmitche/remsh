@@ -6,19 +6,30 @@
 import sys
 import socket
 
-from remsh.amp import wire
-from remsh.slave import dispatcher
+from remsh.xport.fd import FDXport
+from remsh.wire import Wire
+from remsh.slave.server import SlaveServer
+
+
+def usage():
+    print "USAGE: %s master-hostname master-port"
+    sys.exit(1)
 
 
 def main():
+    if len(sys.argv) != 3:
+        usage()
     master = sys.argv[1]
-    port = int(sys.argv[2])
+    try:
+        port = int(sys.argv[2])
+    except ValueError:
+        usage()
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((master, port))
 
-    conn = wire.SimpleWire(s)
-    dispatcher.run(conn)
+    svr = SlaveServer(Wire(FDXport(s.fileno())))
+    svr.serve()
 
-
-main()
+if __name__ == "__main__":
+    main()

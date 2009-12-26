@@ -34,7 +34,7 @@ def bool(b):
     return 'n'
 
 
-class Slave(object):
+class RemoteSlave(object):
 
     def __init__(self, wire):
         self.wire = wire

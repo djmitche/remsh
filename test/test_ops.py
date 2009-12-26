@@ -9,8 +9,8 @@ import os
 
 from remsh.xport.local import LocalXport
 from remsh.wire import Wire
-from remsh.slave.dispatcher import SlaveServer
-from remsh.master.slave import Slave, NotFoundError, \
+from remsh.slave.server import SlaveServer
+from remsh.master.remote import RemoteSlave, NotFoundError, \
                                FileExistsError, FailedError
 
 
@@ -53,7 +53,7 @@ class Ops(unittest.TestCase):
         self.slave_server_thd.start()
 
         master_wire = Wire(self.master_xport)
-        self.slave = Slave(master_wire)
+        self.slave = RemoteSlave(master_wire)
 
     def tearDownSlave(self):
         self.master_xport.close()

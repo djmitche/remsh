@@ -11,5 +11,3 @@ addition of new slaves managed by a slave listener.
    :maxdepth: 2
 
    using/ops
-   using/slave_listeners
-   using/slave_collections
