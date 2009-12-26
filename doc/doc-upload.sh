@@ -44,7 +44,7 @@ doprint == 1 { print }' < index.html > index.tmp || exit 1
     # (note this assumes GNU sed)
     mv docs/$VERSION/_static docs/$VERSION/static || exit 1
     find docs/$VERSION -type f -exec sed -i -e 's!_static/!static/!g' \{} \; || exit 1
-    git add docs/$VERSION || exit 1
+    git add index.html docs/$VERSION || exit 1
     git commit -m "upload-docs - $REV" || exit 1
     git push origin gh-pages || exit 1
 )
