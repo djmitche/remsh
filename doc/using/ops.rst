@@ -9,20 +9,13 @@ class.  Each instance of this class represents a distinct remote system, and
 that system can perform at most one operation at any given time.
 
 
-.. class:: remsh.master.slave.Slave(wire, hostname, version)
+.. class:: remsh.master.remote.RemoteSlave(wire)
 
     :param wire: :class:`~remsh.amp.wire.SimpleWire` instance this slave should use
-    :param hostname: hostname of the slave
-    :param version: protocol version the slave supplied
 
     Slave objects give access to all of the operations supported by remsh.
-    Note that these operations all block, first waiting for any already-running
-    operations to finish, and then waiting for the requested operation to
-    finish.  To support concurrent use of multiple slaves, invoke operations
-    from different Python threads on the master.
-
-    The class is designed to be easily subclassed by users, but only one
-    implementation is included with Remsh.
+    Note that these operations all block, waiting for the requested operation to
+    finish.  
 
     Any of the following operation methods may raise
     :class:`~remsh.amp.rpc.RemoteError`, :class:`~remsh.amp.wire.Error`, or
@@ -147,25 +140,3 @@ that system can perform at most one operation at any given time.
         ``None`` if the path does not exist.  Raises
         :class:`~remsh.amp.rpc.RemoteError` if a permission error prevents the
         check.
-
-    The Slave class also implements a few utility methods:
-
-    .. method:: setup()
-
-        This method is a hook, called after the slave has registered, but
-        before it is added to the slave collection. The method is called in its
-        own thread, and can do whatever additional setup is required, including
-        executing operations on the slave.  One possibility is to dynamically
-        investigate the capabilities of the slave for later use.  Another is to
-        set up periodic commands, e.g. keepalives or load monitoring.  These
-        should run in a separate thread.
-
-    .. method:: on_disconnect(callable)
-
-        :param callable: invoked when the slave disconnects
-
-        Register `callable` to be called when this slave disconnects,
-        whether smoothly or in the midst of an operation.  Slave collection
-        objects (see :ref:`slave_collections`) should use this to mark the
-        slave as no longer available.  The callable is invoked with the
-        :class:`Slave` instance as its argument.

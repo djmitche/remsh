@@ -34,10 +34,10 @@ common-files: $(VERSION_FILES) $(AUTHORS_FILES) $(COPYING_FILES) $(README_FILES)
 ### doc, doc-upload
 
 doc: common-files
-	cd doc && sphinx-build -E -a . ../html
+	cd doc && sphinx-build -E -a . html
 
 doc-upload: common-files
-	cd doc && ./upload-docs.sh
+	cd doc && ./doc-upload.sh
 
 ### test
 
