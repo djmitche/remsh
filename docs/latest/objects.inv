@@ -1,0 +1,15 @@
+# Sphinx inventory version 1
+# Project: remsh
+# Version: latest
+remsh.master.remote.RemoteSlave.unlink method using/ops.html
+remsh.master.remote.RemoteSlave.set_cwd method using/ops.html
+remsh.master.remote.RemoteSlave.send method using/ops.html
+remsh.master.remote.RemoteSlave.fetch method using/ops.html
+remsh.master.remote.RemoteSlave.stat method using/ops.html
+remsh.master.remote.RemoteSlave.copy method using/ops.html
+remsh.master.remote.RemoteSlave.execute method using/ops.html
+remsh.master.remote.RemoteSlave.getenv method using/ops.html
+remsh.master.remote.RemoteSlave.rename method using/ops.html
+remsh.master.remote.RemoteSlave.remove method using/ops.html
+remsh.master.remote.RemoteSlave.mkdir method using/ops.html
+remsh.master.remote.RemoteSlave class using/ops.html

@@ -1,0 +1,136 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Network Stack &mdash; remsh vlatest documentation</title>
+    <link rel="stylesheet" href="../static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'latest',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false
+      };
+    </script>
+    <script type="text/javascript" src="../static/jquery.js"></script>
+    <script type="text/javascript" src="../static/doctools.js"></script>
+    <link rel="top" title="remsh vlatest documentation" href="../index.html" />
+    <link rel="up" title="Developer Documentation" href="../developer.html" />
+    <link rel="next" title="Transport Layer" href="stack/transport.html" />
+    <link rel="prev" title="Developer Documentation" href="../developer.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="stack/transport.html" title="Transport Layer"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../developer.html" title="Developer Documentation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">remsh vlatest documentation</a> &raquo;</li>
+          <li><a href="../developer.html" accesskey="U">Developer Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="network-stack">
+<h1>Network Stack<a class="headerlink" href="#network-stack" title="Permalink to this headline">¶</a></h1>
+<p>Remsh implements a network stack of its own, with three layers:</p>
+<ul class="simple">
+<li>The <em>transport</em> layer takes care of getting data between master and slave,
+and also provides connection setup and authentication support.  In many cases
+this layer provides some level of reliability.</li>
+<li>The <em>wire</em> layer handles framing of boxes (messages) between the master and
+slave, using an underlying transport layer.  This layer can also provide
+reliability.</li>
+<li>The <em>operations</em> layer implements the remsh operations - executing commands,
+uploading and downloading files, etc. - on top of the wire layer.</li>
+</ul>
+<p>The following sections describe this stack in a language-agnostic fashion.
+Language-specific descriptions appear below.  Each section describes both the
+APIs exposed to higher layers and the communication protocols.</p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="stack/transport.html">Transport Layer</a><ul>
+<li class="toctree-l2"><a class="reference external" href="stack/transport.html#api">API</a></li>
+<li class="toctree-l2"><a class="reference external" href="stack/transport.html#protocols">Protocols</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="stack/wire.html">Wire Layer</a><ul>
+<li class="toctree-l2"><a class="reference external" href="stack/wire.html#api">API</a></li>
+<li class="toctree-l2"><a class="reference external" href="stack/wire.html#protocol">Protocol</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="stack/operations.html">Operations Layer</a><ul>
+<li class="toctree-l2"><a class="reference external" href="stack/operations.html#api">API</a></li>
+<li class="toctree-l2"><a class="reference external" href="stack/operations.html#protocol">Protocol</a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="../developer.html"
+                                  title="previous chapter">Developer Documentation</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="stack/transport.html"
+                                  title="next chapter">Transport Layer</a></p>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="../search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="stack/transport.html" title="Transport Layer"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../developer.html" title="Developer Documentation"
+             >previous</a> |</li>
+        <li><a href="../index.html">remsh vlatest documentation</a> &raquo;</li>
+          <li><a href="../developer.html" >Developer Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2009-2009, Dustin J. Mitchell &lt;dustin@zmanda.com&gt;.
+      Last updated on Dec 26, 2009.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.3.
+    </div>
+  </body>
+</html>
