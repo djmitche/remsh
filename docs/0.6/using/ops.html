@@ -50,38 +50,29 @@
   <div class="section" id="operations">
 <span id="slaves"></span><h1>Operations<a class="headerlink" href="#operations" title="Permalink to this headline">¶</a></h1>
 <p>The primary purpose of Remsh is to perform operations on remote systems.  The
-interface to those remote operations is the <a title="remsh.master.slave.Slave" class="reference internal" href="#remsh.master.slave.Slave"><tt class="xref docutils literal"><span class="pre">Slave</span></tt></a>
+interface to those remote operations is the <tt class="xref docutils literal"><span class="pre">Slave</span></tt>
 class.  Each instance of this class represents a distinct remote system, and
 that system can perform at most one operation at any given time.</p>
 <dl class="class">
-<dt id="remsh.master.slave.Slave">
-<em class="property">class </em><tt class="descclassname">remsh.master.slave.</tt><tt class="descname">Slave</tt><big>(</big><em>wire</em>, <em>hostname</em>, <em>version</em><big>)</big><a class="headerlink" href="#remsh.master.slave.Slave" title="Permalink to this definition">¶</a></dt>
+<dt id="remsh.master.remote.RemoteSlave">
+<em class="property">class </em><tt class="descclassname">remsh.master.remote.</tt><tt class="descname">RemoteSlave</tt><big>(</big><em>wire</em><big>)</big><a class="headerlink" href="#remsh.master.remote.RemoteSlave" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><em>wire</em> &#8211; <tt class="xref docutils literal"><span class="pre">SimpleWire</span></tt> instance this slave should use</li>
-<li><em>hostname</em> &#8211; hostname of the slave</li>
-<li><em>version</em> &#8211; protocol version the slave supplied</li>
-</ul>
-</td>
+<tr class="field"><th class="field-name">Parameter:</th><td class="field-body"><em>wire</em> &#8211; <tt class="xref docutils literal"><span class="pre">SimpleWire</span></tt> instance this slave should use</td>
 </tr>
 </tbody>
 </table>
 <p>Slave objects give access to all of the operations supported by remsh.
-Note that these operations all block, first waiting for any already-running
-operations to finish, and then waiting for the requested operation to
-finish.  To support concurrent use of multiple slaves, invoke operations
-from different Python threads on the master.</p>
-<p>The class is designed to be easily subclassed by users, but only one
-implementation is included with Remsh.</p>
+Note that these operations all block, waiting for the requested operation to
+finish.</p>
 <p>Any of the following operation methods may raise
 <tt class="xref docutils literal"><span class="pre">RemoteError</span></tt>, <tt class="xref docutils literal"><span class="pre">Error</span></tt>, or
 <tt class="xref docutils literal"><span class="pre">socket.error</span></tt>.</p>
 <dl class="method">
-<dt id="remsh.master.slave.Slave.set_cwd">
-<tt class="descname">set_cwd</tt><big>(</big><em>cwd=None</em><big>)</big><a class="headerlink" href="#remsh.master.slave.Slave.set_cwd" title="Permalink to this definition">¶</a></dt>
+<dt id="remsh.master.remote.RemoteSlave.set_cwd">
+<tt class="descname">set_cwd</tt><big>(</big><em>cwd=None</em><big>)</big><a class="headerlink" href="#remsh.master.remote.RemoteSlave.set_cwd" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -103,8 +94,8 @@ the method returns the current directory.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="remsh.master.slave.Slave.getenv">
-<tt class="descname">getenv</tt><big>(</big><big>)</big><a class="headerlink" href="#remsh.master.slave.Slave.getenv" title="Permalink to this definition">¶</a></dt>
+<dt id="remsh.master.remote.RemoteSlave.getenv">
+<tt class="descname">getenv</tt><big>(</big><big>)</big><a class="headerlink" href="#remsh.master.remote.RemoteSlave.getenv" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -119,8 +110,8 @@ may be overridden on each invocation of <tt class="xref docutils literal"><span 
 </dd></dl>
 
 <dl class="method">
-<dt id="remsh.master.slave.Slave.mkdir">
-<tt class="descname">mkdir</tt><big>(</big><em>dir</em><big>)</big><a class="headerlink" href="#remsh.master.slave.Slave.mkdir" title="Permalink to this definition">¶</a></dt>
+<dt id="remsh.master.remote.RemoteSlave.mkdir">
+<tt class="descname">mkdir</tt><big>(</big><em>dir</em><big>)</big><a class="headerlink" href="#remsh.master.remote.RemoteSlave.mkdir" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -136,8 +127,8 @@ exists.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="remsh.master.slave.Slave.unlink">
-<tt class="descname">unlink</tt><big>(</big><em>file</em><big>)</big><a class="headerlink" href="#remsh.master.slave.Slave.unlink" title="Permalink to this definition">¶</a></dt>
+<dt id="remsh.master.remote.RemoteSlave.unlink">
+<tt class="descname">unlink</tt><big>(</big><em>file</em><big>)</big><a class="headerlink" href="#remsh.master.remote.RemoteSlave.unlink" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -152,8 +143,8 @@ not exist.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="remsh.master.slave.Slave.execute">
-<tt class="descname">execute</tt><big>(</big><em>args=</em><span class="optional">[</span><span class="optional">]</span>, <em>stdout_cb=None</em>, <em>stderr_cb=None</em><big>)</big><a class="headerlink" href="#remsh.master.slave.Slave.execute" title="Permalink to this definition">¶</a></dt>
+<dt id="remsh.master.remote.RemoteSlave.execute">
+<tt class="descname">execute</tt><big>(</big><em>args=</em><span class="optional">[</span><span class="optional">]</span>, <em>stdout_cb=None</em>, <em>stderr_cb=None</em><big>)</big><a class="headerlink" href="#remsh.master.remote.RemoteSlave.execute" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -177,8 +168,8 @@ standard error.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="remsh.master.slave.Slave.send">
-<tt class="descname">send</tt><big>(</big><em>src</em>, <em>dest</em><big>)</big><a class="headerlink" href="#remsh.master.slave.Slave.send" title="Permalink to this definition">¶</a></dt>
+<dt id="remsh.master.remote.RemoteSlave.send">
+<tt class="descname">send</tt><big>(</big><em>src</em>, <em>dest</em><big>)</big><a class="headerlink" href="#remsh.master.remote.RemoteSlave.send" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -200,8 +191,8 @@ already exists.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="remsh.master.slave.Slave.fetch">
-<tt class="descname">fetch</tt><big>(</big><em>src</em>, <em>dest</em><big>)</big><a class="headerlink" href="#remsh.master.slave.Slave.fetch" title="Permalink to this definition">¶</a></dt>
+<dt id="remsh.master.remote.RemoteSlave.fetch">
+<tt class="descname">fetch</tt><big>(</big><em>src</em>, <em>dest</em><big>)</big><a class="headerlink" href="#remsh.master.remote.RemoteSlave.fetch" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -222,8 +213,8 @@ not exist or is not readable, or if <cite>dest</cite> already exists.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="remsh.master.slave.Slave.remove">
-<tt class="descname">remove</tt><big>(</big><em>path</em><big>)</big><a class="headerlink" href="#remsh.master.slave.Slave.remove" title="Permalink to this definition">¶</a></dt>
+<dt id="remsh.master.remote.RemoteSlave.remove">
+<tt class="descname">remove</tt><big>(</big><em>path</em><big>)</big><a class="headerlink" href="#remsh.master.remote.RemoteSlave.remove" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -240,8 +231,8 @@ but raises <tt class="xref docutils literal"><span class="pre">RemoteError</span
 </dd></dl>
 
 <dl class="method">
-<dt id="remsh.master.slave.Slave.rename">
-<tt class="descname">rename</tt><big>(</big><em>src</em>, <em>dest</em><big>)</big><a class="headerlink" href="#remsh.master.slave.Slave.rename" title="Permalink to this definition">¶</a></dt>
+<dt id="remsh.master.remote.RemoteSlave.rename">
+<tt class="descname">rename</tt><big>(</big><em>src</em>, <em>dest</em><big>)</big><a class="headerlink" href="#remsh.master.remote.RemoteSlave.rename" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -260,8 +251,8 @@ operation is not successful.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="remsh.master.slave.Slave.copy">
-<tt class="descname">copy</tt><big>(</big><em>src</em>, <em>dest</em><big>)</big><a class="headerlink" href="#remsh.master.slave.Slave.copy" title="Permalink to this definition">¶</a></dt>
+<dt id="remsh.master.remote.RemoteSlave.copy">
+<tt class="descname">copy</tt><big>(</big><em>src</em>, <em>dest</em><big>)</big><a class="headerlink" href="#remsh.master.remote.RemoteSlave.copy" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -280,8 +271,8 @@ replicate any metadata on <cite>src</cite>, and does not copy directories.  Rais
 </dd></dl>
 
 <dl class="method">
-<dt id="remsh.master.slave.Slave.stat">
-<tt class="descname">stat</tt><big>(</big><em>pathname</em><big>)</big><a class="headerlink" href="#remsh.master.slave.Slave.stat" title="Permalink to this definition">¶</a></dt>
+<dt id="remsh.master.remote.RemoteSlave.stat">
+<tt class="descname">stat</tt><big>(</big><em>pathname</em><big>)</big><a class="headerlink" href="#remsh.master.remote.RemoteSlave.stat" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -297,36 +288,6 @@ directory, <tt class="docutils literal"><span class="pre">&quot;f&quot;</span></
 <tt class="xref docutils literal"><span class="pre">None</span></tt> if the path does not exist.  Raises
 <tt class="xref docutils literal"><span class="pre">RemoteError</span></tt> if a permission error prevents the
 check.</p>
-</dd></dl>
-
-<p>The Slave class also implements a few utility methods:</p>
-<dl class="method">
-<dt id="remsh.master.slave.Slave.setup">
-<tt class="descname">setup</tt><big>(</big><big>)</big><a class="headerlink" href="#remsh.master.slave.Slave.setup" title="Permalink to this definition">¶</a></dt>
-<dd>This method is a hook, called after the slave has registered, but
-before it is added to the slave collection. The method is called in its
-own thread, and can do whatever additional setup is required, including
-executing operations on the slave.  One possibility is to dynamically
-investigate the capabilities of the slave for later use.  Another is to
-set up periodic commands, e.g. keepalives or load monitoring.  These
-should run in a separate thread.</dd></dl>
-
-<dl class="method">
-<dt id="remsh.master.slave.Slave.on_disconnect">
-<tt class="descname">on_disconnect</tt><big>(</big><em>callable</em><big>)</big><a class="headerlink" href="#remsh.master.slave.Slave.on_disconnect" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field"><th class="field-name">Parameter:</th><td class="field-body"><em>callable</em> &#8211; invoked when the slave disconnects</td>
-</tr>
-</tbody>
-</table>
-<p>Register <cite>callable</cite> to be called when this slave disconnects,
-whether smoothly or in the midst of an operation.  Slave collection
-objects (see <em class="xref">slave_collections</em>) should use this to mark the
-slave as no longer available.  The callable is invoked with the
-<tt class="xref docutils literal"><span class="pre">Slave</span></tt> instance as its argument.</p>
 </dd></dl>
 
 </dd></dl>
