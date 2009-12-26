@@ -1,0 +1,17 @@
+# Sphinx inventory version 1
+# Project: remsh
+# Version: 0.6
+remsh.master.slave.Slave.remove method using/ops.html
+remsh.master.slave.Slave.copy method using/ops.html
+remsh.master.slave.Slave.set_cwd method using/ops.html
+remsh.master.slave.Slave.mkdir method using/ops.html
+remsh.master.slave.Slave.execute method using/ops.html
+remsh.master.slave.Slave.unlink method using/ops.html
+remsh.master.slave.Slave.rename method using/ops.html
+remsh.master.slave.Slave.stat method using/ops.html
+remsh.master.slave.Slave.getenv method using/ops.html
+remsh.master.slave.Slave.on_disconnect method using/ops.html
+remsh.master.slave.Slave.send method using/ops.html
+remsh.master.slave.Slave class using/ops.html
+remsh.master.slave.Slave.setup method using/ops.html
+remsh.master.slave.Slave.fetch method using/ops.html
