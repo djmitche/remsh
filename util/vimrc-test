@@ -1,3 +1,7 @@
+" source this file from your vimrc, and add something like:
+"   map <Leader><Leader> :call Remsh_run_test_for_file()<cr>
+" (if you use this, hit \\ in normal mode to test the current file)
+
 fun! Remsh_run_test_for_file()
     let l:test = ''
     if bufname("%") =~ '^test/test_.*\.py'
@@ -19,7 +23,3 @@ fun! Remsh_run_test_for_file()
         exec '!python setup.py test -s ' . l:test
     endif
 endfun
-
-" source this file from your vimrc, and add something like:
-"   map <Leader><Leader> :call Remsh_run_test_for_file()<cr>
-" (if you use this, hit \\ in normal mode to test the current file)

@@ -3,4 +3,3 @@ include README.txt
 include AUTHORS
 include VERSION
 include setup.cfg
-recursive-include doc *

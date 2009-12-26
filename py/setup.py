@@ -19,17 +19,6 @@ import os
 from setuptools import Command, setup, find_packages
 
 
-class DocUpdate(Command):
-    """
-    Executes the upload-docs.sh from setuptools.
-    """
-    description = "Execute doc shell command"
-    user_options = []
-
-    initialize_options = finalize_options = lambda s: s
-    run = lambda s: os.system('cd doc/; sh upload-docs.sh')
-
-
 setup(name='remsh',
       version=open("VERSION").read().strip(),
       description='Parallel remote shell operations in simple Python',
@@ -44,5 +33,4 @@ setup(name='remsh',
         ],
       },
       test_suite='test',
-      cmdclass = {'docupdate': DocUpdate},
       )
