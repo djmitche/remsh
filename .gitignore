@@ -5,3 +5,15 @@ dist
 remsh.egg-info
 _trial_temp
 doc/html
+c/aclocal.m4
+c/autom4te.cache/
+c/depcomp
+c/Makefile.in
+c/Makefile
+c/configure
+c/install-sh c/missing c/INSTALL
+.deps
+c/config.*
+c/install-sh
+c/missing
+*.o
