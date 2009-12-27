@@ -2,6 +2,6 @@
 # Copyright 2009 Dustin J. Mitchell
 # See COPYING for license information
 
-bin_PROGRAMS = main
+ACLOCAL_AMFLAGS = -I m4
 
-main_SOURCES = main.c
+SUBDIRS = lib test
