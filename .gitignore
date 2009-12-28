@@ -26,3 +26,4 @@ c/libtool
 c/m4
 c/test/Makefile
 c/test/xport-fd
+c/test/wire

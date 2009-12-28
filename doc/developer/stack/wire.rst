@@ -14,7 +14,7 @@ This layer is represented as an object, the constructor for which takes a
 reference to a transport object.  The object has two methods: ``send_box`` and
 ``read_box``.  The first takes a box to be transmitted to the remote side, and
 the second returns a box from the remote side, blocking until the box is
-received.
+received.  The ``close`` method closes the underlying transport object.
 
 Boxes are implemented in a language-specific fashion.
 

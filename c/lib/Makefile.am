@@ -11,4 +11,5 @@ noinst_HEADERS = \
 
 libremsh_la_SOURCES = \
 		util.c \
+		wire.c \
 		xport-fd.c

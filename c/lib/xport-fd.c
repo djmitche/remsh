@@ -88,7 +88,7 @@ struct remsh_xport_vtable vtable = {
 remsh_xport *
 remsh_fd_xport_new(int fd)
 {
-    remsh_fd_xport *self = calloc(sizeof(remsh_fd_xport), 0);
+    remsh_fd_xport *self = calloc(1, sizeof(remsh_fd_xport));
     if (!self)
         return NULL;
 
