@@ -1,13 +1,11 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml">
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
     <title>Operations Layer &mdash; remsh vlatest documentation</title>
-    <link rel="stylesheet" href="../../static/default.css" type="text/css" />
-    <link rel="stylesheet" href="../../static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
@@ -17,8 +15,8 @@
         HAS_SOURCE:  false
       };
     </script>
-    <script type="text/javascript" src="../../static/jquery.js"></script>
-    <script type="text/javascript" src="../../static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
     <link rel="top" title="remsh vlatest documentation" href="../../index.html" />
     <link rel="up" title="Network Stack" href="../stack.html" />
     <link rel="next" title="Python" href="../python.html" />
@@ -38,16 +36,16 @@
           <a href="wire.html" title="Wire Layer"
              accesskey="P">previous</a> |</li>
         <li><a href="../../index.html">remsh vlatest documentation</a> &raquo;</li>
-          <li><a href="../../developer.html" >Developer Documentation</a> &raquo;</li>
+          <li><a href="../../developer.html" accesskey="U">Developer Documentation</a> &raquo;</li>
           <li><a href="../stack.html" accesskey="U">Network Stack</a> &raquo;</li> 
       </ul>
     </div>  
-
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
           <div class="body">
             
+  
   <div class="section" id="operations-layer">
 <h1>Operations Layer<a class="headerlink" href="#operations-layer" title="Permalink to this headline">¶</a></h1>
 <p>The operations layer makes use of the wire layer to get real work done on the
@@ -66,7 +64,7 @@ a given wire connection.</p>
 <p>Each method is described below, although the language-specific details of the
 argument and return values are not covered here.  Note that the operation
 methods all block until the operation is complete.</p>
-<p>The meaning of each operation is described in <a class="reference external" href="../../using.html#using-remsh"><em>Using Remsh</em></a>, and is not
+<p>The meaning of each operation is described in <a class="reference" href="../../using.html#using-remsh"><em>Using Remsh</em></a>, and is not
 duplicated here.</p>
 </div>
 <div class="section" id="protocol">
@@ -376,21 +374,21 @@ discard data boxes and reply to the terminating empty box.</p>
         <div class="sphinxsidebarwrapper">
             <h3><a href="../../index.html">Table Of Contents</a></h3>
             <ul>
-<li><a class="reference external" href="">Operations Layer</a><ul>
-<li><a class="reference external" href="#api">API</a></li>
-<li><a class="reference external" href="#protocol">Protocol</a><ul>
-<li><a class="reference external" href="#error-handling">Error Handling</a></li>
-<li><a class="reference external" href="#operations">Operations</a><ul>
-<li><a class="reference external" href="#set-cwd">set_cwd</a></li>
-<li><a class="reference external" href="#getenv">getenv</a></li>
-<li><a class="reference external" href="#mkdir">mkdir</a></li>
-<li><a class="reference external" href="#execute">execute</a></li>
-<li><a class="reference external" href="#send">send</a></li>
-<li><a class="reference external" href="#fetch">fetch</a></li>
-<li><a class="reference external" href="#remove">remove</a></li>
-<li><a class="reference external" href="#rename">rename</a></li>
-<li><a class="reference external" href="#copy">copy</a></li>
-<li><a class="reference external" href="#stat">stat</a></li>
+<li><a class="reference" href="">Operations Layer</a><ul>
+<li><a class="reference" href="#api">API</a></li>
+<li><a class="reference" href="#protocol">Protocol</a><ul>
+<li><a class="reference" href="#error-handling">Error Handling</a></li>
+<li><a class="reference" href="#operations">Operations</a><ul>
+<li><a class="reference" href="#set-cwd">set_cwd</a></li>
+<li><a class="reference" href="#getenv">getenv</a></li>
+<li><a class="reference" href="#mkdir">mkdir</a></li>
+<li><a class="reference" href="#execute">execute</a></li>
+<li><a class="reference" href="#send">send</a></li>
+<li><a class="reference" href="#fetch">fetch</a></li>
+<li><a class="reference" href="#remove">remove</a></li>
+<li><a class="reference" href="#rename">rename</a></li>
+<li><a class="reference" href="#copy">copy</a></li>
+<li><a class="reference" href="#stat">stat</a></li>
 </ul>
 </li>
 </ul>
@@ -400,24 +398,15 @@ discard data boxes and reply to the terminating empty box.</p>
 </ul>
 
             <h4>Previous topic</h4>
-            <p class="topless"><a href="wire.html"
-                                  title="previous chapter">Wire Layer</a></p>
+            <p class="topless"><a href="wire.html" title="previous chapter">Wire Layer</a></p>
             <h4>Next topic</h4>
-            <p class="topless"><a href="../python.html"
-                                  title="next chapter">Python</a></p>
-          <div id="searchbox" style="display: none">
-            <h3>Quick search</h3>
-              <form class="search" action="../../search.html" method="get">
-                <input type="text" name="q" size="18" />
-                <input type="submit" value="Go" />
-                <input type="hidden" name="check_keywords" value="yes" />
-                <input type="hidden" name="area" value="default" />
-              </form>
-              <p class="searchtip" style="font-size: 90%">
-              Enter search terms or a module, class or function name.
-              </p>
-          </div>
-          <script type="text/javascript">$('#searchbox').show(0);</script>
+            <p class="topless"><a href="../python.html" title="next chapter">Python</a></p>
+          <h3>Quick search</h3>
+            <form class="search" action="../../search.html" method="get">
+              <input type="text" name="q" size="18" /> <input type="submit" value="Go" />
+              <input type="hidden" name="check_keywords" value="yes" />
+              <input type="hidden" name="area" value="default" />
+            </form>
         </div>
       </div>
       <div class="clearer"></div>
@@ -427,22 +416,22 @@ discard data boxes and reply to the terminating empty box.</p>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../../genindex.html" title="General Index"
-             >index</a></li>
+             accesskey="I">index</a></li>
         <li class="right" >
           <a href="../python.html" title="Python"
-             >next</a> |</li>
+             accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="wire.html" title="Wire Layer"
-             >previous</a> |</li>
+             accesskey="P">previous</a> |</li>
         <li><a href="../../index.html">remsh vlatest documentation</a> &raquo;</li>
-          <li><a href="../../developer.html" >Developer Documentation</a> &raquo;</li>
-          <li><a href="../stack.html" >Network Stack</a> &raquo;</li> 
+          <li><a href="../../developer.html" accesskey="U">Developer Documentation</a> &raquo;</li>
+          <li><a href="../stack.html" accesskey="U">Network Stack</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
       &copy; Copyright 2009-2009, Dustin J. Mitchell &lt;dustin@zmanda.com&gt;.
-      Last updated on Dec 26, 2009.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.3.
+      Last updated on Dec 29, 2009.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.5.2.
     </div>
   </body>
 </html>
