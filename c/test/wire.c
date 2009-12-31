@@ -81,6 +81,13 @@ int main(void)
             { 0, NULL, 0, NULL, },
         };
 
+        remsh_box_kv get3[] = {
+            { 0, "y", 0, NULL, },
+            { 0, "x", 0, NULL, },
+            { 0, "z", 0, (char *)13, },
+            { 0, NULL, 0, NULL, },
+        };
+
         assert(0 == remsh_xport_write(wxp, data, sizeof(data)-1));
         assert(0 == remsh_wire_read_box(rwire, &nkeys));
         assert(3 == nkeys);
@@ -96,7 +103,49 @@ int main(void)
         assert(0 == get2[1].val_len);
         assert(NULL != get2[1].val);
 
-        /* more .. */
+        assert(0 == remsh_wire_read_box(rwire, &nkeys));
+        assert(2 == nkeys);
+
+        remsh_wire_get_box_data(rwire, get3);
+        assert(0x100 == get3[1].val_len);
+        assert(1 == get3[0].val_len);
+        assert('x' == *get3[0].val);
+        assert(NULL == get3[2].val);
+    }
+
+    /* test writing */
+    {
+        remsh_box_kv box1[] = {
+            { 0, "meth", 4, "edit", },
+            { 0, "version", 1, "2", },
+            { 6, "object", 5, "fe\091", },
+            { 0, NULL, 0, NULL, },
+        };
+        remsh_box_kv box2[] = {
+            { 0, "meth", 4, "save", },
+            { 0, "version", 1, "3", },
+            { 4, "data", 0, "" },
+            { 6, "object", 5, "fe\091", },
+            { 0, NULL, 0, NULL, },
+        };
+
+        char data[] =
+            "\x00\x04""meth"          "\x00\x04""edit"
+            "\x00\x07""version"       "\x00\x01""2"
+            "\x00\x06""object"        "\x00\x05""fe\091"
+            "\x00\x00" /* 41 bytes */
+
+            "\x00\x04""meth"          "\x00\x04""save"
+            "\x00\x07""version"       "\x00\x01""3"
+            "\x00\x04""data"          "\x00\x00"
+            "\x00\x06""object"        "\x00\x05""fe\091"
+            "\x00\x00"; /* 49 bytes */
+        char buf[1024];
+
+        assert(0 == remsh_wire_send_box(wwire, box1));
+        assert(0 == remsh_wire_send_box(wwire, box2));
+        assert(90 == remsh_xport_read(rxp, buf, sizeof(buf)));
+        assert(0 == memcmp(buf, data, 90));
     }
 
     return 0;
