@@ -61,7 +61,7 @@ typedef struct remsh_wire remsh_wire;
 
 /* Send a box containing they keys and values in KV_ARRAY; returns -1 on error,
  * or 0 on success. */
-
+int remsh_wire_send_box(remsh_wire *wire, remsh_box_kv *kv_array);
 
 /* Read a box.  The box data is stored in the wire object, and can be accessed
  * via remsh_wire_get_box_data.  Returns -1 on error and 0 on success.  The key
