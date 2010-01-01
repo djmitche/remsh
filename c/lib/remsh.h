@@ -59,6 +59,13 @@ typedef struct remsh_box_kv {
 /* opaque type */
 typedef struct remsh_wire remsh_wire;
 
+/* Constructor for remsh wires */
+remsh_wire *remsh_wire_new(remsh_xport *xport);
+
+/* Close and destroy the object; returns -1 on error, 0 on success.  The
+ * object is gone and cannot be used after a successful return. */
+int remsh_wire_close(remsh_wire *wire);
+
 /* Send a box containing they keys and values in BOX; returns -1 on error, or 0
  * on success. */
 int remsh_wire_send_box(remsh_wire *wire, remsh_box_kv *box);
@@ -74,13 +81,6 @@ int remsh_wire_read_box(remsh_wire *wire, remsh_box_kv **box);
  * non-NULL pointer with a zero VAL_LEN.  All values are zero-terminated for
  * convenience.  */
 void remsh_wire_get_box_data(remsh_box_kv *box, remsh_box_kv *extract);
-
-/* Constructor for remsh wires */
-remsh_wire *remsh_wire_new(remsh_xport *xport);
-
-/* Close and destroy the object; returns -1 on error, 0 on success.  The
- * object is gone and cannot be used after a successful return. */
-int remsh_wire_close(remsh_wire *wire);
 
 /*
  * Operations Layer
