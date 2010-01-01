@@ -10,6 +10,7 @@ noinst_HEADERS = \
 		util.h
 
 libremsh_la_SOURCES = \
+		slave-ops.c \
 		util.c \
 		wire.c \
 		xport-fd.c

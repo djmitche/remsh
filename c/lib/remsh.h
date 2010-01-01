@@ -83,4 +83,22 @@ remsh_wire *remsh_wire_new(remsh_xport *xport);
  * object is gone and cannot be used after a successful return. */
 int remsh_wire_close(remsh_wire *wire);
 
+/*
+ * Operations Layer
+ */
+
+/* note that only the slave side of this layer is implemented */
+
+/* call this once before any other operations-layer functions */
+void remsh_op_init(void);
+
+/* Perform a single operation and return; returns -1 on error or 0 on success.
+ * The EOF output parameter is set to 1 and 0 is returned when an EOF is read
+ * from RWIRE. */
+int remsh_op_perform(remsh_wire *rwire, remsh_wire *wwire, int *eof);
+
+/* Repeatedly perform operations until EOF or an error occurs.  Returns 0 on
+ * EOF or -1 on error. */
+int remsh_op_loop(remsh_wire *rwire, remsh_wire *wwire);
+
 #endif /* REMSH_H */

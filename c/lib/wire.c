@@ -13,13 +13,13 @@ struct remsh_wire {
     remsh_xport *xport;
 
     /* incoming bytes */
-    unsigned char *inc;
-    size_t inc_start, inc_len, inc_size;
+    unsigned char *buf;
+    size_t buf_start, buf_len, buf_size;
 
     /* current box */
     remsh_box_kv *box;
     int box_size, box_len;
-    size_t box_bytes; /* box bytes in inc used so far */
+    size_t box_bytes; /* box bytes in buf used so far */
 };
 
 int remsh_wire_send_box(remsh_wire *wire, remsh_box_kv *kv_array)
@@ -58,13 +58,15 @@ int remsh_wire_send_box(remsh_wire *wire, remsh_box_kv *kv_array)
     uint16 = 0;
     if (remsh_xport_write(wire->xport, &uint16, 2) < 0)
         return -1;
+
+    return 0;
 }
 
 int remsh_wire_read_box(remsh_wire *wire, int *key_count)
 {
     /* invalidate the current box */
     wire->box_len = 0;
-    wire->inc_start += wire->box_bytes;
+    wire->buf_start += wire->box_bytes;
     wire->box_bytes = 0;
 
     while (1) {
@@ -76,19 +78,19 @@ int remsh_wire_read_box(remsh_wire *wire, int *key_count)
             unsigned short int key_len, val_len;
             size_t offset;
 
-            if (wire->box_bytes + 2 > wire->inc_len)
+            if (wire->box_bytes + 2 > wire->buf_len)
                 break;
-            offset = wire->inc_start + wire->box_bytes;
-            if (wire->inc[offset] != 0)
+            offset = wire->buf_start + wire->box_bytes;
+            if (wire->buf[offset] != 0)
                 return -1; /* invalid character in stream */
-            key_len = wire->inc[offset + 1];
+            key_len = wire->buf[offset + 1];
             if (key_len > 0) {
-                if (wire->box_bytes + 2 + key_len + 2 > wire->inc_len)
+                if (wire->box_bytes + 2 + key_len + 2 > wire->buf_len)
                     break;
-                offset = wire->inc_start + wire->box_bytes + 2 + key_len;
-                val_len = (wire->inc[offset] << 8)
-                       + (wire->inc[offset + 1]);
-                if (wire->box_bytes + 2 + key_len + 2 + val_len > wire->inc_len)
+                offset = wire->buf_start + wire->box_bytes + 2 + key_len;
+                val_len = (wire->buf[offset] << 8)
+                       + (wire->buf[offset + 1]);
+                if (wire->box_bytes + 2 + key_len + 2 + val_len > wire->buf_len)
                     break;
             } else {
                 val_len = 0;
@@ -105,19 +107,19 @@ int remsh_wire_read_box(remsh_wire *wire, int *key_count)
 
             /* then add the key/value pair */
             if (key_len > 0) {
-                offset = wire->inc_start + wire->box_bytes;
+                offset = wire->buf_start + wire->box_bytes;
                 wire->box[wire->box_len].key_len = key_len;
                 offset += 2;
-                wire->box[wire->box_len].key = &wire->inc[offset];
+                wire->box[wire->box_len].key = &wire->buf[offset];
                 offset += key_len;
                 wire->box[wire->box_len].val_len = val_len;
                 offset += 2;
-                wire->box[wire->box_len].val = &wire->inc[offset];
+                wire->box[wire->box_len].val = &wire->buf[offset];
                 offset += val_len;
 
                 wire->box_len++;
             } else {
-                offset = wire->inc_start + 2;
+                offset = wire->buf_start + wire->box_bytes + 2;
                 wire->box[wire->box_len].key = NULL;
                 wire->box[wire->box_len].key_len = 0;
                 wire->box[wire->box_len].val = NULL;
@@ -125,7 +127,7 @@ int remsh_wire_read_box(remsh_wire *wire, int *key_count)
             }
 
             /* and reset the box_bytes to cover the area just parsed */
-            wire->box_bytes = offset - wire->inc_start;
+            wire->box_bytes = offset - wire->buf_start;
 
             /* if key_len is 0, we've got a box */
             if (key_len == 0) {
@@ -138,17 +140,17 @@ int remsh_wire_read_box(remsh_wire *wire, int *key_count)
          * freeing up some buffer space */
 
         box_invalid = 0;
-        if (wire->inc_start != 0 && wire->inc_len != 0) {
+        if (wire->buf_start != 0 && wire->buf_len != 0) {
             /* move the contents of the buffer back to the start */
-            memmove(wire->inc, wire->inc+wire->inc_start, wire->inc_len);
-            wire->inc_start = 0;
+            memmove(wire->buf, wire->buf+wire->buf_start, wire->buf_len);
+            wire->buf_start = 0;
 
             box_invalid = 1;
         }
-        if (wire->inc_len == wire->inc_size) {
+        if (wire->buf_len == wire->buf_size) {
             /* reallocate a bigger buffer */
-            wire->inc_size *= 2;
-            wire->inc = realloc(wire->inc, wire->inc_size);
+            wire->buf_size *= 2;
+            wire->buf = realloc(wire->buf, wire->buf_size);
 
             box_invalid = 1;
         }
@@ -161,19 +163,19 @@ int remsh_wire_read_box(remsh_wire *wire, int *key_count)
         }
 
         bytes = remsh_xport_read(wire->xport,
-                wire->inc + wire->inc_start + wire->inc_len,
-                wire->inc_size - wire->inc_start - wire->inc_len);
+                wire->buf + wire->buf_start + wire->buf_len,
+                wire->buf_size - wire->buf_start - wire->buf_len);
         if (bytes < 0) {
             return -1; /* xport error */
         } else if (bytes == 0) {
-            if (wire->inc_len) {
+            if (wire->buf_len) {
                 return -1; /* leftover bytes on EOF */
             } else {
                 *key_count = -1;
                 return 0;
             }
         } else {
-            wire->inc_len += bytes;
+            wire->buf_len += bytes;
         }
     }
 }
@@ -216,8 +218,8 @@ remsh_wire *remsh_wire_new(remsh_xport *xport)
 
     wire->xport = xport;
 
-    wire->inc = malloc(32768);
-    wire->inc_size = 32768;
+    wire->buf = malloc(32768);
+    wire->buf_size = 32768;
 
     wire->box = calloc(32, sizeof(remsh_box_kv));
     wire->box_size = 32;
@@ -228,7 +230,7 @@ int remsh_wire_close(remsh_wire *wire)
     if (remsh_xport_close(wire->xport) < 0)
         return -1;
 
-    free(wire->inc);
+    free(wire->buf);
     free(wire);
 
     return 0;

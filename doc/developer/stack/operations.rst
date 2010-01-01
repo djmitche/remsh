@@ -77,6 +77,9 @@ The following error tags can be returned any time an error box is allowed:
 ``invalid``
     The request was invalid for any reason not convered by a more specific error tag.
 
+``unexpected``
+    An unexpected error occurred in executing the operation.
+
 Operations
 ..........
 
