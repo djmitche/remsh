@@ -100,6 +100,7 @@ void
 remsh_op_init(void)
 {
     char path[PATH_MAX];
+
     if (getcwd(path, PATH_MAX) < 0)
         base_dir = strdup("/");
     else
@@ -149,7 +150,7 @@ remsh_op_perform(remsh_wire *rwire, remsh_wire *wwire, int *eof)
 
             for (v = m->versions; v->fn; v++) {
                 if (v->version == version)
-                    return v->fn(rwire, rwire);
+                    return v->fn(rwire, wwire);
                 if (v->version > version)
                     found_higher = 1;
             }
