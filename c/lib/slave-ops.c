@@ -34,7 +34,7 @@ send_errbox(remsh_wire *wire, char *errtag, char *error)
  * Operations
  */
 
-typedef int (* op_fn)(remsh_wire *rwire, remsh_wire *wwire);
+typedef int (* op_fn)(remsh_box_kv *rq_box, remsh_wire *rwire, remsh_wire *wwire);
 
 struct op_version {
     int version;
@@ -47,7 +47,7 @@ struct op_meth {
 };
 
 static int
-set_cwd_1(remsh_wire *rwire, remsh_wire *wwire)
+set_cwd_1(remsh_box_kv *rq_box, remsh_wire *rwire, remsh_wire *wwire)
 {
     char *cwd;
     char new_wd[PATH_MAX];
@@ -61,7 +61,7 @@ set_cwd_1(remsh_wire *rwire, remsh_wire *wwire)
         { 0, NULL, 0, NULL },
     };
 
-    remsh_wire_get_box_data(rwire, args);
+    remsh_wire_get_box_data(rq_box, args);
     cwd = args[0].val;
 
     if (!cwd)
@@ -110,6 +110,7 @@ remsh_op_init(void)
 int
 remsh_op_perform(remsh_wire *rwire, remsh_wire *wwire, int *eof)
 {
+    remsh_box_kv *box;
     remsh_box_kv meth_info[] = {
         { 0, "meth", 0, NULL },
         { 0, "version", 0, NULL },
@@ -124,15 +125,15 @@ remsh_op_perform(remsh_wire *rwire, remsh_wire *wwire, int *eof)
 
     *eof = 0;
 
-    if (remsh_wire_read_box(rwire, &nkeys) < 0)
+    if (remsh_wire_read_box(rwire, &box) < 0)
         return -1;
 
-    if (nkeys < 0) {
+    if (!box) {
         *eof = 1;
         return 0;
     }
 
-    remsh_wire_get_box_data(rwire, meth_info);
+    remsh_wire_get_box_data(box, meth_info);
     meth = meth_info[0].val;
     if (meth_info[1].val && meth_info[1].val_len) {
         version = strtol(meth_info[1].val, &tmp, 10);
@@ -150,7 +151,7 @@ remsh_op_perform(remsh_wire *rwire, remsh_wire *wwire, int *eof)
 
             for (v = m->versions; v->fn; v++) {
                 if (v->version == version)
-                    return v->fn(rwire, wwire);
+                    return v->fn(box, rwire, wwire);
                 if (v->version > version)
                     found_higher = 1;
             }

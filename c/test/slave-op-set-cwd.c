@@ -15,6 +15,21 @@
 
 #define NUM_OPS 2
 
+static int
+box_len(remsh_box_kv *box)
+{
+    int l = 0;
+    if (!box)
+        return -1;
+
+    while (box && box->key) {
+        l++;
+        box++;
+    }
+
+    return l;
+}
+
 int main(void)
 {
     int p1[2], p2[2];
@@ -82,11 +97,12 @@ int main(void)
             { 0, NULL, 0, NULL, },
         };
         char *cwd;
+        remsh_box_kv *res;
 
         assert(0 == remsh_wire_send_box(wwire, box));
-        assert(0 == remsh_wire_read_box(rwire, &keycount));
-        assert(1 == keycount);
-        remsh_wire_get_box_data(rwire, result);
+        assert(0 == remsh_wire_read_box(rwire, &res));
+        assert(1 == box_len(res));
+        remsh_wire_get_box_data(res, result);
         cwd = result[0].val;
         assert(cwd);
 
@@ -107,14 +123,15 @@ int main(void)
         };
         char *cwd;
         char my_cwd[PATH_MAX];
+        remsh_box_kv *res;
 
         printf("writing 2\n");
         assert(0 == remsh_wire_send_box(wwire, box));
         printf("reading 2\n");
-        assert(0 == remsh_wire_read_box(rwire, &keycount));
+        assert(0 == remsh_wire_read_box(rwire, &res));
         printf("read 2\n");
-        assert(1 == keycount);
-        remsh_wire_get_box_data(rwire, result);
+        assert(1 == box_len(res));
+        remsh_wire_get_box_data(res, result);
         cwd = result[0].val;
         assert(cwd);
 

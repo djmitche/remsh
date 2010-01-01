@@ -59,22 +59,21 @@ typedef struct remsh_box_kv {
 /* opaque type */
 typedef struct remsh_wire remsh_wire;
 
-/* Send a box containing they keys and values in KV_ARRAY; returns -1 on error,
- * or 0 on success. */
-int remsh_wire_send_box(remsh_wire *wire, remsh_box_kv *kv_array);
+/* Send a box containing they keys and values in BOX; returns -1 on error, or 0
+ * on success. */
+int remsh_wire_send_box(remsh_wire *wire, remsh_box_kv *box);
 
-/* Read a box.  The box data is stored in the wire object, and can be accessed
- * via remsh_wire_get_box_data.  Returns -1 on error and 0 on success.  The key
- * count gives the number of keys in the box, and is -1 on EOF. */
-int remsh_wire_read_box(remsh_wire *wire, int *key_count);
+/* Read a box.  Returns -1 on error and 0 on success.  *BOX is NULL on EOF, and
+ * otherwise points to an internally-allocated key/value array representing the
+ * returned box.  The box remains valid until the next call to this method. */
+int remsh_wire_read_box(remsh_wire *wire, remsh_box_kv **box);
 
-/* Extract values from the current box.  The array specifies the keys of
- * interest; on return, any keys which were found in the most recent box
- * have the VAL and VAL_LEN attributes set.  Note that an empty value is
- * represented as a non-NULL pointer with a zero VAL_LEN.  All values are
- * zero-terminated for convenience.  The box data remains available until
- * the next call to remsh_wire_read_box or remsh_wire_send_box. */
-void remsh_wire_get_box_data(remsh_wire *wire, remsh_box_kv *kv_array);
+/* Extract values from BOX.  The EXTRACT array specifies the keys of interest;
+ * on return, any keys which were found in the most recent box have the VAL and
+ * VAL_LEN attributes set.  Note that an empty value is represented as a
+ * non-NULL pointer with a zero VAL_LEN.  All values are zero-terminated for
+ * convenience.  */
+void remsh_wire_get_box_data(remsh_box_kv *box, remsh_box_kv *extract);
 
 /* Constructor for remsh wires */
 remsh_wire *remsh_wire_new(remsh_xport *xport);

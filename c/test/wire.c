@@ -11,6 +11,21 @@
 #include <assert.h>
 #include "remsh.h"
 
+static int
+box_len(remsh_box_kv *box)
+{
+    int l = 0;
+    if (!box)
+        return -1;
+
+    while (box && box->key) {
+        l++;
+        box++;
+    }
+
+    return l;
+}
+
 int main(void)
 {
     int p[2];
@@ -68,8 +83,6 @@ int main(void)
              "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
             "\x00\x01y"             "\x00\x01x"
             "\x00\x00";
-
-        int nkeys;
         remsh_box_kv get1[] = {
             { 4, "name", 0, NULL, },
             { 0, NULL, 0, NULL, },
@@ -79,33 +92,33 @@ int main(void)
             { 0, "x", 0, NULL, },
             { 0, NULL, 0, NULL, },
         };
-
         remsh_box_kv get3[] = {
             { 0, "y", 0, NULL, },
             { 0, "x", 0, NULL, },
             { 0, "z", 0, (char *)13, },
             { 0, NULL, 0, NULL, },
         };
+        remsh_box_kv *res;
 
         assert(0 == remsh_xport_write(wxp, data, sizeof(data)-1));
-        assert(0 == remsh_wire_read_box(rwire, &nkeys));
-        assert(3 == nkeys);
+        assert(0 == remsh_wire_read_box(rwire, &res));
+        assert(3 == box_len(res));
 
-        remsh_wire_get_box_data(rwire, get1);
+        remsh_wire_get_box_data(res, get1);
         assert(4 == get1[0].val_len);
         assert(0 == memcmp("lark", get1[0].val, 4));
         assert('\0' == get1[0].val[4]); /* check zero termination */
 
-        remsh_wire_get_box_data(rwire, get2);
+        remsh_wire_get_box_data(res, get2);
         assert(1 == get2[0].val_len);
         assert(0 == memcmp("z", get2[0].val, 1));
         assert(0 == get2[1].val_len);
         assert(NULL != get2[1].val);
 
-        assert(0 == remsh_wire_read_box(rwire, &nkeys));
-        assert(2 == nkeys);
+        assert(0 == remsh_wire_read_box(rwire, &res));
+        assert(2 == box_len(res));
 
-        remsh_wire_get_box_data(rwire, get3);
+        remsh_wire_get_box_data(res, get3);
         assert(0x100 == get3[1].val_len);
         assert(1 == get3[0].val_len);
         assert('x' == *get3[0].val);

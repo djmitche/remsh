@@ -22,13 +22,13 @@ struct remsh_wire {
     size_t box_bytes; /* box bytes in buf used so far */
 };
 
-int remsh_wire_send_box(remsh_wire *wire, remsh_box_kv *kv_array)
+int remsh_wire_send_box(remsh_wire *wire, remsh_box_kv *box)
 {
     remsh_box_kv *iter;
     unsigned short int uint16;
 
     /* fix key lengths befor sending anything */
-    for (iter = kv_array; iter->key; iter++) {
+    for (iter = box; iter->key; iter++) {
         if (iter->key_len == 0) {
             int key_len = strlen(iter->key);
             if (!key_len || key_len > 255)
@@ -40,7 +40,7 @@ int remsh_wire_send_box(remsh_wire *wire, remsh_box_kv *kv_array)
 
     /* TODO: this is *horribly* inefficient - can we use writev somehow, or
      * should this code buffer smaller things into larger writes? */
-    for (iter = kv_array; iter->key; iter++) {
+    for (iter = box; iter->key; iter++) {
         uint16 = htons(iter->key_len);
         if (remsh_xport_write(wire->xport, &uint16, 2) < 0)
             return -1; /* xport error */
@@ -62,12 +62,15 @@ int remsh_wire_send_box(remsh_wire *wire, remsh_box_kv *kv_array)
     return 0;
 }
 
-int remsh_wire_read_box(remsh_wire *wire, int *key_count)
+int remsh_wire_read_box(remsh_wire *wire, remsh_box_kv **box)
 {
     /* invalidate the current box */
     wire->box_len = 0;
     wire->buf_start += wire->box_bytes;
     wire->box_bytes = 0;
+
+    if (box)
+        *box = NULL;
 
     while (1) {
         int box_invalid;
@@ -97,8 +100,9 @@ int remsh_wire_read_box(remsh_wire *wire, int *key_count)
             }
 
             /* ok - we have a new key/value pair to add to the box.  First
-             * expand the box to fit */
-            if (wire->box_len + 1 > wire->box_size) {
+             * expand the box to fit -- use +2 to have room for new key and
+             * terminating NULL */
+            if (wire->box_len + 2 > wire->box_size) {
                 int i;
 
                 wire->box_size *= 2;
@@ -131,7 +135,13 @@ int remsh_wire_read_box(remsh_wire *wire, int *key_count)
 
             /* if key_len is 0, we've got a box */
             if (key_len == 0) {
-                *key_count = wire->box_len;
+                /* terminate the box with NULLs */
+                wire->box[wire->box_len].key = NULL;
+                wire->box[wire->box_len].key_len = 0;
+                wire->box[wire->box_len].val = NULL;
+                wire->box[wire->box_len].val_len = 0;
+                if (box)
+                    *box = wire->box;
                 return 0;
             }
         }
@@ -171,7 +181,8 @@ int remsh_wire_read_box(remsh_wire *wire, int *key_count)
             if (wire->buf_len) {
                 return -1; /* leftover bytes on EOF */
             } else {
-                *key_count = -1;
+                if (box)
+                    *box = NULL;
                 return 0;
             }
         } else {
@@ -180,31 +191,29 @@ int remsh_wire_read_box(remsh_wire *wire, int *key_count)
     }
 }
 
-void remsh_wire_get_box_data(remsh_wire *wire, remsh_box_kv *kv_array)
+void remsh_wire_get_box_data(remsh_box_kv *box, remsh_box_kv *extract)
 {
-    remsh_box_kv *user_kv;
-    int i;
+    remsh_box_kv *ex, *b;
 
-    for (user_kv = kv_array; user_kv->key; user_kv++) {
-        user_kv->val = NULL;
-        user_kv->val_len = 0;
+    for (ex = extract; ex->key; ex++) {
+        ex->val = NULL;
+        ex->val_len = 0;
 
-        if (!user_kv->key_len) {
-            int key_len = strlen(user_kv->key);
+        if (!ex->key_len) {
+            int key_len = strlen(ex->key);
             if (key_len < 0 || key_len > 255)
                 continue; /* an invalid key won't be found.. */
-            user_kv->key_len = key_len;
+            ex->key_len = key_len;
         }
 
-        for (i = 0; i < wire->box_len; i++) {
-            remsh_box_kv *box_kv = &wire->box[i];
-            if (user_kv->key_len != box_kv->key_len)
+        for (b = box; b->key; b++) {
+            if (ex->key_len != b->key_len)
                 continue;
-            if (memcmp(user_kv->key, box_kv->key, user_kv->key_len) != 0)
+            if (memcmp(ex->key, b->key, ex->key_len) != 0)
                 continue;
 
-            user_kv->val = box_kv->val;
-            user_kv->val_len = box_kv->val_len;
+            ex->val = b->val;
+            ex->val_len = b->val_len;
             break;
         }
     }
