@@ -219,6 +219,49 @@ void remsh_wire_get_box_data(remsh_box_kv *box, remsh_box_kv *extract)
     }
 }
 
+char *
+remsh_wire_box_repr(remsh_box_kv *box)
+{
+    char *rv, *p;
+    remsh_box_kv *b;
+    size_t len;
+
+    if (!box)
+        return strdup("(null)");
+
+    /* calculate the length of the resulting string */
+    len = 4; /* '{ ' .. '}\0' */
+    for (b = box; b->key; b++) {
+        if (!b->key_len)
+            b->key_len = strlen(b->key);
+        len += 9 + b->key_len + b->val_len; /* '"' .. '" : "' .. '", ' */
+    }
+    p = rv = malloc(len);
+
+    /* build the string */
+    *(p++) = '{';
+    *(p++) = ' ';
+    for (b = box; b->key; b++) {
+        *(p++) = '"';
+        memcpy(p, b->key, b->key_len);
+        p += b->key_len;
+        *(p++) = '"';
+        *(p++) = ' ';
+        *(p++) = ':';
+        *(p++) = ' ';
+        *(p++) = '"';
+       memcpy(p, b->val, b->val_len);
+        p += b->val_len;
+        *(p++) = '"';
+        *(p++) = ',';
+        *(p++) = ' ';
+    }
+    *(p++) = '}';
+    *(p++) = '\0';
+
+    return rv;
+}
+
 remsh_wire *remsh_wire_new(remsh_xport *xport)
 {
     remsh_wire *wire = calloc(1, sizeof(remsh_wire));

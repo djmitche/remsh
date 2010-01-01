@@ -82,6 +82,11 @@ int remsh_wire_read_box(remsh_wire *wire, remsh_box_kv **box);
  * convenience.  */
 void remsh_wire_get_box_data(remsh_box_kv *box, remsh_box_kv *extract);
 
+/* Return a printable representation of the given box.  Note that this assumes
+ * the box's values are strings.  The caller is responsible for freeing the
+ * returned string. */
+char *remsh_wire_box_repr(remsh_box_kv *box);
+
 /*
  * Operations Layer
  */

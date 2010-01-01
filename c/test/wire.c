@@ -26,11 +26,20 @@ box_len(remsh_box_kv *box)
     return l;
 }
 
+static void
+box_pprint(char *prefix, remsh_box_kv *box)
+{
+    char *repr = remsh_wire_box_repr(box);
+    printf("%s: %s\n", prefix, repr);
+    free(repr);
+}
+
 int main(void)
 {
     int p[2];
     remsh_xport *wxp, *rxp;
     remsh_wire *wwire, *rwire;
+    char *str;
 
     if (pipe(p) < 0) {
         perror("pipe");
@@ -103,6 +112,11 @@ int main(void)
         assert(0 == remsh_xport_write(wxp, data, sizeof(data)-1));
         assert(0 == remsh_wire_read_box(rwire, &res));
         assert(3 == box_len(res));
+
+        str = remsh_wire_box_repr(res);
+        assert(0 == strcmp(str,
+            "{ \"name\" : \"lark\", \"x\" : \"\", \"hloxwfxotvcaq\" : \"z\", }"));
+        free(str);
 
         remsh_wire_get_box_data(res, get1);
         assert(4 == get1[0].val_len);
