@@ -2,8 +2,11 @@
 # Copyright 2009 Dustin J. Mitchell
 # See COPYING for license information
 
-TESTS = xport-fd wire
+TESTS = \
+	slave-op-set-cwd \
+	xport-fd \
+	wire
 noinst_PROGRAMS = $(TESTS)
 
 INCLUDES = -I$(top_srcdir)/lib
-LDADD = $(top_srcdir)/lib/libremsh.la
+LDADD = $(top_builddir)/lib/libremsh.la
