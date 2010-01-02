@@ -67,6 +67,7 @@ int remsh_wire_read_box(remsh_wire *wire, remsh_box_kv **box)
     /* invalidate the current box */
     wire->box_len = 0;
     wire->buf_start += wire->box_bytes;
+    wire->buf_len -= wire->box_bytes;
     wire->box_bytes = 0;
 
     if (box)
