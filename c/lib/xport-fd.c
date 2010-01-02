@@ -49,11 +49,8 @@ read_impl(remsh_xport *xself, void *buf, ssize_t len)
 
     while (len > 0) {
         ssize_t rv = read(self->fd, buf, len);
-        if (rv > 0) {
+        if (rv >= 0) {
             return rv;
-        } else if (rv == 0) {
-            remsh_set_errmsg(xself, strdup("read returned 0"));
-            return -1;
         } else {
 #ifdef EINTR
             /* retry the write on EINTR */

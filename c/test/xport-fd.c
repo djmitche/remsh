@@ -46,5 +46,12 @@ int main(void)
     assert(50 == remsh_xport_read(rxp, buf, 50));
     assert(19 == remsh_xport_read(rxp, buf, sizeof(buf)));
 
+    /* close the write end, and make sure we read an EOF after the remainder of the bytestream */
+    assert(0 == remsh_xport_write(wxp, "abcd", 4));
+    remsh_xport_close(wxp);
+    assert(4 == remsh_xport_read(rxp, buf, sizeof(buf)));
+    assert(0 == remsh_xport_read(rxp, buf, sizeof(buf)));
+    assert(0 == remsh_xport_read(rxp, buf, sizeof(buf))); /* EOF is "sticky" */
+
     return 0;
 }
