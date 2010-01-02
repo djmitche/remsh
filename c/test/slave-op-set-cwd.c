@@ -30,6 +30,14 @@ box_len(remsh_box_kv *box)
     return l;
 }
 
+static void
+box_pprint(char *prefix, remsh_box_kv *box)
+{
+    char *repr = remsh_wire_box_repr(box);
+    printf("%s: %s\n", prefix, repr);
+    free(repr);
+}
+
 int main(void)
 {
     int p1[2], p2[2];
@@ -38,7 +46,6 @@ int main(void)
     int eof;
     int status;
     char my_cwd[PATH_MAX];
-    int i;
 
     if (getcwd(my_cwd, PATH_MAX) < 0) {
         perror("getcwd");
@@ -61,12 +68,13 @@ int main(void)
             remsh_op_init();
 
             eof = 0;
-            for (i = 0; i < NUM_OPS; i++) {
-                printf("perform\n");
-                int rv = remsh_op_perform(rwire, wwire, &eof) < 0;
-                printf("performed => %d, eof=%d\n", rv, eof);
-                if (rv < 0 || eof)
+            while (1) {
+                int rv = remsh_op_perform(rwire, wwire, &eof);
+                if (rv < 0)
                     return 1;
+                if (eof) {
+                    return 0;
+                }
             }
             return 0;
 
@@ -78,8 +86,8 @@ int main(void)
             ; /* fall through */
     }
 
-    rwire = remsh_wire_new(remsh_fd_xport_new(p1[0]));
-    wwire = remsh_wire_new(remsh_fd_xport_new(p2[1]));
+    rwire = remsh_wire_new(rxp = remsh_fd_xport_new(p1[0]));
+    wwire = remsh_wire_new(wxp = remsh_fd_xport_new(p2[1]));
     close(p1[1]);
     close(p2[0]);
 
@@ -99,8 +107,10 @@ int main(void)
         char *cwd;
         remsh_box_kv *res;
 
+        box_pprint("parent sending", box);
         assert(0 == remsh_wire_send_box(wwire, box));
         assert(0 == remsh_wire_read_box(rwire, &res));
+        box_pprint("parent received", res);
         assert(1 == box_len(res));
         remsh_wire_get_box_data(res, result);
         cwd = result[0].val;
@@ -125,11 +135,10 @@ int main(void)
         char my_cwd[PATH_MAX];
         remsh_box_kv *res;
 
-        printf("writing 2\n");
+        box_pprint("parent sending", box);
         assert(0 == remsh_wire_send_box(wwire, box));
-        printf("reading 2\n");
         assert(0 == remsh_wire_read_box(rwire, &res));
-        printf("read 2\n");
+        box_pprint("parent rx'd", res);
         assert(1 == box_len(res));
         remsh_wire_get_box_data(res, result);
         cwd = result[0].val;
@@ -143,14 +152,20 @@ int main(void)
         printf("cwd: %s\n", cwd);
     }
 
+    /* send EOF to the child */
+    remsh_xport_close(rxp);
+    remsh_xport_close(wxp);
+
     /* this side completed successfully, so wait for the child */
     if (wait(&status) < 0) {
         perror("wait");
         return 1;
     }
 
-    if (!WIFEXITED(status) || WEXITSTATUS(status) != 0)
+    if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
+        printf("child did not exit cleanly: %d\n", WEXITSTATUS(status));
         return 1;
+    }
 
     return 0;
 }
