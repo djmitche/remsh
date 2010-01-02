@@ -6,6 +6,8 @@
 #ifndef REMSH_H
 #define REMSH_H
 
+#include <sys/types.h>
+
 /*
  * Xport layer
  */
