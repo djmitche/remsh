@@ -147,3 +147,29 @@ test_fail_str(
             file, line, message, x, xstr, y, ystr);
     exit(1);
 }
+
+void
+test_is_errbox_(remsh_box *box, const char *exp_errtag,
+        const char *message,
+        const char *file,
+        int line)
+{
+    remsh_box errbox[] = {
+        { 0, "errtag", 0, NULL, },
+        { 0, "error", 0, NULL, },
+        { 0, NULL, 0, NULL, },
+    };
+    char *got_errtag, *got_error;
+    remsh_wire_box_extract(box, errbox);
+    got_errtag = errbox[0].val;
+    got_error = errbox[1].val;
+
+    if (got_errtag && 0 == strcmp(exp_errtag, got_errtag))
+        return;
+
+    /* this might print binary data; let's hope not */
+    fprintf(stderr, "%s:%d: FAILED %s\n  exp: '%s' error box\n  got: %s\n",
+            file, line, message, exp_errtag, remsh_wire_box_repr(box));
+    exit(1);
+}
+

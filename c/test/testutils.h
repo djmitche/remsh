@@ -104,4 +104,12 @@ void test_fail_str(
             test_fail_str(#X, (X), #Y, (Y), (MSG), __FILE__, __LINE__); \
         } } while (0)
 
+/* ensure that the box is an error and has the appropriate errtag */
+void test_is_errbox_(remsh_box *box, const char *exp_errtag,
+        const char *message,
+        const char *file,
+        int line);
+#define test_is_errbox(B, E, M) \
+    test_is_errbox_((B), (E), (M), __FILE__, __LINE__)
+
 #endif
