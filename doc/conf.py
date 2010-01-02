@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # remsh documentation build configuration file, created by
-# sphinx-quickstart on Sun May 17 22:34:23 2009.
+# sphinx-quickstart on Sun May 17 22:34:23 2009, 2010.
 #
 # This file is execfile()d with the current directory set to its containing dir.
 #
@@ -44,7 +44,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'remsh'
-copyright = u'2009-%s, Dustin J. Mitchell <dustin@zmanda.com>' % time.strftime('%Y')
+copyright = u'2009, 2010, Dustin J. Mitchell <dustin@zmanda.com>' % time.strftime('%Y')
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
