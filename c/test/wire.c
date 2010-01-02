@@ -10,29 +10,7 @@
 #include <sys/types.h>
 #include <assert.h>
 #include "remsh.h"
-
-static int
-box_len(remsh_box *box)
-{
-    int l = 0;
-    if (!box)
-        return -1;
-
-    while (box && box->key) {
-        l++;
-        box++;
-    }
-
-    return l;
-}
-
-static void
-box_pprint(char *prefix, remsh_box *box)
-{
-    char *repr = remsh_wire_box_repr(box);
-    printf("%s: %s\n", prefix, repr);
-    free(repr);
-}
+#include "testutils.h"
 
 int main(void)
 {

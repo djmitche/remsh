@@ -8,5 +8,11 @@ TESTS = \
 	wire
 noinst_PROGRAMS = $(TESTS)
 
+check_LTLIBRARIES = libtestutil.la
+
+libtestutil_la_SOURCES = \
+	testutils.h \
+	testutils.c
+
 INCLUDES = -I$(top_srcdir)/lib
-LDADD = $(top_builddir)/lib/libremsh.la
+LDADD = $(top_builddir)/lib/libremsh.la libtestutil.la
