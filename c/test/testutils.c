@@ -5,10 +5,41 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <limits.h>
+#include <errno.h>
 #include "remsh.h"
 #include "testutils.h"
-
 #include "remsh.h"
+
+static char orig_wd[PATH_MAX];
+
+void
+testutil_init(void)
+{
+    test_is_not_null(getcwd(orig_wd, PATH_MAX),
+            "get startup working dir");
+
+    rmtree("test_tmp");
+
+    test_call_ok(mkdir("test_tmp", 0777), strerror(errno),
+            "make test_tmp directory");
+
+    test_call_ok(chdir("test_tmp"), strerror(errno),
+            "cd into test_tmp directory");
+}
+
+void
+testutil_cleanup(void)
+{
+    test_call_ok(chdir(orig_wd), strerror(errno),
+            "cd into original working directory");
+
+    rmtree("test_tmp");
+}
 
 int
 box_len(remsh_box *box)
@@ -31,6 +62,24 @@ box_pprint(char *prefix, remsh_box *box)
     char *repr = remsh_wire_box_repr(box);
     printf("%s: %s\n", prefix, repr);
     free(repr);
+}
+
+void
+rmtree(char *topdir)
+{
+    /* TODO: quit shelling out and actually implement this.  THIS IS BAD!! */
+    char command[PATH_MAX + 10];
+    int status;
+
+    sprintf(command, "rm -rf %s", topdir);
+    status = system(command);
+    if (status < 0) {
+        perror("system");
+        exit(1);
+    } else if (status != 0) {
+        fprintf(stderr, "'%s' failed\n", command);
+        exit(1);
+    }
 }
 
 void

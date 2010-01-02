@@ -19,6 +19,8 @@ int main(void)
     remsh_xport *wxp, *rxp;
     char buf[256];
 
+    testutil_init();
+
     if (pipe(p) < 0) {
         perror("pipe");
         return 1;
@@ -73,5 +75,6 @@ int main(void)
     test_is_int(remsh_xport_read(rxp, buf, sizeof(buf)), 0,
             "still returns 0 on EOF");
 
+    testutil_cleanup();
     return 0;
 }

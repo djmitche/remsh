@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <limits.h>
 #include "remsh.h"
@@ -20,6 +21,8 @@ int main(void)
     int eof;
     int status;
     char my_cwd[PATH_MAX];
+
+    testutil_init();
 
     if (getcwd(my_cwd, PATH_MAX) < 0) {
         perror("getcwd");
@@ -133,5 +136,6 @@ int main(void)
         return 1;
     }
 
+    testutil_cleanup();
     return 0;
 }

@@ -9,6 +9,15 @@
 #include "remsh.h"
 
 /*
+ * Setup
+ */
+
+/* call these at the beginning and end of a test program, respectively.  They set up
+ * a clean filesystem for the test. */
+void testutil_init(void);
+void testutil_cleanup(void);
+
+/*
  * Box Utilities
  */
 
@@ -17,6 +26,14 @@ int box_len(remsh_box *box);
 
 /* pretty-print the given box to stdout, with the given prefix */
 void box_pprint(char *prefix, remsh_box *box);
+
+/*
+ * Filesystem Utilities
+ */
+
+/* remove a directory and all children - equivalent to rm -rf.  This calls
+ * exit(1) on failure. */
+void rmtree(char *topdir);
 
 /*
  * Tests

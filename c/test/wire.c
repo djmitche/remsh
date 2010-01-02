@@ -19,6 +19,8 @@ int main(void)
     remsh_wire *wwire, *rwire;
     char *str;
 
+    testutil_init();
+
     if (pipe(p) < 0) {
         perror("pipe");
         return 1;
@@ -168,5 +170,6 @@ int main(void)
                 "binary data matches");
     }
 
+    testutil_cleanup();
     return 0;
 }
