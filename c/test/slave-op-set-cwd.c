@@ -8,7 +8,6 @@
 #include <stdio.h>
 #include <sys/wait.h>
 #include <sys/types.h>
-#include <assert.h>
 #include <limits.h>
 #include "remsh.h"
 #include "testutils.h"
@@ -82,16 +81,15 @@ int main(void)
         char *cwd;
         remsh_box *res;
 
-        box_pprint("parent sending", box);
-        assert(0 == remsh_wire_send_box(wwire, box));
-        assert(0 == remsh_wire_read_box(rwire, &res));
-        box_pprint("parent received", res);
-        assert(1 == box_len(res));
+        test_call_ok(remsh_wire_send_box(wwire, box), NULL,
+                "send box");
+        test_call_ok(remsh_wire_read_box(rwire, &res), NULL,
+                "read response");
+        test_is_int(box_len(res), 1,
+                "response has one key");
         remsh_wire_box_extract(res, result);
-        cwd = result[0].val;
-        assert(cwd);
-
-        assert(0 == strcmp(my_cwd, cwd));
+        test_is_str(result[0].val, my_cwd,
+                "and it is cwd and has the right value");
     }
 
     /* reset to the base dir */
@@ -107,24 +105,17 @@ int main(void)
             { 0, NULL, 0, NULL, },
         };
         char *cwd;
-        char my_cwd[PATH_MAX];
         remsh_box *res;
 
-        box_pprint("parent sending", box);
-        assert(0 == remsh_wire_send_box(wwire, box));
-        assert(0 == remsh_wire_read_box(rwire, &res));
-        box_pprint("parent rx'd", res);
-        assert(1 == box_len(res));
+        test_call_ok(remsh_wire_send_box(wwire, box), NULL,
+                "send box");
+        test_call_ok(remsh_wire_read_box(rwire, &res), NULL,
+                "read response");
+        test_is_int(box_len(res), 1,
+                "response has one key");
         remsh_wire_box_extract(res, result);
-        cwd = result[0].val;
-        assert(cwd);
-
-        if (getcwd(my_cwd, PATH_MAX) < 0) {
-            perror("getcwd");
-            return 1;
-        }
-        assert(0 == strcmp(my_cwd, cwd));
-        printf("cwd: %s\n", cwd);
+        test_is_str(result[0].val, my_cwd,
+                "and it is cwd and has the right value");
     }
 
     /* send EOF to the child */

@@ -49,10 +49,14 @@ int main(void)
             { 0, NULL, 0, NULL, },
         };
 
-        assert(0 == remsh_wire_send_box(wwire, box));
-        assert(sizeof(expected)-1 == remsh_xport_read(rxp, buf, sizeof(buf)));
-        assert(0 == memcmp(buf, expected, sizeof(expected)-1));
-        assert(-1 == remsh_wire_send_box(wwire, badbox));
+        test_call_ok(remsh_wire_send_box(wwire, box), NULL,
+                "send box 1");
+        test_is_int(remsh_xport_read(rxp, buf, sizeof(buf)), sizeof(expected)-1,
+                "read correct size");
+        test_is_int(memcmp(buf, expected, sizeof(expected)-1), 0,
+                "buffer data matches (binary)");
+        test_is_int(remsh_wire_send_box(wwire, badbox), -1,
+                "send bad box");
     }
 
     /* test reading */
@@ -87,34 +91,42 @@ int main(void)
         };
         remsh_box *res;
 
-        assert(0 == remsh_xport_write(wxp, data, sizeof(data)-1));
-        assert(0 == remsh_wire_read_box(rwire, &res));
-        assert(3 == box_len(res));
+        test_call_ok(remsh_xport_write(wxp, data, sizeof(data)-1), wxp->errmsg,
+                "write data");
+        test_call_ok(remsh_wire_read_box(rwire, &res), NULL,
+                "read first box");
+        test_is_int(box_len(res), 3,
+                "first box length is correct");
 
-        str = remsh_wire_box_repr(res);
-        assert(0 == strcmp(str,
-            "{ \"name\" : \"lark\", \"x\" : \"\", \"hloxwfxotvcaq\" : \"z\", }"));
+        test_is_str((str = remsh_wire_box_repr(res)),
+                "{ \"name\" : \"lark\", \"x\" : \"\", \"hloxwfxotvcaq\" : \"z\", }",
+                "box repr is correct");
         free(str);
 
         remsh_wire_box_extract(res, get1);
-        assert(4 == get1[0].val_len);
-        assert(0 == memcmp("lark", get1[0].val, 4));
-        assert('\0' == get1[0].val[4]); /* check zero termination */
+        test_is_str(get1[0].val, "lark",
+                "extracted correct value");
 
         remsh_wire_box_extract(res, get2);
-        assert(1 == get2[0].val_len);
-        assert(0 == memcmp("z", get2[0].val, 1));
-        assert(0 == get2[1].val_len);
-        assert(NULL != get2[1].val);
+        test_is_str(get2[0].val, "z",
+                "extracted correct value");
+        test_is_int(get2[1].val_len, 0,
+                "x is empty");
+        test_is_not_null(get2[1].val,
+                "x is not NULL");
 
-        assert(0 == remsh_wire_read_box(rwire, &res));
-        assert(2 == box_len(res));
+        test_call_ok(remsh_wire_read_box(rwire, &res), NULL,
+                "read second box");
+        test_is_int(box_len(res), 2,
+                "second box has two elements");
 
         remsh_wire_box_extract(res, get3);
-        assert(0x100 == get3[1].val_len);
-        assert(1 == get3[0].val_len);
-        assert('x' == *get3[0].val);
-        assert(NULL == get3[2].val);
+        test_is_str(get3[0].val, "x",
+                "short value is correct");
+        test_is_int(get3[1].val_len, 0x100,
+                "long value len is correct");
+        test_is_null(get3[2].val,
+                "nonexistent key returned NULL");
     }
 
     /* test writing */
@@ -146,10 +158,14 @@ int main(void)
             "\x00\x00"; /* 49 bytes */
         char buf[1024];
 
-        assert(0 == remsh_wire_send_box(wwire, box1));
-        assert(0 == remsh_wire_send_box(wwire, box2));
-        assert(90 == remsh_xport_read(rxp, buf, sizeof(buf)));
-        assert(0 == memcmp(buf, data, 90));
+        test_call_ok(remsh_wire_send_box(wwire, box1), NULL,
+                "send first box");
+        test_call_ok(remsh_wire_send_box(wwire, box2), NULL,
+                "send second box");
+        test_is_int(remsh_xport_read(rxp, buf, sizeof(buf)), 90,
+                "two boxes take up 90 bytes");
+        test_is_int(memcmp(buf, data, 90), 0,
+                "binary data matches");
     }
 
     return 0;
