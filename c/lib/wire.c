@@ -17,14 +17,14 @@ struct remsh_wire {
     size_t buf_start, buf_len, buf_size;
 
     /* current box */
-    remsh_box_kv *box;
+    remsh_box *box;
     int box_size, box_len;
     size_t box_bytes; /* box bytes in buf used so far */
 };
 
-int remsh_wire_send_box(remsh_wire *wire, remsh_box_kv *box)
+int remsh_wire_send_box(remsh_wire *wire, remsh_box *box)
 {
-    remsh_box_kv *iter;
+    remsh_box *iter;
     unsigned short int uint16;
 
     /* fix key lengths befor sending anything */
@@ -62,7 +62,7 @@ int remsh_wire_send_box(remsh_wire *wire, remsh_box_kv *box)
     return 0;
 }
 
-int remsh_wire_read_box(remsh_wire *wire, remsh_box_kv **box)
+int remsh_wire_read_box(remsh_wire *wire, remsh_box **box)
 {
     /* invalidate the current box */
     wire->box_len = 0;
@@ -107,7 +107,7 @@ int remsh_wire_read_box(remsh_wire *wire, remsh_box_kv **box)
                 int i;
 
                 wire->box_size *= 2;
-                wire->box = realloc(wire->box, wire->box_size * sizeof(remsh_box_kv));
+                wire->box = realloc(wire->box, wire->box_size * sizeof(remsh_box));
             }
 
             /* then add the key/value pair */
@@ -192,9 +192,9 @@ int remsh_wire_read_box(remsh_wire *wire, remsh_box_kv **box)
     }
 }
 
-void remsh_wire_get_box_data(remsh_box_kv *box, remsh_box_kv *extract)
+void remsh_wire_box_extract(remsh_box *box, remsh_box *extract)
 {
-    remsh_box_kv *ex, *b;
+    remsh_box *ex, *b;
 
     for (ex = extract; ex->key; ex++) {
         ex->val = NULL;
@@ -221,10 +221,10 @@ void remsh_wire_get_box_data(remsh_box_kv *box, remsh_box_kv *extract)
 }
 
 char *
-remsh_wire_box_repr(remsh_box_kv *box)
+remsh_wire_box_repr(remsh_box *box)
 {
     char *rv, *p;
-    remsh_box_kv *b;
+    remsh_box *b;
     size_t len;
 
     if (!box)
@@ -274,7 +274,7 @@ remsh_wire *remsh_wire_new(remsh_xport *xport)
     wire->buf = malloc(32768);
     wire->buf_size = 32768;
 
-    wire->box = calloc(32, sizeof(remsh_box_kv));
+    wire->box = calloc(32, sizeof(remsh_box));
     wire->box_size = 32;
 }
 

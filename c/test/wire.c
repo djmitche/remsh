@@ -12,7 +12,7 @@
 #include "remsh.h"
 
 static int
-box_len(remsh_box_kv *box)
+box_len(remsh_box *box)
 {
     int l = 0;
     if (!box)
@@ -27,7 +27,7 @@ box_len(remsh_box_kv *box)
 }
 
 static void
-box_pprint(char *prefix, remsh_box_kv *box)
+box_pprint(char *prefix, remsh_box *box)
 {
     char *repr = remsh_wire_box_repr(box);
     printf("%s: %s\n", prefix, repr);
@@ -55,7 +55,7 @@ int main(void)
     /* test writing */
     {
         char buf[256];
-        remsh_box_kv box[] = {
+        remsh_box box[] = {
             { 4, "name", 4, "lark", },
             { 1, "x", 0, "", },
             { 0, "hloxwfxotvcaq", 1, "z", },
@@ -66,7 +66,7 @@ int main(void)
             "\x00\x01x"             "\x00\x00"
             "\x00\x0dhloxwfxotvcaq" "\x00\x01z"
             "\x00\x00";
-        remsh_box_kv badbox[] = {
+        remsh_box badbox[] = {
             { 0, "", 4, "nono", },
             { 0, NULL, 0, NULL, },
         };
@@ -92,22 +92,22 @@ int main(void)
              "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
             "\x00\x01y"             "\x00\x01x"
             "\x00\x00";
-        remsh_box_kv get1[] = {
+        remsh_box get1[] = {
             { 4, "name", 0, NULL, },
             { 0, NULL, 0, NULL, },
         };
-        remsh_box_kv get2[] = {
+        remsh_box get2[] = {
             { 13, "hloxwfxotvcaq", 0, NULL, },
             { 0, "x", 0, NULL, },
             { 0, NULL, 0, NULL, },
         };
-        remsh_box_kv get3[] = {
+        remsh_box get3[] = {
             { 0, "y", 0, NULL, },
             { 0, "x", 0, NULL, },
             { 0, "z", 0, (char *)13, },
             { 0, NULL, 0, NULL, },
         };
-        remsh_box_kv *res;
+        remsh_box *res;
 
         assert(0 == remsh_xport_write(wxp, data, sizeof(data)-1));
         assert(0 == remsh_wire_read_box(rwire, &res));
@@ -118,12 +118,12 @@ int main(void)
             "{ \"name\" : \"lark\", \"x\" : \"\", \"hloxwfxotvcaq\" : \"z\", }"));
         free(str);
 
-        remsh_wire_get_box_data(res, get1);
+        remsh_wire_box_extract(res, get1);
         assert(4 == get1[0].val_len);
         assert(0 == memcmp("lark", get1[0].val, 4));
         assert('\0' == get1[0].val[4]); /* check zero termination */
 
-        remsh_wire_get_box_data(res, get2);
+        remsh_wire_box_extract(res, get2);
         assert(1 == get2[0].val_len);
         assert(0 == memcmp("z", get2[0].val, 1));
         assert(0 == get2[1].val_len);
@@ -132,7 +132,7 @@ int main(void)
         assert(0 == remsh_wire_read_box(rwire, &res));
         assert(2 == box_len(res));
 
-        remsh_wire_get_box_data(res, get3);
+        remsh_wire_box_extract(res, get3);
         assert(0x100 == get3[1].val_len);
         assert(1 == get3[0].val_len);
         assert('x' == *get3[0].val);
@@ -141,13 +141,13 @@ int main(void)
 
     /* test writing */
     {
-        remsh_box_kv box1[] = {
+        remsh_box box1[] = {
             { 0, "meth", 4, "edit", },
             { 0, "version", 1, "2", },
             { 6, "object", 5, "fe\091", },
             { 0, NULL, 0, NULL, },
         };
-        remsh_box_kv box2[] = {
+        remsh_box box2[] = {
             { 0, "meth", 4, "save", },
             { 0, "version", 1, "3", },
             { 4, "data", 0, "" },

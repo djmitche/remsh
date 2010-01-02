@@ -16,7 +16,7 @@
 #define NUM_OPS 2
 
 static int
-box_len(remsh_box_kv *box)
+box_len(remsh_box *box)
 {
     int l = 0;
     if (!box)
@@ -31,7 +31,7 @@ box_len(remsh_box_kv *box)
 }
 
 static void
-box_pprint(char *prefix, remsh_box_kv *box)
+box_pprint(char *prefix, remsh_box *box)
 {
     char *repr = remsh_wire_box_repr(box);
     printf("%s: %s\n", prefix, repr);
@@ -94,25 +94,25 @@ int main(void)
     /* return the current dir */
     {
         int keycount;
-        remsh_box_kv box[] = {
+        remsh_box box[] = {
             { 0, "meth", 7, "set_cwd", },
             { 0, "version", 1, "1", },
             { 0, "cwd", 0, NULL },
             { 0, NULL, 0, NULL, },
         };
-        remsh_box_kv result[] = {
+        remsh_box result[] = {
             { 0, "cwd", 0, NULL, },
             { 0, NULL, 0, NULL, },
         };
         char *cwd;
-        remsh_box_kv *res;
+        remsh_box *res;
 
         box_pprint("parent sending", box);
         assert(0 == remsh_wire_send_box(wwire, box));
         assert(0 == remsh_wire_read_box(rwire, &res));
         box_pprint("parent received", res);
         assert(1 == box_len(res));
-        remsh_wire_get_box_data(res, result);
+        remsh_wire_box_extract(res, result);
         cwd = result[0].val;
         assert(cwd);
 
@@ -122,25 +122,25 @@ int main(void)
     /* reset to the base dir */
     {
         int keycount;
-        remsh_box_kv box[] = {
+        remsh_box box[] = {
             { 0, "meth", 7, "set_cwd", },
             { 0, "version", 1, "1", },
             { 0, NULL, 0, NULL, },
         };
-        remsh_box_kv result[] = {
+        remsh_box result[] = {
             { 0, "cwd", 0, NULL, },
             { 0, NULL, 0, NULL, },
         };
         char *cwd;
         char my_cwd[PATH_MAX];
-        remsh_box_kv *res;
+        remsh_box *res;
 
         box_pprint("parent sending", box);
         assert(0 == remsh_wire_send_box(wwire, box));
         assert(0 == remsh_wire_read_box(rwire, &res));
         box_pprint("parent rx'd", res);
         assert(1 == box_len(res));
-        remsh_wire_get_box_data(res, result);
+        remsh_wire_box_extract(res, result);
         cwd = result[0].val;
         assert(cwd);
 

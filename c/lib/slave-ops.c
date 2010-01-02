@@ -21,7 +21,7 @@ static char *base_dir = NULL;
 static int
 send_errbox(remsh_wire *wire, char *errtag, char *error)
 {
-    remsh_box_kv errbox[] = {
+    remsh_box errbox[] = {
         { 6, "errtag", strlen(errtag), errtag },
         { 5, "error", strlen(error), error },
         { 0, NULL, 0, NULL },
@@ -34,7 +34,7 @@ send_errbox(remsh_wire *wire, char *errtag, char *error)
  * Operations
  */
 
-typedef int (* op_fn)(remsh_box_kv *rq_box, remsh_wire *rwire, remsh_wire *wwire);
+typedef int (* op_fn)(remsh_box *rq_box, remsh_wire *rwire, remsh_wire *wwire);
 
 struct op_version {
     int version;
@@ -47,21 +47,21 @@ struct op_meth {
 };
 
 static int
-set_cwd_1(remsh_box_kv *rq_box, remsh_wire *rwire, remsh_wire *wwire)
+set_cwd_1(remsh_box *rq_box, remsh_wire *rwire, remsh_wire *wwire)
 {
     char *cwd;
     char new_wd[PATH_MAX];
 
-    remsh_box_kv args[] = {
+    remsh_box args[] = {
         { 0, "cwd", 0, NULL },
         { 0, NULL, 0, NULL },
     };
-    remsh_box_kv reply[] = {
+    remsh_box reply[] = {
         { 0, "cwd", 0, NULL },
         { 0, NULL, 0, NULL },
     };
 
-    remsh_wire_get_box_data(rq_box, args);
+    remsh_wire_box_extract(rq_box, args);
     cwd = args[0].val;
 
     if (!cwd)
@@ -110,8 +110,8 @@ remsh_op_init(void)
 int
 remsh_op_perform(remsh_wire *rwire, remsh_wire *wwire, int *eof)
 {
-    remsh_box_kv *box;
-    remsh_box_kv meth_info[] = {
+    remsh_box *box;
+    remsh_box meth_info[] = {
         { 0, "meth", 0, NULL },
         { 0, "version", 0, NULL },
         { 0, NULL, 0, NULL },
@@ -133,7 +133,7 @@ remsh_op_perform(remsh_wire *rwire, remsh_wire *wwire, int *eof)
         return 0;
     }
 
-    remsh_wire_get_box_data(box, meth_info);
+    remsh_wire_box_extract(box, meth_info);
     meth = meth_info[0].val;
     if (meth_info[1].val && meth_info[1].val_len) {
         version = strtol(meth_info[1].val, &tmp, 10);

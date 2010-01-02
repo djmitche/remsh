@@ -49,12 +49,12 @@ remsh_xport *remsh_fd_xport_new(int fd);
 
 /* A simple array of keys and values; terminate the array with an element
  * containing a NULL key */
-typedef struct remsh_box_kv {
+typedef struct remsh_box {
     unsigned char key_len; /* calculated with strlen if zero */
     char *key;
     unsigned short int val_len; /* required */
     char *val;
-} remsh_box_kv;
+} remsh_box;
 
 /* opaque type */
 typedef struct remsh_wire remsh_wire;
@@ -68,24 +68,24 @@ int remsh_wire_close(remsh_wire *wire);
 
 /* Send a box containing they keys and values in BOX; returns -1 on error, or 0
  * on success. */
-int remsh_wire_send_box(remsh_wire *wire, remsh_box_kv *box);
+int remsh_wire_send_box(remsh_wire *wire, remsh_box *box);
 
 /* Read a box.  Returns -1 on error and 0 on success.  *BOX is NULL on EOF, and
  * otherwise points to an internally-allocated key/value array representing the
  * returned box.  The box remains valid until the next call to this method. */
-int remsh_wire_read_box(remsh_wire *wire, remsh_box_kv **box);
+int remsh_wire_read_box(remsh_wire *wire, remsh_box **box);
 
 /* Extract values from BOX.  The EXTRACT array specifies the keys of interest;
  * on return, any keys which were found in the most recent box have the VAL and
  * VAL_LEN attributes set.  Note that an empty value is represented as a
  * non-NULL pointer with a zero VAL_LEN.  All values are zero-terminated for
  * convenience.  */
-void remsh_wire_get_box_data(remsh_box_kv *box, remsh_box_kv *extract);
+void remsh_wire_box_extract(remsh_box *box, remsh_box *extract);
 
 /* Return a printable representation of the given box.  Note that this assumes
  * the box's values are strings.  The caller is responsible for freeing the
  * returned string. */
-char *remsh_wire_box_repr(remsh_box_kv *box);
+char *remsh_wire_box_repr(remsh_box *box);
 
 /*
  * Operations Layer
