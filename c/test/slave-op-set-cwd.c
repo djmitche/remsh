@@ -6,6 +6,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
+#include <errno.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -24,10 +26,8 @@ int main(void)
 
     testutil_init();
 
-    if (getcwd(my_cwd, PATH_MAX) < 0) {
-        perror("getcwd");
-        return 1;
-    }
+    test_is_not_null(getcwd(my_cwd, PATH_MAX),
+            "get test directory");
 
     if (pipe(p1) < 0 || pipe(p2) < 0) {
         perror("pipe");
@@ -93,6 +93,56 @@ int main(void)
         remsh_wire_box_extract(res, result);
         test_is_str(result[0].val, my_cwd,
                 "and it is cwd and has the right value");
+    }
+
+    /* enter a nonexistent directory */
+    {
+        int keycount;
+        remsh_box box[] = {
+            { 0, "meth", 7, "set_cwd", },
+            { 0, "version", 1, "1", },
+            { 0, "cwd", 14, "does/not/exist" },
+            { 0, NULL, 0, NULL, },
+        };
+        remsh_box *res;
+
+        test_call_ok(remsh_wire_send_box(wwire, box), NULL,
+                "send box");
+        test_call_ok(remsh_wire_read_box(rwire, &res), NULL,
+                "read response");
+        test_is_errbox(res, "notfound",
+                "returns 'notfound' for nonexistent directory");
+    }
+
+    /* enter an existing directory */
+    {
+        int keycount;
+        remsh_box box[] = {
+            { 0, "meth", 7, "set_cwd", },
+            { 0, "version", 1, "1", },
+            { 0, "cwd", 6, "exists" },
+            { 0, NULL, 0, NULL, },
+        };
+        remsh_box result[] = {
+            { 0, "cwd", 0, NULL, },
+            { 0, NULL, 0, NULL, },
+        };
+        char *expected;
+        remsh_box *res;
+
+        test_call_ok(mkdir("exists", 0777), strerror(errno),
+                "make test directory");
+        expected = malloc(strlen(my_cwd) + 7 + 1);
+        sprintf(expected, "%s/exists", my_cwd);
+
+        test_call_ok(remsh_wire_send_box(wwire, box), NULL,
+                "send box");
+        test_call_ok(remsh_wire_read_box(rwire, &res), NULL,
+                "read response");
+        remsh_wire_box_extract(res, result);
+        test_is_str(result[0].val, expected,
+                "new directory is correct");
+        free(expected);
     }
 
     /* reset to the base dir */
