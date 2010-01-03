@@ -115,11 +115,11 @@ int remsh_wire_read_box(remsh_wire *wire, remsh_box **box)
                 offset = wire->buf_start + wire->box_bytes;
                 wire->box[wire->box_len].key_len = key_len;
                 offset += 2;
-                wire->box[wire->box_len].key = &wire->buf[offset];
+                wire->box[wire->box_len].key = (char *)&wire->buf[offset];
                 offset += key_len;
                 wire->box[wire->box_len].val_len = val_len;
                 offset += 2;
-                wire->box[wire->box_len].val = &wire->buf[offset];
+                wire->box[wire->box_len].val = (char *)&wire->buf[offset];
                 offset += val_len;
 
                 wire->box_len++;
