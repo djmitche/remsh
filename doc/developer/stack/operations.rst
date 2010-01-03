@@ -7,27 +7,6 @@ master-side and slave-side.  The master side provides a means to invoke each
 operation, while the slave side implements each operation.  There is at most
 one implementation of this layer on each side, in each language.
 
-API
----
-
-The slave side API is simply a loop that performs operations sequentially,
-given a wire-layer object.  The specifics are implementation-dependent.
-
-The master side provides an object that represents the slave, with a method for
-each operation.  The constructor takes a wire instance that is already
-connected to a slave.  At any time, at most one operation may be in progress on
-a given wire connection.
-
-Each method is described below, although the language-specific details of the
-argument and return values are not covered here.  Note that the operation
-methods all block until the operation is complete.
-
-The meaning of each operation is described in :ref:`using-remsh`, and is not
-duplicated here.
-
-Protocol
---------
-
 The operations are all defined in terms of a sequences of boxes sent between
 the master and slave.  At all times, the master and slave operation
 implementations agree on which side will send the next box.  Initially and at

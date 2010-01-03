@@ -7,20 +7,6 @@ to send and receive "boxes", which are small sets of key/value pairs.
 
 Boxes are sent to the other side of the connection, in order and without loss.
 
-API
----
-
-This layer is represented as an object, the constructor for which takes a
-reference to a transport object.  The object has two methods: ``send_box`` and
-``read_box``.  The first takes a box to be transmitted to the remote side, and
-the second returns a box from the remote side, blocking until the box is
-received.  The ``close`` method closes the underlying transport object.
-
-Boxes are implemented in a language-specific fashion.
-
-Protocol
---------
-
 All remsh implementations must support an implementation of the wire layer
 using AMP, and may support other implementations.  The user must explicitly
 configure any alternative implementations on both the master and slave.
